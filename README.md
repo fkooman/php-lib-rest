@@ -1,5 +1,5 @@
 # Introduction
-This is a PHP library written to make it easy to develop REST applications. 
+Library written in PHP to make it easy to develop REST applications. 
 
 # Features
 The library has the following features:
