@@ -20,27 +20,27 @@ namespace fkooman\Http;
 
 class Request
 {
-    protected $_uri;
-    protected $_method;
-    protected $_headers;
-    protected $_content;
-    protected $_pathInfo;
-    protected $_patternMatch;
-    protected $_methodMatch;
-    protected $_basicAuthUser;
-    protected $_basicAuthPass;
+    protected $uri;
+    protected $method;
+    protected $headers;
+    protected $content;
+    protected $pathInfo;
+    protected $patternMatch;
+    protected $methodMatch;
+    protected $basicAuthUser;
+    protected $basicAuthPass;
 
     public function __construct($requestUri, $requestMethod = "GET")
     {
         $this->setRequestUri(new Uri($requestUri));
         $this->setRequestMethod($requestMethod);
-        $this->_headers = array();
-        $this->_content = NULL;
-        $this->_pathInfo = NULL;
-        $this->_patternMatch = FALSE;
-        $this->_methodMatch = array();
-        $this->_basicAuthUser = NULL;
-        $this->_basicAuthPass = NULL;
+        $this->headers = array();
+        $this->content = null;
+        $this->pathInfo = null;
+        $this->patternMatch = false;
+        $this->methodMatch = array();
+        $this->basicAuthUser = null;
+        $this->basicAuthPass = null;
     }
 
     public static function fromIncomingRequest(IncomingRequest $i)
@@ -57,12 +57,12 @@ class Request
 
     public function setRequestUri(Uri $u)
     {
-        $this->_uri = $u;
+        $this->uri = $u;
     }
 
     public function getRequestUri()
     {
-        return $this->_uri;
+        return $this->uri;
     }
 
     public function setRequestMethod($method)
@@ -70,12 +70,12 @@ class Request
         if (!in_array($method, array("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"))) {
             throw new RequestException("invalid or unsupported request method");
         }
-        $this->_method = $method;
+        $this->method = $method;
     }
 
     public function getRequestMethod()
     {
-        return $this->_method;
+        return $this->method;
     }
 
     public function setPostParameters(array $parameters)
@@ -89,11 +89,11 @@ class Request
 
     public function getQueryParameters()
     {
-        if ($this->_uri->getQuery() === NULL) {
+        if ($this->uri->getQuery() === null) {
             return array();
         }
         $parameters = array();
-        parse_str($this->_uri->getQuery(), $parameters);
+        parse_str($this->uri->getQuery(), $parameters);
 
         return $parameters;
     }
@@ -102,14 +102,14 @@ class Request
     {
         $parameters = $this->getQueryParameters();
 
-        return (array_key_exists($key, $parameters) && 0 !== strlen($parameters[$key])) ? $parameters[$key] : NULL;
+        return (array_key_exists($key, $parameters) && 0 !== strlen($parameters[$key])) ? $parameters[$key] : null;
     }
 
     public function getPostParameter($key)
     {
         $parameters = $this->getPostParameters();
 
-        return (array_key_exists($key, $parameters) && 0 !== strlen($parameters[$key])) ? $parameters[$key] : NULL;
+        return (array_key_exists($key, $parameters) && 0 !== strlen($parameters[$key])) ? $parameters[$key] : null;
     }
 
     public function getPostParameters()
@@ -133,23 +133,23 @@ class Request
     public function setHeader($key, $value)
     {
         $k = self::normalizeHeaderKey($key);
-        $this->_headers[$k] = $value;
+        $this->headers[$k] = $value;
     }
 
     public function getHeader($key)
     {
         $k = self::normalizeHeaderKey($key);
 
-        return array_key_exists($k, $this->_headers) ? $this->_headers[$k] : NULL;
+        return array_key_exists($k, $this->headers) ? $this->headers[$k] : null;
     }
 
-    public function getHeaders($formatted = FALSE)
+    public function getHeaders($formatted = false)
     {
         if (!$formatted) {
-            return $this->_headers;
+            return $this->headers;
         }
         $hdrs = array();
-        foreach ($this->_headers as $k => $v) {
+        foreach ($this->headers as $k => $v) {
             array_push($hdrs, $k . ": " . $v);
         }
 
@@ -158,12 +158,12 @@ class Request
 
     public function setContent($content)
     {
-        $this->_content = $content;
+        $this->content = $content;
     }
 
     public function getContent()
     {
-        return $this->_content;
+        return $this->content;
     }
 
     public function setContentType($contentType)
@@ -178,58 +178,58 @@ class Request
 
     public function setPathInfo($pathInfo)
     {
-        $this->_pathInfo = $pathInfo;
+        $this->pathInfo = $pathInfo;
     }
 
     public function getPathInfo()
     {
-        return $this->_pathInfo;
+        return $this->pathInfo;
     }
 
     public function setBasicAuthUser($u)
     {
-        $this->_basicAuthUser = $u;
+        $this->basicAuthUser = $u;
     }
 
     public function setBasicAuthPass($p)
     {
-        $this->_basicAuthPass = $p;
+        $this->basicAuthPass = $p;
     }
 
     public function getBasicAuthUser()
     {
-        return $this->_basicAuthUser;
+        return $this->basicAuthUser;
     }
 
     public function getBasicAuthPass()
     {
-        return $this->_basicAuthPass;
+        return $this->basicAuthPass;
     }
 
     public function matchRest($requestMethod, $requestPattern, $callback)
     {
         // we already matched something before...ignore this one
-        if (TRUE === $this->_patternMatch) {
-            return FALSE;
+        if (true === $this->patternMatch) {
+            return false;
         }
 
         // record the method so it can be used to construct the "Allow" header
         // if no pattern matches the request
-        if (!in_array($requestMethod, $this->_methodMatch)) {
-            array_push($this->_methodMatch, $requestMethod);
+        if (!in_array($requestMethod, $this->methodMatch)) {
+            array_push($this->methodMatch, $requestMethod);
         }
         if ($requestMethod !== $this->getRequestMethod()) {
-            return FALSE;
+            return false;
         }
         // if no pattern is defined, all paths are valid
-        if (NULL === $requestPattern) {
-            $this->_patternMatch = TRUE;
+        if (null === $requestPattern) {
+            $this->patternMatch = true;
 
-            return TRUE;
+            return true;
         }
         // both the pattern and request path should start with a "/"
         if (0 !== strpos($this->getPathInfo(), "/") || 0 !== strpos($requestPattern, "/")) {
-            return FALSE;
+            return false;
         }
 
         // handle optional parameters
@@ -237,16 +237,16 @@ class Request
 
         // check for variables in the requestPattern
         $pma = preg_match_all('#:([\w]+)\+?#', $requestPattern, $matches);
-        if (FALSE === $pma) {
+        if (false === $pma) {
             throw new RequestException("regex for variable search failed");
         }
         if (0 === $pma) {
             // no matches found, so no variables in the pattern, pattern and request must be identical
             if ($this->getPathInfo() === $requestPattern) {
-                $this->_patternMatch = TRUE;
+                $this->patternMatch = true;
                 call_user_func_array($callback, array());
 
-                return TRUE;
+                return true;
             }
         }
         // replace all the variables with a regex so the actual value in the request
@@ -258,12 +258,12 @@ class Request
             $requestPattern = str_replace($m, $pattern, $requestPattern);
         }
         $pm = preg_match("#^" . $requestPattern . "$#", $this->getPathInfo(), $parameters);
-        if (FALSE === $pm) {
+        if (false === $pm) {
             throw new RequestException("regex for path matching failed");
         }
         if (0 === $pm) {
             // request path does not match pattern
-            return FALSE;
+            return false;
         }
         foreach ($parameters as $k => $v) {
             if (!is_string($k)) {
@@ -271,15 +271,15 @@ class Request
             }
         }
         // request path matches pattern!
-        $this->_patternMatch = TRUE;
+        $this->patternMatch = true;
         call_user_func_array($callback, array_values($parameters));
 
-        return TRUE;
+        return true;
     }
 
     public function matchRestDefault($callback)
     {
-        $callback($this->_methodMatch, $this->_patternMatch);
+        $callback($this->methodMatch, $this->patternMatch);
     }
 
     public static function normalizeHeaderKey($key)
@@ -298,11 +298,11 @@ class Request
         $s .= "*Request*" . PHP_EOL;
         $s .= "Request Method: " . $this->getRequestMethod() . PHP_EOL;
         $s .= "Request URI: " . $this->getRequestUri()->getUri() . PHP_EOL;
-        if (NULL !== $this->getBasicAuthUser()) {
+        if (null !== $this->getBasicAuthUser()) {
             $s .= "Basic Authentication: " . $this->getBasicAuthUser() . ":" . $this->getBasicAuthPass();
         }
         $s .= "Headers:" . PHP_EOL;
-        foreach ($this->getHeaders(TRUE) as $v) {
+        foreach ($this->getHeaders(true) as $v) {
             $s .= "\t" . $v . PHP_EOL;
         }
         $s .= "Content:" . PHP_EOL;

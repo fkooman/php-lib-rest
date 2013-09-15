@@ -20,10 +20,13 @@ namespace fkooman\Http;
 
 class Response
 {
-    private $_headers;
-    private $_content;
-    private $_statusCode;
-    private $_statusCodes = array(
+    private $headers;
+
+    private $content;
+
+    private $statusCode;
+
+    private $statusCodes = array(
         100 => "Continue",
         101 => "Switching Protocols",
         200 => "OK",
@@ -66,16 +69,16 @@ class Response
         504 => "Gateway Timeout",
         505 => "HTTP Version Not Supported"
     );
-    private $_useXSendfile;
+    private $useXSendfile;
 
     public function __construct($statusCode = 200, $contentType = "text/html")
     {
-        $this->_headers = array();
+        $this->headers = array();
         $this->setStatusCode($statusCode);
         $this->setContentType($contentType);
-        $this->setContent(NULL);
-        $this->setContentFile(NULL);
-        $this->useXSendfile(FALSE);
+        $this->setContent(null);
+        $this->setContentFile(null);
+        $this->useXSendfile(false);
     }
 
     public function useXSendfile($useXSendfile)
@@ -85,17 +88,17 @@ class Response
 
     public function getContent()
     {
-        return $this->_content;
+        return $this->content;
     }
 
     public function getStatusCode()
     {
-        return $this->_statusCode;
+        return $this->statusCode;
     }
 
     public function getStatusReason()
     {
-        return $this->_statusCodes[$this->_statusCode];
+        return $this->statusCodes[$this->statusCode];
     }
 
     public function setContentType($contentType)
@@ -110,25 +113,25 @@ class Response
 
     public function setContent($content)
     {
-        $this->_content = $content;
+        $this->content = $content;
     }
 
     public function getContentFile()
     {
-        return $this->_contentFile;
+        return $this->contentFile;
     }
 
     public function setContentFile($contentFile)
     {
-        $this->_contentFile = $contentFile;
+        $this->contentFile = $contentFile;
     }
 
     public function setStatusCode($code)
     {
-        if (!is_numeric($code) || !array_key_exists($code, $this->_statusCodes)) {
+        if (!is_numeric($code) || !array_key_exists($code, $this->statusCodes)) {
             throw new ResponseException("invalid status code");
         }
-        $this->_statusCode = (int) $code;
+        $this->statusCode = (int) $code;
     }
 
     public function setHeaders(array $headers)
@@ -141,10 +144,10 @@ class Response
     public function setHeader($headerKey, $headerValue)
     {
         $foundHeaderKey = $this->_getHeaderKey($headerKey);
-        if ($foundHeaderKey === NULL) {
-            $this->_headers[$headerKey] = $headerValue;
+        if ($foundHeaderKey === null) {
+            $this->headers[$headerKey] = $headerValue;
         } else {
-            $this->_headers[$foundHeaderKey] = $headerValue;
+            $this->headers[$foundHeaderKey] = $headerValue;
         }
     }
 
@@ -152,7 +155,7 @@ class Response
     {
         $headerKey = $this->_getHeaderKey($headerKey);
 
-        return $headerKey !== NULL ? $this->_headers[$headerKey] : NULL;
+        return $headerKey !== null ? $this->headers[$headerKey] : null;
     }
 
     /**
@@ -166,19 +169,19 @@ class Response
      */
     protected function _getHeaderKey($headerKey)
     {
-        $headerKeys = array_keys($this->_headers);
+        $headerKeys = array_keys($this->headers);
         $keyPositionInArray = array_search(strtolower($headerKey), array_map('strtolower', $headerKeys));
 
-        return ($keyPositionInArray === FALSE) ? NULL : $headerKeys[$keyPositionInArray];
+        return ($keyPositionInArray === false) ? null : $headerKeys[$keyPositionInArray];
     }
 
-    public function getHeaders($formatted = FALSE)
+    public function getHeaders($formatted = false)
     {
         if (!$formatted) {
-            return $this->_headers;
+            return $this->headers;
         }
         $hdrs = array();
-        foreach ($this->_headers as $k => $v) {
+        foreach ($this->headers as $k => $v) {
             array_push($hdrs, $k . ": " . $v);
         }
 
@@ -196,7 +199,7 @@ class Response
         foreach ($this->getHeaders() as $k => $v) {
             header($k . ": " . $v);
         }
-        if (NULL !== $this->getContentFile()) {
+        if (null !== $this->getContentFile()) {
             if ($this->_useXSendfile) {
                 // use X-Sendfile (see https://tn123.org/mod_xsendfile/)
                 header("X-Sendfile: " . $this->getContentFile());
@@ -217,7 +220,7 @@ class Response
     public static function fromFile($file)
     {
         $data = @file_get_contents($file);
-        if (FALSE === $data) {
+        if (false === $data) {
             throw new ResponseException("unable to read file");
         }
         $response = new self();

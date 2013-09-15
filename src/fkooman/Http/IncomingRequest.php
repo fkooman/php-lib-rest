@@ -37,25 +37,25 @@ class IncomingRequest
 
     public function getPathInfo()
     {
-        return array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : NULL;
+        return array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : null;
     }
 
     public function getRequestUri()
     {
         // scheme
-        $proxy = FALSE;
+        $proxy = false;
         if (array_key_exists("HTTPS", $_SERVER) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
             $scheme = "https";
         } elseif (array_key_exists("HTTP_X_FORWARDED_PROTO", $_SERVER) && "https" === $_SERVER["HTTP_X_FORWARDED_PROTO"]) {
             // HTTPS to HTTP proxy is present
             $scheme = "https";
-            $proxy = TRUE;
+            $proxy = true;
         } else {
             $scheme = "http";
         }
 
         // server name
-        if (filter_var($_SERVER['SERVER_NAME'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === FALSE) {
+        if (filter_var($_SERVER['SERVER_NAME'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) {
             $name = $_SERVER['SERVER_NAME'];
         } else {
             $name = '[' . $_SERVER['SERVER_NAME'] . ']';
@@ -74,13 +74,13 @@ class IncomingRequest
     public function getContent()
     {
         if ($_SERVER['REQUEST_METHOD'] !== "POST" && $_SERVER['REQUEST_METHOD'] !== "PUT") {
-            return NULL;
+            return null;
         }
         if (array_key_exists("CONTENT_LENGTH", $_SERVER) && $_SERVER['CONTENT_LENGTH'] > 0) {
             return $this->getRawContent();
         }
 
-        return NULL;
+        return null;
     }
 
     public function getRawContent()
@@ -94,7 +94,7 @@ class IncomingRequest
             return $_SERVER['PHP_AUTH_USER'];
         }
 
-        return NULL;
+        return null;
     }
 
     public function getBasicAuthPass()
@@ -103,7 +103,7 @@ class IncomingRequest
             return $_SERVER['PHP_AUTH_PW'];
         }
 
-        return NULL;
+        return null;
     }
 
     public function getRequestHeaders()

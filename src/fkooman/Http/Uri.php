@@ -20,53 +20,53 @@ namespace fkooman\Http;
 
 class Uri
 {
-    private $_uriParts;
+    private $uriParts;
 
     public function __construct($inputUri)
     {
-        $this->_validateUri($inputUri);
-        $this->_setUriParts($inputUri);
+        $this->validateUri($inputUri);
+        $this->setUriParts($inputUri);
     }
 
-    private function _validateUri($uri)
+    private function validateUri($uri)
     {
         $u = filter_var($uri, FILTER_VALIDATE_URL);
-        if ($u === FALSE) {
+        if ($u === false) {
             throw new UriException("the uri is malformed");
         }
     }
 
-    private function _setUriParts($uri)
+    private function setUriParts($uri)
     {
-        $this->_uriParts = parse_url($uri);
+        $this->uriParts = parse_url($uri);
     }
 
     private function _constructUriFromParts()
     {
         $uri = "";
-        if (NULL !== $this->getScheme()) {
+        if (null !== $this->getScheme()) {
             $uri .= $this->getScheme() . "://";
         }
-        if (NULL !== $this->getUser()) {
+        if (null !== $this->getUser()) {
             $uri .= $this->getUser();
-            if (NULL !== $this->getPass()) {
+            if (null !== $this->getPass()) {
                 $uri .= ":" . $this->getPass();
             }
             $uri .= "@";
         }
-        if (NULL !== $this->getHost()) {
+        if (null !== $this->getHost()) {
             $uri .= $this->getHost();
         }
-        if (NULL !== $this->getPort()) {
+        if (null !== $this->getPort()) {
             $uri .= ":" . $this->getPort();
         }
-        if (NULL !== $this->getPath()) {
+        if (null !== $this->getPath()) {
             $uri .= $this->getPath();
         }
-        if (NULL !== $this->getQuery()) {
+        if (null !== $this->getQuery()) {
             $uri .= "?" . $this->getQuery();
         }
-        if (NULL !== $this->getFragment()) {
+        if (null !== $this->getFragment()) {
             $uri .= "#" . $this->getFragment();
         }
 
@@ -75,47 +75,47 @@ class Uri
 
     public function getScheme()
     {
-        return array_key_exists("scheme", $this->_uriParts) ? $this->_uriParts['scheme'] : NULL;
+        return array_key_exists("scheme", $this->uriParts) ? $this->uriParts['scheme'] : null;
     }
 
     public function getUser()
     {
-        return array_key_exists("user", $this->_uriParts) ? $this->_uriParts['user'] : NULL;
+        return array_key_exists("user", $this->uriParts) ? $this->uriParts['user'] : null;
     }
 
     public function getPass()
     {
-        return array_key_exists("pass", $this->_uriParts) ? $this->_uriParts['pass'] : NULL;
+        return array_key_exists("pass", $this->uriParts) ? $this->uriParts['pass'] : null;
     }
 
     public function getHost()
     {
-        return array_key_exists("host", $this->_uriParts) ? $this->_uriParts['host'] : NULL;
+        return array_key_exists("host", $this->uriParts) ? $this->uriParts['host'] : null;
     }
 
     public function getPort()
     {
-        return array_key_exists("port", $this->_uriParts) ? $this->_uriParts['port'] : NULL;
+        return array_key_exists("port", $this->uriParts) ? $this->uriParts['port'] : null;
     }
 
     public function getPath()
     {
-        return array_key_exists("path", $this->_uriParts) ? $this->_uriParts['path'] : NULL;
+        return array_key_exists("path", $this->uriParts) ? $this->uriParts['path'] : null;
     }
 
     public function getQuery()
     {
-        return array_key_exists("query", $this->_uriParts) ? $this->_uriParts['query'] : NULL;
+        return array_key_exists("query", $this->uriParts) ? $this->uriParts['query'] : null;
     }
 
     public function setQuery($query)
     {
-        $this->_uriParts['query'] = $query;
+        $this->uriParts['query'] = $query;
     }
 
     public function appendQuery($query)
     {
-        if ($this->getQuery() === NULL) {
+        if ($this->getQuery() === null) {
             $this->setQuery($query);
         } else {
             $this->setQuery($this->getQuery() . "&" . $query);
@@ -124,18 +124,18 @@ class Uri
 
     public function getFragment()
     {
-        return array_key_exists("fragment", $this->_uriParts) ? $this->_uriParts['fragment'] : NULL;
+        return array_key_exists("fragment", $this->uriParts) ? $this->uriParts['fragment'] : null;
     }
 
     public function setFragment($fragment)
     {
-        $this->_uriParts['fragment'] = $fragment;
+        $this->uriParts['fragment'] = $fragment;
     }
 
     public function getUri()
     {
         $uri = $this->_constructUriFromParts();
-        $this->_validateUri($uri);
+        $this->validateUri($uri);
 
         return $uri;
     }
