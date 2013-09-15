@@ -60,8 +60,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $h->setHeader("foo", "bar");
         $this->assertEquals("B", $h->getHeader("A"));
         $this->assertEquals("bar", $h->getHeader("foo"));
-        $this->assertEquals(array("A" => "B", "FOO" => "bar"), $h->getHeaders(FALSE));
-        $this->assertEquals(array("A: B", "FOO: bar"), $h->getHeaders(TRUE));
+        $this->assertEquals(array("A" => "B", "FOO" => "bar"), $h->getHeaders(false));
+        $this->assertEquals(array("A: B", "FOO: bar"), $h->getHeaders(true));
     }
 
     public function testSetGetHeadersCaseInsensitive()
@@ -174,21 +174,21 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $h = new Request("http://www.example.org/api.php", "POST");
         $h->setPathInfo("/");
-        $this->assertFalse($h->matchRest("GET", "/:one/:two/:three", NULL));
+        $this->assertFalse($h->matchRest("GET", "/:one/:two/:three", null));
     }
 
     public function testMatchRestNoMatch()
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/baz/foobar");
-        $this->assertFalse($h->matchRest("GET", "/:one/:two/:three", NULL));
+        $this->assertFalse($h->matchRest("GET", "/:one/:two/:three", null));
     }
 
     public function testMatchRestMatchWildcardToShort()
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/");
-        $this->assertFalse($h->matchRest("GET", "/:one/:two/:three+", NULL));
+        $this->assertFalse($h->matchRest("GET", "/:one/:two/:three+", null));
     }
 
     public function testMatchRestMatchWildcard()
@@ -218,7 +218,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/baz/foobar");
-        $this->assertFalse($h->matchRest("GET", "/:abc+/foobaz", NULL));
+        $this->assertFalse($h->matchRest("GET", "/:abc+/foobaz", null));
     }
 
     public function testMatchRestMatchWildcardInMiddle()
@@ -237,51 +237,51 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("foo");
-        $this->assertFalse($h->matchRest("GET", "foo", NULL));
+        $this->assertFalse($h->matchRest("GET", "foo", null));
     }
 
     public function testMatchRestEmptyPath()
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("");
-        $this->assertFalse($h->matchRest("GET", "", NULL));
+        $this->assertFalse($h->matchRest("GET", "", null));
     }
 
     public function testMatchRestNoPatternPath()
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo");
-        $this->assertFalse($h->matchRest("GET", "x", NULL));
+        $this->assertFalse($h->matchRest("GET", "x", null));
     }
 
     public function testMatchRestNoMatchWithoutReplacement()
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo");
-        $this->assertFalse($h->matchRest("GET", "/bar", NULL));
+        $this->assertFalse($h->matchRest("GET", "/bar", null));
     }
 
     public function testMatchRestNoMatchWithoutReplacementLong()
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/foo/bar/baz");
-        $this->assertFalse($h->matchRest("GET", "/foo/bar/foo/bar/bar", NULL));
+        $this->assertFalse($h->matchRest("GET", "/foo/bar/foo/bar/bar", null));
     }
 
     public function testMatchRestTooShortRequest()
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo");
-        $this->assertFalse($h->matchRest("GET", "/foo/bar/:foo/bar/bar", NULL));
+        $this->assertFalse($h->matchRest("GET", "/foo/bar/:foo/bar/bar", null));
     }
 
     public function testMatchRestEmptyResource()
     {
         $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/");
-        $this->assertFalse($h->matchRest("GET", "/foo/:bar", NULL));
-        $this->assertFalse($h->matchRest("POST", "/foo/:bar", NULL));
-        $this->assertFalse($h->matchRest("PUT", "/foo/:bar", NULL));
+        $this->assertFalse($h->matchRest("GET", "/foo/:bar", null));
+        $this->assertFalse($h->matchRest("POST", "/foo/:bar", null));
+        $this->assertFalse($h->matchRest("PUT", "/foo/:bar", null));
         $self = &$this;
         $h->matchRestDefault(function($methodMatch, $patternMatch) use ($self) {
             $self->assertEquals(array("GET", "POST", "PUT"), $methodMatch);
@@ -311,7 +311,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $h = new Request("http://www.example.org/api.php", "OPTIONS");
         $h->setPathInfo("/foo/bar/baz/foobar");
-        $this->assertTrue($h->matchRest("OPTIONS", NULL, function() { }));
+        $this->assertTrue($h->matchRest("OPTIONS", null, function() { }));
     }
 
     public function testMultipleMatches()
@@ -327,7 +327,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $h = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $h->setPathInfo("/admin/public/money/");
         $self = &$this;
-        $this->assertTrue($h->matchRest("GET", "/:user/public/:module(/:path+)/", function($user, $module, $path = NULL) use ($self) {
+        $this->assertTrue($h->matchRest("GET", "/:user/public/:module(/:path+)/", function($user, $module, $path = null) use ($self) {
             $self->assertEquals("admin", $user);
             $self->assertEquals("money", $module);
             $self->assertNull($path);
@@ -339,7 +339,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $h = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $h->setPathInfo("/admin/public/money/a/b/c/");
         $self = &$this;
-        $this->assertTrue($h->matchRest("GET", "/:user/public/:module(/:path+)/", function($user, $module, $path = NULL) use ($self) {
+        $this->assertTrue($h->matchRest("GET", "/:user/public/:module(/:path+)/", function($user, $module, $path = null) use ($self) {
             $self->assertEquals("admin", $user);
             $self->assertEquals("money", $module);
             $self->assertEquals("a/b/c", $path);

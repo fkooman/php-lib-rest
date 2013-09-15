@@ -26,8 +26,8 @@ use fkooman\Http\Request;
 use fkooman\Http\Response;
 use fkooman\Http\IncomingRequest;
 
-$request = NULL;
-$response = NULL;
+$request = null;
+$response = null;
 
 try {
     $request = Request::fromIncomingRequest(new IncomingRequest());

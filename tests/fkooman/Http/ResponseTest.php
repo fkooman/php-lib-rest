@@ -34,7 +34,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(200, $h->getStatusCode());
         $this->assertEquals("text/html", $h->getContentType());
         $this->assertEquals("", $h->getContent());
-        $this->assertEquals(NULL, $h->getHeader("Foo"));
+        $this->assertNull($h->getHeader("Foo"));
     }
 
     public function testResponseFromFile()
