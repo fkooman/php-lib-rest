@@ -16,8 +16,8 @@
 * limitations under the License.
 */
 
-namespace RestService\Http;
+namespace fkooman\Http;
 
-class HttpResponseException extends \Exception
+class IncomingRequestException extends \Exception
 {
 }

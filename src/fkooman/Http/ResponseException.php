@@ -16,8 +16,8 @@
 * limitations under the License.
 */
 
-namespace RestService\Utils;
+namespace fkooman\Http;
 
-class ConfigException extends \Exception
+class ResponseException extends \Exception
 {
 }

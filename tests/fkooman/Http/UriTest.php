@@ -16,13 +16,9 @@
 * limitations under the License.
 */
 
-require_once 'lib/RestService/Http/Uri.php';
-require_once 'lib/RestService/Http/UriException.php';
+namespace fkooman\Http;
 
-use \RestService\Http\Uri as Uri;
-use \RestService\Http\UriException as UriException;
-
-class UriTest extends PHPUnit_Framework_TestCase
+class UriTest extends \PHPUnit_Framework_TestCase
 {
     public function testSetFragment()
     {
@@ -130,7 +126,7 @@ class UriTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RestService\Http\UriException
+     * @expectedException \fkooman\Http\UriException
      */
     public function testMalformedUri()
     {

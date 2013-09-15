@@ -16,9 +16,9 @@
 * limitations under the License.
 */
 
-namespace RestService\Http;
+namespace fkooman\Http;
 
-class HttpResponse
+class Response
 {
     private $_headers;
     private $_content;
@@ -126,7 +126,7 @@ class HttpResponse
     public function setStatusCode($code)
     {
         if (!is_numeric($code) || !array_key_exists($code, $this->_statusCodes)) {
-            throw new HttpResponseException("invalid status code");
+            throw new ResponseException("invalid status code");
         }
         $this->_statusCode = (int) $code;
     }
@@ -211,14 +211,14 @@ class HttpResponse
     }
 
     /**
-     * Construct the HttpResponse from a file, you can create the
+     * Construct the Response from a file, you can create the
      * dumps from actual traffic using "curl -i http://www.example.org > dump.txt"
      */
     public static function fromFile($file)
     {
         $data = @file_get_contents($file);
         if (FALSE === $data) {
-            throw new HttpResponseException("unable to read file");
+            throw new ResponseException("unable to read file");
         }
         $response = new self();
 
@@ -244,7 +244,7 @@ class HttpResponse
     public function __toString()
     {
         $s  = PHP_EOL;
-        $s .= "*HttpResponse*" . PHP_EOL;
+        $s .= "*Response*" . PHP_EOL;
         $s .= "Status:" . PHP_EOL;
         $s .= "\t" . $this->getStatusLine() . PHP_EOL;
         $s .= "Headers:" . PHP_EOL;

@@ -16,16 +16,16 @@
 * limitations under the License.
 */
 
-namespace RestService\Http;
+namespace fkooman\Http;
 
-class IncomingHttpRequest
+class IncomingRequest
 {
     public function __construct()
     {
         $required_keys = array("SERVER_NAME", "SERVER_PORT", "REQUEST_URI", "REQUEST_METHOD");
         foreach ($required_keys as $r) {
             if (!array_key_exists($r, $_SERVER) || empty($_SERVER[$r])) {
-                throw new IncomingHttpRequestException("missing (one or more) required environment variables");
+                throw new IncomingRequestException("missing (one or more) required environment variables");
             }
         }
     }
@@ -112,7 +112,7 @@ class IncomingHttpRequest
 
         // normalize headers from $_SERVER
         foreach ($_SERVER as $k => $v) {
-            $key = HttpRequest::normalizeHeaderKey($k);
+            $key = Request::normalizeHeaderKey($k);
             $requestHeaders[$key] = $v;
         }
 
@@ -121,7 +121,7 @@ class IncomingHttpRequest
         if (function_exists("apache_request_headers")) {
             $apacheHeaders = apache_request_headers();
             foreach ($apacheHeaders as $k => $v) {
-            $key = HttpRequest::normalizeHeaderKey($k);
+            $key = Request::normalizeHeaderKey($k);
             if (!array_key_exists($key, $requestHeaders)) {
                     $requestHeaders[$key] = $v;
                 }

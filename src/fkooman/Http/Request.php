@@ -16,9 +16,9 @@
 * limitations under the License.
 */
 
-namespace RestService\Http;
+namespace fkooman\Http;
 
-class HttpRequest
+class Request
 {
     protected $_uri;
     protected $_method;
@@ -43,7 +43,7 @@ class HttpRequest
         $this->_basicAuthPass = NULL;
     }
 
-    public static function fromIncomingHttpRequest(IncomingHttpRequest $i)
+    public static function fromIncomingRequest(IncomingRequest $i)
     {
         $request = new static($i->getRequestUri(), $i->getRequestMethod());
         $request->setHeaders($i->getRequestHeaders());
@@ -68,7 +68,7 @@ class HttpRequest
     public function setRequestMethod($method)
     {
         if (!in_array($method, array("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"))) {
-            throw new HttpRequestException("invalid or unsupported request method");
+            throw new RequestException("invalid or unsupported request method");
         }
         $this->_method = $method;
     }
@@ -81,7 +81,7 @@ class HttpRequest
     public function setPostParameters(array $parameters)
     {
         if ($this->getRequestMethod() !== "POST") {
-            throw new HttpRequestException("request method should be POST");
+            throw new RequestException("request method should be POST");
         }
         $this->setHeader("Content-Type", "application/x-www-form-urlencoded");
         $this->setContent(http_build_query($parameters, null, "&"));
@@ -115,7 +115,7 @@ class HttpRequest
     public function getPostParameters()
     {
         if ($this->getRequestMethod() !== "POST") {
-            throw new HttpRequestException("request method should be POST");
+            throw new RequestException("request method should be POST");
         }
         $parameters = array();
         parse_str($this->getContent(), $parameters);
@@ -238,7 +238,7 @@ class HttpRequest
         // check for variables in the requestPattern
         $pma = preg_match_all('#:([\w]+)\+?#', $requestPattern, $matches);
         if (FALSE === $pma) {
-            throw new HttpRequestException("regex for variable search failed");
+            throw new RequestException("regex for variable search failed");
         }
         if (0 === $pma) {
             // no matches found, so no variables in the pattern, pattern and request must be identical
@@ -259,7 +259,7 @@ class HttpRequest
         }
         $pm = preg_match("#^" . $requestPattern . "$#", $this->getPathInfo(), $parameters);
         if (FALSE === $pm) {
-            throw new HttpRequestException("regex for path matching failed");
+            throw new RequestException("regex for path matching failed");
         }
         if (0 === $pm) {
             // request path does not match pattern
@@ -295,7 +295,7 @@ class HttpRequest
     public function __toString()
     {
         $s  = PHP_EOL;
-        $s .= "*HttpRequest*" . PHP_EOL;
+        $s .= "*Request*" . PHP_EOL;
         $s .= "Request Method: " . $this->getRequestMethod() . PHP_EOL;
         $s .= "Request URI: " . $this->getRequestUri()->getUri() . PHP_EOL;
         if (NULL !== $this->getBasicAuthUser()) {

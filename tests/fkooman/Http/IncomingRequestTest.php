@@ -16,15 +16,9 @@
 * limitations under the License.
 */
 
-require_once 'lib/RestService/Http/HttpRequest.php';
-require_once 'lib/RestService/Http/IncomingHttpRequest.php';
-require_once 'lib/RestService/Http/IncomingHttpRequestException.php';
+namespace fkooman\Http;
 
-use \RestService\Http\HttpRequest as HttpRequest;
-use \RestService\Http\IncomingHttpRequest as IncomingHttpRequest;
-use \RestService\Http\IncomingHttpRequestException as IncomingHttpRequestException;
-
-class IncomingHttpRequestTest extends PHPUnit_Framework_TestCase
+class IncomingRequestTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @dataProvider getDataProvider
@@ -40,11 +34,11 @@ class IncomingHttpRequestTest extends PHPUnit_Framework_TestCase
         $_SERVER['PHP_AUTH_USER'] = "user";
         $_SERVER['PHP_AUTH_PW'] = "pass";
 
-        $stub = $this->getMock('\RestService\Http\IncomingHttpRequest', array('getRequestHeaders'));
+        $stub = $this->getMock('\fkooman\Http\IncomingRequest', array('getRequestHeaders'));
         $stub->expects($this->any())
                 ->method('getRequestHeaders')
                 ->will($this->returnValue(array("A" => "B")));
-        $request = HttpRequest::fromIncomingHttpRequest($stub);
+        $request = Request::fromIncomingRequest($stub);
         $this->assertEquals($request_uri, $request->getRequestUri()->getUri());
         $this->assertEquals("GET", $request->getRequestMethod());
         $this->assertEquals("/foo/bar", $request->getPathInfo());
@@ -79,7 +73,7 @@ class IncomingHttpRequestTest extends PHPUnit_Framework_TestCase
         $_SERVER['CONTENT_LENGTH'] = strlen($content);
         $_SERVER['HTTPS'] = $https;
 
-        $stub = $this->getMock('\RestService\Http\IncomingHttpRequest', array('getRequestHeaders', 'getRawContent'));
+        $stub = $this->getMock('\fkooman\Http\IncomingRequest', array('getRequestHeaders', 'getRawContent'));
         $stub->expects($this->any())
                 ->method('getRequestHeaders')
                 ->will($this->returnValue(array("A" => "B")));
@@ -88,7 +82,7 @@ class IncomingHttpRequestTest extends PHPUnit_Framework_TestCase
                 ->method('getRawContent')
                 ->will($this->returnValue($content));
 
-        $request = HttpRequest::fromIncomingHttpRequest($stub);
+        $request = Request::fromIncomingRequest($stub);
         $this->assertEquals($request_uri, $request->getRequestUri()->getUri());
         $this->assertEquals("POST", $request->getRequestMethod());
         $this->assertEquals($content, $request->getContent());
@@ -105,11 +99,11 @@ class IncomingHttpRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RestService\Http\IncomingHttpRequestException
+     * @expectedException \fkooman\Http\IncomingRequestException
      */
     public function testNoServer()
     {
-        $i = new IncomingHttpRequest();
+        $i = new IncomingRequest();
     }
 
     public function testNormalization()
@@ -120,7 +114,7 @@ class IncomingHttpRequestTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = "GET";
         $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer xyz';
         $_SERVER['HTTP_USER_AGENT'] = 'Foo/Bar 1.0.0';
-        $h = HttpRequest::fromIncomingHttpRequest(new IncomingHttpRequest());
+        $h = Request::fromIncomingRequest(new IncomingRequest());
         $this->assertEquals("Bearer xyz", $h->getHeader("AuThOrIzAtIoN"));
         $this->assertEquals("Bearer xyz", $h->getHeader("HTTP-AUTHORIZATION"));
         $this->assertEquals("Bearer xyz", $h->getHeader("HTTP_authorization"));

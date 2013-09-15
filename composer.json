@@ -8,13 +8,13 @@
     ], 
     "autoload": {
         "psr-0": {
-            "RestService\\": "lib/"
+            "fkooman\\Http\\": "src/"
         }
     }, 
-    "description": "PHP library to develop REST applications", 
+    "description": "Simple PHP library for writing REST applications.", 
     "license": "Apache-2.0", 
-    "name": "fkooman/php-rest-service", 
+    "name": "fkooman/php-lib-rest", 
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=5.3.3"
     }
 }

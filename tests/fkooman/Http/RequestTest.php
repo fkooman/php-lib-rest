@@ -16,21 +16,13 @@
 * limitations under the License.
 */
 
-require_once 'lib/RestService/Http/HttpRequest.php';
-require_once 'lib/RestService/Http/HttpRequestException.php';
+namespace fkooman\Http;
 
-require_once 'lib/RestService/Http/Uri.php';
-require_once 'lib/RestService/Http/UriException.php';
-
-use \RestService\Http\HttpRequestException as HttpRequestException;
-use \RestService\Http\HttpRequest as HttpRequest;
-use \RestService\Http\UriException as UriException;
-
-class HttpRequestTest extends PHPUnit_Framework_TestCase
+class RequestTest extends \PHPUnit_Framework_TestCase
 {
-    public function testHttpRequest()
+    public function testRequest()
     {
-        $h = new HttpRequest("http://www.example.com/request", "POST");
+        $h = new Request("http://www.example.com/request", "POST");
         $h->setPostParameters(array("id" => 5, "action" => "help"));
         $this->assertEquals("http://www.example.com/request", $h->getRequestUri()->getUri());
         $this->assertEquals("POST", $h->getRequestMethod());
@@ -39,21 +31,21 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array("id" => 5, "action" => "help"), $h->getPostParameters());
     }
 
-    public function testHttpQueryParameters()
+    public function testQueryParameters()
     {
-        $h = new HttpRequest("http://www.example.com/request?action=foo&method=bar", "GET");
+        $h = new Request("http://www.example.com/request?action=foo&method=bar", "GET");
         $this->assertEquals(array("action" => "foo", "method" => "bar"), $h->getQueryParameters());
     }
 
-    public function testHttpQueryParametersWithoutParameters()
+    public function testQueryParametersWithoutParameters()
     {
-        $h = new HttpRequest("http://www.example.com/request", "GET");
+        $h = new Request("http://www.example.com/request", "GET");
         $this->assertEquals(array(), $h->getQueryParameters());
     }
 
-    public function testHttpUriParametersWithPost()
+    public function testUriParametersWithPost()
     {
-        $h = new HttpRequest("http://www.example.com/request?action=foo&method=bar", "POST");
+        $h = new Request("http://www.example.com/request?action=foo&method=bar", "POST");
         $h->setPostParameters(array("id" => 5, "action" => "help"));
         $this->assertEquals(array("action" => "foo", "method" => "bar"), $h->getQueryParameters());
         $this->assertEquals(array("id" => 5, "action" => "help"), $h->getPostParameters());
@@ -63,7 +55,7 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testSetHeaders()
     {
-        $h = new HttpRequest("http://www.example.com/request", "POST");
+        $h = new Request("http://www.example.com/request", "POST");
         $h->setHeader("A", "B");
         $h->setHeader("foo", "bar");
         $this->assertEquals("B", $h->getHeader("A"));
@@ -74,85 +66,85 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testSetGetHeadersCaseInsensitive()
     {
-        $h = new HttpRequest("http://www.example.com/request", "POST");
+        $h = new Request("http://www.example.com/request", "POST");
         $h->setHeader("Content-type", "application/json");
         $h->setHeader("Content-Type", "text/html"); // this overwrites the previous one
         $this->assertEquals("text/html", $h->getHeader("CONTENT-TYPE"));
     }
 
     /**
-     * @expectedException \RestService\Http\HttpRequestException
+     * @expectedException \fkooman\Http\RequestException
      */
     public function testTryGetPostParametersOnGetRequest()
     {
-        $h = new HttpRequest("http://www.example.com/request", "GET");
+        $h = new Request("http://www.example.com/request", "GET");
         $h->getPostParameters();
     }
 
     /**
-     * @expectedException \RestService\Http\HttpRequestException
+     * @expectedException \fkooman\Http\RequestException
      */
     public function testTrySetPostParametersOnGetRequest()
     {
-        $h = new HttpRequest("http://www.example.com/request", "GET");
+        $h = new Request("http://www.example.com/request", "GET");
         $h->setPostParameters(array("action" => "test"));
     }
 
     /**
-     * @expectedException \RestService\Http\HttpRequestException
+     * @expectedException \fkooman\Http\RequestException
      */
 /*    function testTryGetPostParametersWithoutParameters() {
-        $h = new HttpRequest("http://www.example.com/request", "POST");
+        $h = new Request("http://www.example.com/request", "POST");
         $h->getPostParameters();
     }*/
 
     /**
-     * @expectedException \RestService\Http\HttpRequestException
+     * @expectedException \fkooman\Http\RequestException
      */
 /*    function testTryGetPostParametersWithRawContent() {
-        $h = new HttpRequest("http://www.example.com/request", "POST");
+        $h = new Request("http://www.example.com/request", "POST");
         $h->setContent("Hello World!");
         $h->getPostParameters();
     }*/
 
     /**
-     * @expectedException \RestService\Http\UriException
+     * @expectedException \fkooman\Http\UriException
      */
     public function testInvalidUri()
     {
-        $h = new HttpRequest("foo");
+        $h = new Request("foo");
     }
 
     /**
-     * @expectedException \RestService\Http\HttpRequestException
+     * @expectedException \fkooman\Http\RequestException
      */
     public function testUnsupportedRequestMethod()
     {
-        $h = new HttpRequest("http://www.example.com/request", "FOO");
+        $h = new Request("http://www.example.com/request", "FOO");
     }
 
     public function testNonExistingHeader()
     {
-        $h = new HttpRequest("http://www.example.com/request");
+        $h = new Request("http://www.example.com/request");
         $this->assertNull($h->getHeader("Authorization"));
     }
 
     public function testForHeaderDoesNotExist()
     {
-        $h = new HttpRequest("http://www.example.com/request");
+        $h = new Request("http://www.example.com/request");
         $this->assertNull($h->getHeader("Authorization"));
     }
 
     public function testForHeaderDoesExist()
     {
-        $h = new HttpRequest("http://www.example.com/request");
+        $h = new Request("http://www.example.com/request");
         $h->setHeader("Authorization", "Bla");
         $this->assertNotNull($h->getHeader("Authorization"));
     }
 
     public function testForNoQueryValue()
     {
-        $h = new HttpRequest("http://www.example.com/request?foo=&bar=&foobar=xyz");
+        $h = new Request("http://www.example.com/request?foo=&bar=&foobar=xyz");
         $this->assertNull($h->getQueryParameter("foo"));
         $this->assertNull($h->getQueryParameter("bar"));
         $this->assertEquals("xyz", $h->getQueryParameter("foobar"));
@@ -160,7 +152,7 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testMatchRest()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/baz");
         $self = &$this;
         $this->assertTrue($h->matchRest("GET", "/:one/:two/:three", function($one, $two, $three) use ($self) {
@@ -172,7 +164,7 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testMatchRestNoReplacement()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "POST");
+        $h = new Request("http://www.example.org/api.php", "POST");
         $h->setPathInfo("/foo/bar/baz");
         $this->assertTrue($h->matchRest("POST", "/foo/bar/baz", function() {
         }));
@@ -180,28 +172,28 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testMatchRestWrongMethod()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "POST");
+        $h = new Request("http://www.example.org/api.php", "POST");
         $h->setPathInfo("/");
         $this->assertFalse($h->matchRest("GET", "/:one/:two/:three", NULL));
     }
 
     public function testMatchRestNoMatch()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/baz/foobar");
         $this->assertFalse($h->matchRest("GET", "/:one/:two/:three", NULL));
     }
 
     public function testMatchRestMatchWildcardToShort()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/");
         $this->assertFalse($h->matchRest("GET", "/:one/:two/:three+", NULL));
     }
 
     public function testMatchRestMatchWildcard()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/baz/foobar");
         $self = &$this;
         $this->assertTrue($h->matchRest("GET", "/:one/:two/:three+", function($one, $two, $three) use ($self) {
@@ -213,7 +205,7 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testMatchRestMatchWildcardSomewhere()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/baz/foobar");
         $self = &$this;
         $this->assertTrue($h->matchRest("GET", "/:one/:two+/foobar", function($one, $two) use ($self) {
@@ -224,14 +216,14 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testMatchRestWrongWildcard()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/baz/foobar");
         $this->assertFalse($h->matchRest("GET", "/:abc+/foobaz", NULL));
     }
 
     public function testMatchRestMatchWildcardInMiddle()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/baz/foobar");
         $self = &$this;
         $this->assertTrue($h->matchRest("GET", "/:one/:two+/:three", function($one, $two, $three) use ($self) {
@@ -243,49 +235,49 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testMatchRestNoAbsPath()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("foo");
         $this->assertFalse($h->matchRest("GET", "foo", NULL));
     }
 
     public function testMatchRestEmptyPath()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("");
         $this->assertFalse($h->matchRest("GET", "", NULL));
     }
 
     public function testMatchRestNoPatternPath()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo");
         $this->assertFalse($h->matchRest("GET", "x", NULL));
     }
 
     public function testMatchRestNoMatchWithoutReplacement()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo");
         $this->assertFalse($h->matchRest("GET", "/bar", NULL));
     }
 
     public function testMatchRestNoMatchWithoutReplacementLong()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar/foo/bar/baz");
         $this->assertFalse($h->matchRest("GET", "/foo/bar/foo/bar/bar", NULL));
     }
 
     public function testMatchRestTooShortRequest()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo");
         $this->assertFalse($h->matchRest("GET", "/foo/bar/:foo/bar/bar", NULL));
     }
 
     public function testMatchRestEmptyResource()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/");
         $this->assertFalse($h->matchRest("GET", "/foo/:bar", NULL));
         $this->assertFalse($h->matchRest("POST", "/foo/:bar", NULL));
@@ -299,7 +291,7 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testMatchRestVootGroups()
     {
-        $h = new HttpRequest("http://localhost/oauth/php-voot-proxy/voot.php", "GET");
+        $h = new Request("http://localhost/oauth/php-voot-proxy/voot.php", "GET");
         $h->setPathInfo("/groups/@me");
         $this->assertTrue($h->matchRest("GET", "/groups/@me", function() {
         }));
@@ -307,7 +299,7 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testMatchRestVootPeople()
     {
-        $h = new HttpRequest("http://localhost/oauth/php-voot-proxy/voot.php", "GET");
+        $h = new Request("http://localhost/oauth/php-voot-proxy/voot.php", "GET");
         $h->setPathInfo("/people/@me/urn:groups:demo:member");
         $self = &$this;
         $this->assertTrue($h->matchRest("GET", "/people/@me/:groupId", function($groupId) use ($self) {
@@ -317,14 +309,14 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testMatchRestAllPaths()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "OPTIONS");
+        $h = new Request("http://www.example.org/api.php", "OPTIONS");
         $h->setPathInfo("/foo/bar/baz/foobar");
         $this->assertTrue($h->matchRest("OPTIONS", NULL, function() { }));
     }
 
     public function testMultipleMatches()
     {
-        $h = new HttpRequest("http://www.example.org/api.php", "GET");
+        $h = new Request("http://www.example.org/api.php", "GET");
         $h->setPathInfo("/foo/bar");
         $this->assertTrue($h->matchRest("GET", "/foo/bar", function() { }));
         $this->assertFalse($h->matchRest("GET", "/foo/bar", function() { }));
@@ -332,7 +324,7 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testOptionalMatch()
     {
-        $h = new HttpRequest("http://localhost/php-remoteStorage/api.php", "GET");
+        $h = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $h->setPathInfo("/admin/public/money/");
         $self = &$this;
         $this->assertTrue($h->matchRest("GET", "/:user/public/:module(/:path+)/", function($user, $module, $path = NULL) use ($self) {
@@ -344,7 +336,7 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testOtherOptionalMatch()
     {
-        $h = new HttpRequest("http://localhost/php-remoteStorage/api.php", "GET");
+        $h = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $h->setPathInfo("/admin/public/money/a/b/c/");
         $self = &$this;
         $this->assertTrue($h->matchRest("GET", "/:user/public/:module(/:path+)/", function($user, $module, $path = NULL) use ($self) {
@@ -356,14 +348,14 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testWildcardShouldNotMatchDir()
     {
-        $h = new HttpRequest("http://localhost/php-remoteStorage/api.php", "GET");
+        $h = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $h->setPathInfo("/admin/money/a/b/c/");
         $this->assertFalse($h->matchRest("GET", "/:user/:module/:path+", function() { } ));
     }
 
     public function testWildcardShouldMatchDir()
     {
-        $h = new HttpRequest("http://localhost/php-remoteStorage/api.php", "GET");
+        $h = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $h->setPathInfo("/admin/money/a/b/c/");
         $self = &$this;
         $this->assertTrue($h->matchRest("GET", "/:user/:module/:path+/", function($user, $module, $path) use ($self) {
@@ -375,7 +367,7 @@ class HttpRequestTest extends PHPUnit_Framework_TestCase
 
     public function testAuthentication()
     {
-        $h = new HttpRequest("http://www.example.org", "GET");
+        $h = new Request("http://www.example.org", "GET");
         $h->setBasicAuthUser("foo");
         $h->setBasicAuthPass("bar");
         $this->assertEquals("foo", $h->getBasicAuthUser());

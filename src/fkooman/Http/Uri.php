@@ -16,7 +16,7 @@
 * limitations under the License.
 */
 
-namespace RestService\Http;
+namespace fkooman\Http;
 
 class Uri
 {
