@@ -1,19 +1,19 @@
 {
     "authors": [
         {
-            "email": "fkooman@tuxed.net", 
-            "name": "Fran\u00e7ois Kooman", 
+            "email": "fkooman@tuxed.net",
+            "name": "Fran\u00e7ois Kooman",
             "role": "Developer"
         }
-    ], 
+    ],
     "autoload": {
         "psr-0": {
             "fkooman\\Http\\": "src/"
         }
-    }, 
-    "description": "Simple PHP library for writing REST applications.", 
-    "license": "Apache-2.0", 
-    "name": "fkooman/php-lib-rest", 
+    },
+    "description": "Simple PHP library for writing REST applications.",
+    "license": "Apache-2.0",
+    "name": "fkooman/php-lib-rest",
     "require": {
         "php": ">=5.3.3"
     }
