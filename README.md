@@ -6,19 +6,25 @@ The library has the following features:
 * Wrapper HTTP request and response class to make it very easy to test your
   applications
 * RESTful router support
-* Config class to handle `ini`-files;
-* Logger class to implement logging to file or to mail;
 
 Furthermore extensive tests are available written in PHPUnit.
+
+# Installation
+You can use this library through [Composer](http://getcomposer.org/) by 
+requiring `php-lib-rest`. 
 
 # Tests
 You can run the PHPUnit tests if PHPUnit is installed:
 
     $ phpunit tests/
 
-# Examples
-Some simple sample applications can be found in the `examples/` directory. 
-Please refer to them to see how to use this library. The examples should work
+You need to run Composer **FIRST** in order to be able to run the tests:
+
+    $ php /path/to/composer.phar install
+        
+# Example
+A simple sample application can be found in the `examples/` directory. 
+Please check there to see how to use this library. The example should work
 "as is" when placed in a directory reachable through a web server.
 
 # License
