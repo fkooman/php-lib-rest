@@ -117,6 +117,7 @@ class Request
         if ($this->getRequestMethod() !== "POST") {
             throw new RequestException("request method should be POST");
         }
+        // FIXME: we should check to see if it was a proper FORM post!
         $parameters = array();
         parse_str($this->getContent(), $parameters);
 
@@ -310,5 +311,4 @@ class Request
 
         return $s;
     }
-
 }

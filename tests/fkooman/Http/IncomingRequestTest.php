@@ -91,10 +91,38 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
     public function postDataProvider()
     {
         return array(
-            array("80", "www.example.com", "/request", "off", "http://www.example.com/request", ""),
-            array("80", "www.example.com", "/request", "off", "http://www.example.com/request", "action=foo"),
-            array("443", "www.example.com", "/request", "on", "https://www.example.com/request", "action=foo"),
-            array("80", "www.example.com", "/request", "off", "http://www.example.com/request", pack("nvc*", 0x1234, 0x5678, 65, 66)),
+            array(
+                "80",
+                "www.example.com",
+                "/request",
+                "off",
+                "http://www.example.com/request",
+                ""
+            ),
+            array(
+                "80",
+                "www.example.com",
+                "/request",
+                "off",
+                "http://www.example.com/request",
+                "action=foo"
+            ),
+            array(
+                "443",
+                "www.example.com",
+                "/request",
+                "on",
+                "https://www.example.com/request",
+                "action=foo"
+            ),
+            array(
+                "80",
+                "www.example.com",
+                "/request",
+                "off",
+                "http://www.example.com/request",
+                pack("nvc*", 0x1234, 0x5678, 65, 66)
+            ),
         );
     }
 

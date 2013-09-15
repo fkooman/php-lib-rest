@@ -41,7 +41,7 @@ class Uri
         $this->uriParts = parse_url($uri);
     }
 
-    private function _constructUriFromParts()
+    private function constructUriFromParts()
     {
         $uri = "";
         if (null !== $this->getScheme()) {
@@ -134,10 +134,9 @@ class Uri
 
     public function getUri()
     {
-        $uri = $this->_constructUriFromParts();
+        $uri = $this->constructUriFromParts();
         $this->validateUri($uri);
 
         return $uri;
     }
-
 }

@@ -121,8 +121,8 @@ class IncomingRequest
         if (function_exists("apache_request_headers")) {
             $apacheHeaders = apache_request_headers();
             foreach ($apacheHeaders as $k => $v) {
-            $key = Request::normalizeHeaderKey($k);
-            if (!array_key_exists($key, $requestHeaders)) {
+                $key = Request::normalizeHeaderKey($k);
+                if (!array_key_exists($key, $requestHeaders)) {
                     $requestHeaders[$key] = $v;
                 }
             }
@@ -130,5 +130,4 @@ class IncomingRequest
 
         return $requestHeaders;
     }
-
 }

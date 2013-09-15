@@ -143,7 +143,7 @@ class Response
 
     public function setHeader($headerKey, $headerValue)
     {
-        $foundHeaderKey = $this->_getHeaderKey($headerKey);
+        $foundHeaderKey = $this->getHeaderKey($headerKey);
         if ($foundHeaderKey === null) {
             $this->headers[$headerKey] = $headerValue;
         } else {
@@ -153,7 +153,7 @@ class Response
 
     public function getHeader($headerKey)
     {
-        $headerKey = $this->_getHeaderKey($headerKey);
+        $headerKey = $this->getHeaderKey($headerKey);
 
         return $headerKey !== null ? $this->headers[$headerKey] : null;
     }
@@ -167,7 +167,7 @@ class Response
      * @returns The name of the header as it was set (original case)
      *
      */
-    protected function _getHeaderKey($headerKey)
+    protected function getHeaderKey($headerKey)
     {
         $headerKeys = array_keys($this->headers);
         $keyPositionInArray = array_search(strtolower($headerKey), array_map('strtolower', $headerKeys));
@@ -259,5 +259,4 @@ class Response
 
         return $s;
     }
-
 }
