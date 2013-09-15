@@ -1,14 +1,5 @@
-# Changelog
+# Release History
 
-## 0.9.3
-- add fix for http_build_query
-
-## 0.9.2
-- add composer.json file
-
-## 0.9.1
-- add `isJson()` call to `Json` class
-- much better HTTP header normalization
-
-## 0.9.0
-- initial release
+## 0.1.0 
+* Initial release based on Http classes of php-rest-service 0.9.3, **breaks
+  API** from php-rest-service 0.9.3 due to namespace changes
