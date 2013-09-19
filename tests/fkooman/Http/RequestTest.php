@@ -146,6 +146,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     $self->assertEquals($one, "foo");
                     $self->assertEquals($two, "bar");
                     $self->assertEquals($three, "baz");
+
+                    return true;
                 }
             )
         );
@@ -160,6 +162,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 "POST",
                 "/foo/bar/baz",
                 function () {
+                    return true;
                 }
             )
         );
@@ -199,6 +202,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     $self->assertEquals($one, "foo");
                     $self->assertEquals($two, "bar");
                     $self->assertEquals($three, "baz/foobar");
+
+                    return true;
                 }
             )
         );
@@ -216,6 +221,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 function ($one, $two) use ($self) {
                     $self->assertEquals($one, "foo");
                     $self->assertEquals($two, "bar/baz");
+
+                    return true;
                 }
             )
         );
@@ -241,6 +248,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     $self->assertEquals($one, "foo");
                     $self->assertEquals($two, "bar/baz");
                     $self->assertEquals($three, "foobar");
+
+                    return true;
                 }
             )
         );
@@ -295,13 +304,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($h->matchRest("GET", "/foo/:bar", null));
         $this->assertFalse($h->matchRest("POST", "/foo/:bar", null));
         $this->assertFalse($h->matchRest("PUT", "/foo/:bar", null));
-        $self = &$this;
-        $h->matchRestDefault(
-            function ($methodMatch, $patternMatch) use ($self) {
-                $self->assertEquals(array("GET", "POST", "PUT"), $methodMatch);
-                $self->assertFalse($patternMatch);
-            }
-        );
     }
 
     public function testMatchRestVootGroups()
@@ -313,6 +315,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 "GET",
                 "/groups/@me",
                 function () {
+                    return true;
                 }
             )
         );
@@ -329,6 +332,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 "/people/@me/:groupId",
                 function ($groupId) use ($self) {
                     $self->assertEquals("urn:groups:demo:member", $groupId);
+
+                    return true;
                 }
             )
         );
@@ -343,28 +348,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 "OPTIONS",
                 null,
                 function () {
-                }
-            )
-        );
-    }
-
-    public function testMultipleMatches()
-    {
-        $h = new Request("http://www.example.org/api.php", "GET");
-        $h->setPathInfo("/foo/bar");
-        $this->assertTrue(
-            $h->matchRest(
-                "GET",
-                "/foo/bar",
-                function () {
-                }
-            )
-        );
-        $this->assertFalse(
-            $h->matchRest(
-                "GET",
-                "/foo/bar",
-                function () {
+                    return true;
                 }
             )
         );
@@ -383,6 +367,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     $self->assertEquals("admin", $user);
                     $self->assertEquals("money", $module);
                     $self->assertNull($path);
+
+                    return true;
                 }
             )
         );
@@ -401,6 +387,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     $self->assertEquals("admin", $user);
                     $self->assertEquals("money", $module);
                     $self->assertEquals("a/b/c", $path);
+
+                    return true;
                 }
             )
         );
@@ -433,6 +421,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                     $self->assertEquals("admin", $user);
                     $self->assertEquals("money", $module);
                     $self->assertEquals("a/b/c", $path);
+
+                    return true;
                 }
             )
         );

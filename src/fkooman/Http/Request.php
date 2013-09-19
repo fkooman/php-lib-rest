@@ -25,8 +25,6 @@ class Request
     protected $headers;
     protected $content;
     protected $pathInfo;
-    protected $patternMatch;
-    protected $methodMatch;
     protected $basicAuthUser;
     protected $basicAuthPass;
 
@@ -37,8 +35,6 @@ class Request
         $this->headers = array();
         $this->content = null;
         $this->pathInfo = null;
-        $this->patternMatch = false;
-        $this->methodMatch = array();
         $this->basicAuthUser = null;
         $this->basicAuthPass = null;
     }
@@ -209,24 +205,12 @@ class Request
 
     public function matchRest($requestMethod, $requestPattern, $callback)
     {
-        // we already matched something before...ignore this one
-        if (true === $this->patternMatch) {
-            return false;
-        }
-
-        // record the method so it can be used to construct the "Allow" header
-        // if no pattern matches the request
-        if (!in_array($requestMethod, $this->methodMatch)) {
-            array_push($this->methodMatch, $requestMethod);
-        }
         if ($requestMethod !== $this->getRequestMethod()) {
             return false;
         }
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern) {
-            $this->patternMatch = true;
-
-            return true;
+            return call_user_func_array($callback, array());
         }
         // both the pattern and request path should start with a "/"
         if (0 !== strpos($this->getPathInfo(), "/") || 0 !== strpos($requestPattern, "/")) {
@@ -242,13 +226,12 @@ class Request
             throw new RequestException("regex for variable search failed");
         }
         if (0 === $pma) {
-            // no matches found, so no variables in the pattern, pattern and request must be identical
+            // no variables in the pattern, pattern and request must be identical
             if ($this->getPathInfo() === $requestPattern) {
-                $this->patternMatch = true;
-                call_user_func_array($callback, array());
-
-                return true;
+                return call_user_func_array($callback, array());
             }
+            // FIXME?!
+            //return false;
         }
         // replace all the variables with a regex so the actual value in the request
         // can be captured
@@ -272,15 +255,7 @@ class Request
             }
         }
         // request path matches pattern!
-        $this->patternMatch = true;
-        call_user_func_array($callback, array_values($parameters));
-
-        return true;
-    }
-
-    public function matchRestDefault($callback)
-    {
-        $callback($this->methodMatch, $this->patternMatch);
+        return call_user_func_array($callback, array_values($parameters));
     }
 
     public static function normalizeHeaderKey($key)
