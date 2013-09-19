@@ -28,7 +28,11 @@ use fkooman\Http\Response;
 use fkooman\Http\IncomingRequest;
 
 try {
-    $service = new Service();
+    $service = new Service(
+        Request::fromIncomingRequest(
+            new IncomingRequest()
+        )
+    );
 
     $service->match(
         "GET",
@@ -56,7 +60,7 @@ try {
                 // it would make more sense to create something like an ApiException
                 // class that would return the code 400 "Bad Request" instead of
                 // internal server error as this is a 'mistake' by the client...
-                throw new Exception("you cannot say 'foo'!'");
+                throw new InvalidArgumentException("you cannot say 'foo'!'");
             }
             $response = new Response(200, "application/json");
             $response->setContent(
@@ -72,11 +76,7 @@ try {
         }
     );
 
-    $service->run(
-        Request::fromIncomingRequest(
-            new IncomingRequest()
-        )
-    )->sendResponse();
+    $service->run()->sendResponse();
 } catch (Exception $e) {
     $response = new Response(500, "application/json");
     $response->setContent(
