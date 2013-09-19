@@ -11,7 +11,7 @@
             "fkooman\\Http\\": "src/"
         }
     },
-    "description": "Simple PHP library for writing REST applications.",
+    "description": "Simple PHP library for writing REST services.",
     "license": "Apache-2.0",
     "name": "fkooman/php-lib-rest",
     "require": {
