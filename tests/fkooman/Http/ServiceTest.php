@@ -64,4 +64,23 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $response = $service->run($request);
         $this->assertEquals(404, $response->getStatusCode());
     }
+
+    public function testNonResponseReturn()
+    {
+        $request = new Request("http://www.example.org/foo", "GET");
+        $request->setPathInfo("/foo/bar/baz.txt");
+
+        $service = new Service();
+        $service->match(
+            "GET",
+            "/foo/bar/baz.txt",
+            function () {
+                return "Hello World";
+            }
+        );
+        $response = $service->run($request);
+        $this->assertEquals("text/html", $response->getContentType());
+        $this->assertEquals("Hello World", $response->getContent());
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }

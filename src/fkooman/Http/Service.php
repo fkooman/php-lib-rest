@@ -19,8 +19,8 @@ class Service
     public function match($requestMethod, $requestPattern, $callback)
     {
         $this->match[] = array(
-            "method" => $requestMethod,
-            "pattern" => $requestPattern,
+            "requestMethod" => $requestMethod,
+            "requestPattern" => $requestPattern,
             "callback" => $callback
         );
         if (!in_array($requestMethod, $this->supportedMethods)) {
@@ -31,9 +31,21 @@ class Service
     public function run(Request $request)
     {
         foreach ($this->match as $m) {
-            $response = $request->matchRest($m['method'], $m['pattern'], $m['callback']);
-            if (false !== $response && $response) {
-                return $response;
+            $response = $request->matchRest(
+                $m['requestMethod'],
+                $m['requestPattern'],
+                $m['callback']
+            );
+
+            // false indicates not a match
+            if (false !== $response) {
+                if ($response instanceof Response) {
+                    return $response;
+                }
+                $responseObj = new Response(200, "text/html");
+                $responseObj->setContent($response);
+
+                return $responseObj;
             }
         }
 
@@ -42,7 +54,6 @@ class Service
             return new Response(404);
         }
 
-        // handle non matching methods
         $response = new Response(405);
         $response->setHeader("Allow", implode(",", $this->supportedMethods));
 
