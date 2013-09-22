@@ -69,6 +69,7 @@ class Response
         504 => "Gateway Timeout",
         505 => "HTTP Version Not Supported"
     );
+
     private $useXSendfile;
 
     public function __construct($statusCode = 200, $contentType = "text/html")
@@ -83,7 +84,7 @@ class Response
 
     public function useXSendfile($useXSendfile)
     {
-        $this->_useXSendfile = $useXSendfile;
+        $this->useXSendfile = $useXSendfile;
     }
 
     public function getContent()
@@ -200,7 +201,7 @@ class Response
             header($k . ": " . $v);
         }
         if (null !== $this->getContentFile()) {
-            if ($this->_useXSendfile) {
+            if ($this->useXSendfile) {
                 // use X-Sendfile (see https://tn123.org/mod_xsendfile/)
                 header("X-Sendfile: " . $this->getContentFile());
             } else {
