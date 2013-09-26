@@ -29,6 +29,15 @@ A simple sample application can be found in the `examples/` directory.
 Please check there to see how to use this library. The example should work
 "as is" when placed in a directory reachable through a web server.
 
+# API
+The API documenation can be generated using
+[Sami](http://sami.sensiolabs.org/), Sami is part of the `require-dev` section
+in the Composer file.
+
+    $ php vendor/bin/sami.php update doc/php-lib-rest.php
+
+This will output HTML in the `build/` directory.
+
 # License
 Licensed under the Apache License, Version 2.0;
 

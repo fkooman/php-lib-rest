@@ -16,5 +16,8 @@
     "name": "fkooman/php-lib-rest",
     "require": {
         "php": ">=5.3.3"
+    },
+    "require-dev": {
+        "sami/sami": "v1.1"
     }
 }
