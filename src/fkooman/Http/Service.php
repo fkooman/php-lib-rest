@@ -61,11 +61,29 @@ class Service
 
         // handle non matching patterns
         if (in_array($this->request->getRequestMethod(), $this->supportedMethods)) {
-            return new Response(404);
+            $response = new Response(404, "application/json");
+            $response->setContent(
+                json_encode(
+                    array(
+                        "code" => 404,
+                        "error" => "Not Found"
+                    )
+                )
+            );
+
+            return $response;
         }
 
-        $response = new Response(405);
+        $response = new Response(405, "application/json");
         $response->setHeader("Allow", implode(",", $this->supportedMethods));
+        $response->setContent(
+            json_encode(
+                array(
+                    "code" => 405,
+                    "error" => "Method Not Allowed"
+                )
+            )
+        );
 
         return $response;
     }
