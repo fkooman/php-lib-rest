@@ -1,5 +1,21 @@
 <?php
 
+/**
+* Copyright 2013 François Kooman <fkooman@tuxed.net>
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 namespace fkooman\Http;
 
 use UnexpectedValueException;
@@ -15,40 +31,38 @@ class Service
     /** @var array */
     private $supportedMethods;
 
-    /** @var string */
-    private $basicAuthUser;
+    /** @var array */
+    private $beforeMatchPlugins;
 
-    /** @var string */
-    private $basicAuthPass;
-
-    /** @var string */
-    private $basicAuthRealm;
+    /** @var array */
+    private $forEachMatchPlugins;
 
     public function __construct(Request $request)
     {
         $this->request = $request;
-
         $this->match = array();
         $this->supportedMethods = array();
-
-        $this->basicAuthUser = null;
-        $this->basicAuthPass = null;
-        $this->basicAuthRealm = null;
+        $this->beforeMatchPlugins = array();
+        $this->forEachMatchPlugins = array();
     }
 
-    public function requireBasicAuth($basicAuthUser, $basicAuthPass, $basicAuthRealm = "Protected Resource")
+    public function registerBeforeMatchPlugin(ServicePluginInterface $servicePlugin)
     {
-        $this->basicAuthUser = $basicAuthUser;
-        $this->basicAuthPass = $basicAuthPass;
-        $this->basicAuthRealm = $basicAuthRealm;
+        $this->beforeMatchPlugins[] = $servicePlugin;
     }
 
-    public function match($requestMethod, $requestPattern, $callback)
+    public function registerForEachMatchPlugin(ServicePluginInterface $servicePlugin)
+    {
+        $this->forEachMatchPlugins[] = $servicePlugin;
+    }
+
+    public function match($requestMethod, $requestPattern, $callback, array $matchOptions = array())
     {
         $this->match[] = array(
             "requestMethod" => $requestMethod,
             "requestPattern" => $requestPattern,
-            "callback" => $callback
+            "callback" => $callback,
+            "matchOptions" => $matchOptions
         );
         if (!in_array($requestMethod, $this->supportedMethods)) {
             $this->supportedMethods[] = $requestMethod;
@@ -57,29 +71,29 @@ class Service
 
     public function run()
     {
-        if (null !== $this->basicAuthUser) {
-            // require authentication
-            $requestBasicAuthUser = $this->request->getBasicAuthUser();
-            $requestBasicAuthPass = $this->request->getBasicAuthPass();
-
-            if ($this->basicAuthUser !== $requestBasicAuthUser || $this->basicAuthPass !== $requestBasicAuthPass) {
-                $response = new JsonResponse(401);
-                $response->setHeader(
-                    "WWW-Authenticate",
-                    sprintf('Basic realm="%s"', $this->basicAuthRealm)
-                );
-                $response->setContent(
-                    array(
-                        "code" => 401,
-                        "error" => "Unauthorized"
-                    )
-                );
-
+        // run the before plugins
+        foreach ($this->beforeMatchPlugins as $plugin) {
+            $response = $plugin->execute($this->request);
+            if ($response instanceof Response) {
                 return $response;
             }
         }
 
         foreach ($this->match as $m) {
+            // run the foreach plugins
+            foreach ($this->forEachMatchPlugins as $plugin) {
+                // only run when plugin should not be skipped
+                if (isset($m['matchOptions']['skipPlugin']) && is_array($m['matchOptions']['skipPlugin'])) {
+                    if (in_array(get_class($plugin), $m['matchOptions']['skipPlugin'])) {
+                        continue;
+                    }
+                }
+                $response = $plugin->execute($this->request);
+                if ($response instanceof Response) {
+                    return $response;
+                }
+            }
+
             $response = $this->matchRest(
                 $m['requestMethod'],
                 $m['requestPattern'],

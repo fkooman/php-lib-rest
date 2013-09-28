@@ -18,6 +18,8 @@
 
 namespace fkooman\Http;
 
+use fkooman\Http\Plugin\BasicAuth;
+
 class ServiceTest extends \PHPUnit_Framework_TestCase
 {
     public function testSimpleMatch()
@@ -48,7 +50,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("bar");
         $service = new Service($request);
-        $service->requireBasicAuth("foo", "bar", "Foo Realm");
+        $service->registerBeforeMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -71,7 +73,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("baz");
         $service = new Service($request);
-        $service->requireBasicAuth("foo", "bar", "Foo Realm");
+        $service->registerBeforeMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -93,7 +95,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
         $service = new Service($request);
-        $service->requireBasicAuth("foo", "bar", "Foo Realm");
+        $service->registerBeforeMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
