@@ -15,12 +15,32 @@ class Service
     /** @var array */
     private $supportedMethods;
 
+    /** @var string */
+    private $basicAuthUser;
+
+    /** @var string */
+    private $basicAuthPass;
+
+    /** @var string */
+    private $basicAuthRealm;
+
     public function __construct(Request $request)
     {
         $this->request = $request;
 
         $this->match = array();
         $this->supportedMethods = array();
+
+        $this->basicAuthUser = null;
+        $this->basicAuthPass = null;
+        $this->basicAuthRealm = null;
+    }
+
+    public function requireBasicAuth($basicAuthUser, $basicAuthPass, $basicAuthRealm = "Protected Resource")
+    {
+        $this->basicAuthUser = $basicAuthUser;
+        $this->basicAuthPass = $basicAuthPass;
+        $this->basicAuthRealm = $basicAuthRealm;
     }
 
     public function match($requestMethod, $requestPattern, $callback)
@@ -37,6 +57,28 @@ class Service
 
     public function run()
     {
+        if (null !== $this->basicAuthUser) {
+            // require authentication
+            $requestBasicAuthUser = $this->request->getBasicAuthUser();
+            $requestBasicAuthPass = $this->request->getBasicAuthPass();
+
+            if ($this->basicAuthUser !== $requestBasicAuthUser || $this->basicAuthPass !== $requestBasicAuthPass) {
+                $response = new JsonResponse(401);
+                $response->setHeader(
+                    "WWW-Authenticate",
+                    sprintf('Basic realm="%s"', $this->basicAuthRealm)
+                );
+                $response->setContent(
+                    array(
+                        "code" => 401,
+                        "error" => "Unauthorized"
+                    )
+                );
+
+                return $response;
+            }
+        }
+
         foreach ($this->match as $m) {
             $response = $this->matchRest(
                 $m['requestMethod'],
