@@ -210,7 +210,7 @@ class Response
                 readfile($this->getContentFile());
             }
         } else {
-            echo $this->getContent();
+            echo $this->content;
         }
     }
 
@@ -256,7 +256,7 @@ class Response
             $s .= "\t" . ($k . ": " . $v) . PHP_EOL;
         }
         $s .= "Content:" . PHP_EOL;
-        $s .= $this->getContent();
+        $s .= $this->content;
 
         return $s;
     }
