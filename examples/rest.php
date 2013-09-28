@@ -24,7 +24,7 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use fkooman\Http\Service;
 use fkooman\Http\Request;
-use fkooman\Http\Response;
+use fkooman\Http\JsonResponse;
 use fkooman\Http\IncomingRequest;
 
 try {
@@ -38,13 +38,11 @@ try {
         "GET",
         "/hello/:str",
         function ($str) {
-            $response = new Response(200, "application/json");
+            $response = new JsonResponse(200);
             $response->setContent(
-                json_encode(
-                    array(
-                        "type" => "GET",
-                        "response" => sprintf("hello %s", $str)
-                    )
+                array(
+                    "type" => "GET",
+                    "response" => sprintf("hello %s", $str)
                 )
             );
 
@@ -62,13 +60,11 @@ try {
                 // internal server error as this is a 'mistake' by the client...
                 throw new InvalidArgumentException("you cannot say 'foo'!'");
             }
-            $response = new Response(200, "application/json");
+            $response = new JsonResponse(200);
             $response->setContent(
-                json_encode(
-                    array(
-                        "type" => "POST",
-                        "response" => sprintf("hello %s", $str)
-                    )
+                array(
+                    "type" => "POST",
+                    "response" => sprintf("hello %s", $str)
                 )
             );
 
@@ -78,13 +74,11 @@ try {
 
     $service->run()->sendResponse();
 } catch (Exception $e) {
-    $response = new Response(500, "application/json");
+    $response = new JsonResponse(500);
     $response->setContent(
-        json_encode(
-            array(
-                "error" => "internal_server_error",
-                "error_description" => $e->getMessage()
-            )
+        array(
+            "error" => "internal_server_error",
+            "error_description" => $e->getMessage()
         )
     );
     $response->sendResponse();
