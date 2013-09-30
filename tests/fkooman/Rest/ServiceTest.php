@@ -16,9 +16,11 @@
 * limitations under the License.
 */
 
-namespace fkooman\Http;
+namespace fkooman\Rest;
 
-use fkooman\Http\Plugin\BasicAuth;
+use fkooman\Rest\Plugin\BasicAuthentication;
+use fkooman\Http\Request;
+use fkooman\Http\Response;
 
 class ServiceTest extends \PHPUnit_Framework_TestCase
 {
@@ -50,7 +52,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("bar");
         $service = new Service($request);
-        $service->registerBeforeMatchingPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -73,7 +75,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("baz");
         $service = new Service($request);
-        $service->registerBeforeMatchingPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -95,7 +97,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
         $service = new Service($request);
-        $service->registerBeforeMatchingPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -119,7 +121,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("baz");
         $service = new Service($request);
-        $service->registerBeforeEachMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->registerBeforeEachMatchPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -143,7 +145,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("baz");
         $service = new Service($request);
-        $service->registerBeforeEachMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->registerBeforeEachMatchPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -153,7 +155,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
 
                 return $response;
             },
-            array('fkooman\Http\Plugin\BasicAuth')
+            array('fkooman\Rest\Plugin\BasicAuthentication')
         );
         $response = $service->run();
         $this->assertEquals("Hello World", $response->getContent());

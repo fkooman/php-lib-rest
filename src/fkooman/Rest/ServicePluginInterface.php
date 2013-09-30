@@ -16,7 +16,9 @@
 * limitations under the License.
 */
 
-namespace fkooman\Http;
+namespace fkooman\Rest;
+
+use fkooman\Http\Request;
 
 interface ServicePluginInterface
 {

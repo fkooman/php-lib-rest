@@ -22,7 +22,7 @@
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-use fkooman\Http\Service;
+use fkooman\Rest\Service;
 use fkooman\Http\Request;
 use fkooman\Http\JsonResponse;
 use fkooman\Http\IncomingRequest;

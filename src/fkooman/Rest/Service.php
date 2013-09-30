@@ -16,9 +16,12 @@
 * limitations under the License.
 */
 
-namespace fkooman\Http;
+namespace fkooman\Rest;
 
 use UnexpectedValueException;
+use fkooman\Http\Request;
+use fkooman\Http\JsonResponse;
+use fkooman\Http\Response;
 
 class Service
 {

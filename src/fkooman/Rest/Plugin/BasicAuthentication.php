@@ -16,13 +16,13 @@
 * limitations under the License.
 */
 
-namespace fkooman\Http\Plugin;
+namespace fkooman\Rest\Plugin;
 
 use fkooman\Http\Request;
 use fkooman\Http\JsonResponse;
-use fkooman\Http\ServicePluginInterface;
+use fkooman\Rest\ServicePluginInterface;
 
-class BasicAuth implements ServicePluginInterface
+class BasicAuthentication implements ServicePluginInterface
 {
     /** @var string */
     private $basicAuthUser;
