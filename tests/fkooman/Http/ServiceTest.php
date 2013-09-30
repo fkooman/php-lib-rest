@@ -50,7 +50,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("bar");
         $service = new Service($request);
-        $service->registerBeforeMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->registerBeforeMatchingPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -73,7 +73,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("baz");
         $service = new Service($request);
-        $service->registerBeforeMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->registerBeforeMatchingPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -95,7 +95,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
         $service = new Service($request);
-        $service->registerBeforeMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->registerBeforeMatchingPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -110,6 +110,54 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(401, $response->getStatusCode());
         $this->assertEquals('Basic realm="Foo Realm"', $response->getHeader("WWW-Authenticate"));
         $this->assertEquals(array('code' => 401, 'error' => 'Unauthorized'), $response->getContent());
+    }
+
+    public function testBeforeEachMatchPluginNoSkip()
+    {
+        $request = new Request("http://www.example.org/foo", "GET");
+        $request->setPathInfo("/foo/bar/baz.txt");
+        $request->setBasicAuthUser("foo");
+        $request->setBasicAuthPass("baz");
+        $service = new Service($request);
+        $service->registerBeforeEachMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->match(
+            "GET",
+            "/foo/bar/baz.txt",
+            function () {
+                $response = new Response(200, "plain/text");
+                $response->setContent("Hello World");
+
+                return $response;
+            }
+        );
+        $response = $service->run();
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals('Basic realm="Foo Realm"', $response->getHeader("WWW-Authenticate"));
+        $this->assertEquals(array('code' => 401, 'error' => 'Unauthorized'), $response->getContent());
+    }
+
+    public function testBeforeEachMatchPluginSkip()
+    {
+        $request = new Request("http://www.example.org/foo", "GET");
+        $request->setPathInfo("/foo/bar/baz.txt");
+        $request->setBasicAuthUser("foo");
+        $request->setBasicAuthPass("baz");
+        $service = new Service($request);
+        $service->registerBeforeEachMatchPlugin(new BasicAuth("foo", "bar", "Foo Realm"));
+        $service->match(
+            "GET",
+            "/foo/bar/baz.txt",
+            function () {
+                $response = new Response(200, "plain/text");
+                $response->setContent("Hello World");
+
+                return $response;
+            },
+            array('fkooman\Http\Plugin\BasicAuth')
+        );
+        $response = $service->run();
+        $this->assertEquals("Hello World", $response->getContent());
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     public function testNonMethodMatch()

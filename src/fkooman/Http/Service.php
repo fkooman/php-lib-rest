@@ -32,37 +32,38 @@ class Service
     private $supportedMethods;
 
     /** @var array */
-    private $beforeMatchPlugins;
+    private $beforeMatchingPlugins;
 
     /** @var array */
-    private $forEachMatchPlugins;
+    private $beforeEachMatchPlugins;
 
     public function __construct(Request $request)
     {
         $this->request = $request;
         $this->match = array();
         $this->supportedMethods = array();
-        $this->beforeMatchPlugins = array();
-        $this->forEachMatchPlugins = array();
+
+        $this->beforeMatchingPlugins = array();
+        $this->beforeEachMatchPlugins = array();
     }
 
-    public function registerBeforeMatchPlugin(ServicePluginInterface $servicePlugin)
+    public function registerBeforeMatchingPlugin(ServicePluginInterface $servicePlugin)
     {
-        $this->beforeMatchPlugins[] = $servicePlugin;
+        $this->beforeMatchingPlugins[] = $servicePlugin;
     }
 
-    public function registerForEachMatchPlugin(ServicePluginInterface $servicePlugin)
+    public function registerBeforeEachMatchPlugin(ServicePluginInterface $servicePlugin)
     {
-        $this->forEachMatchPlugins[] = $servicePlugin;
+        $this->beforeEachMatchPlugins[] = $servicePlugin;
     }
 
-    public function match($requestMethod, $requestPattern, $callback, array $matchOptions = array())
+    public function match($requestMethod, $requestPattern, $callback, array $skipPlugin = array())
     {
         $this->match[] = array(
             "requestMethod" => $requestMethod,
             "requestPattern" => $requestPattern,
             "callback" => $callback,
-            "matchOptions" => $matchOptions
+            "skipPlugin" => $skipPlugin
         );
         if (!in_array($requestMethod, $this->supportedMethods)) {
             $this->supportedMethods[] = $requestMethod;
@@ -71,8 +72,8 @@ class Service
 
     public function run()
     {
-        // run the before plugins
-        foreach ($this->beforeMatchPlugins as $plugin) {
+        // run the beforeMatchingPlugins
+        foreach ($this->beforeMatchingPlugins as $plugin) {
             $response = $plugin->execute($this->request);
             if ($response instanceof Response) {
                 return $response;
@@ -80,13 +81,11 @@ class Service
         }
 
         foreach ($this->match as $m) {
-            // run the foreach plugins
-            foreach ($this->forEachMatchPlugins as $plugin) {
+            // run the beforeEachMatchPlugins
+            foreach ($this->beforeEachMatchPlugins as $plugin) {
                 // only run when plugin should not be skipped
-                if (isset($m['matchOptions']['skipPlugin']) && is_array($m['matchOptions']['skipPlugin'])) {
-                    if (in_array(get_class($plugin), $m['matchOptions']['skipPlugin'])) {
-                        continue;
-                    }
+                if (in_array(get_class($plugin), $m['skipPlugin'])) {
+                    continue;
                 }
                 $response = $plugin->execute($this->request);
                 if ($response instanceof Response) {
