@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "764a8f10d246fc70eef602bb52752d39",
+    "hash": "625e9b938f9b56535ce421cd595563be",
     "packages": [
         {
             "name": "fkooman/php-lib-json",
