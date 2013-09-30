@@ -1,5 +1,11 @@
 # Release History
 
+## 0.3.0
+* **BREAKS API**, move `Service` to `fkooman\Rest` namespace
+* Introduce plugins for `Service` class to execute code before
+  the REST matcher starts, or for every match
+* Add `BasicAuthentication` plugin
+
 ## 0.2.0
 * **BREAKS API** for `Request` class
 * Introduce `Service` class to make it much easier to write a REST router, 
