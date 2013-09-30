@@ -37,6 +37,11 @@ class Service
     /** @var array */
     private $beforeEachMatchPlugins;
 
+    /**
+     * Create a new Service object.
+     *
+     * @param fkooman\Http\Request $request the HTTP request
+     */
     public function __construct(Request $request)
     {
         $this->request = $request;
@@ -47,16 +52,38 @@ class Service
         $this->beforeEachMatchPlugins = array();
     }
 
+    /**
+     * Register a plugin that is always run before the matching starts.
+     *
+     * @param fkooman\Http\ServicePluginInterface $servicePlugin the plugin to
+     *                                                           register
+     */
     public function registerBeforeMatchingPlugin(ServicePluginInterface $servicePlugin)
     {
         $this->beforeMatchingPlugins[] = $servicePlugin;
     }
 
+    /**
+     * Register a plugin that is run for every match, allowing you to skip it
+     * for particular matches.
+     *
+     * @param fkooman\Http\ServicePluginInterface the plugin to register
+     */
     public function registerBeforeEachMatchPlugin(ServicePluginInterface $servicePlugin)
     {
         $this->beforeEachMatchPlugins[] = $servicePlugin;
     }
 
+    /**
+     * Register a method/pattern match.
+     *
+     * @param string   $requestMethod  the request method, e.g. 'GET', 'POST'
+     * @param string   $requestPattern the pattern to match
+     * @param callback $callback       the callback to execute when this pattern
+     *                           matches
+     * @param array $skipPlugin the full namespaced names of the plugin classes
+     *                          to skip
+     */
     public function match($requestMethod, $requestPattern, $callback, array $skipPlugin = array())
     {
         $this->match[] = array(
@@ -70,6 +97,14 @@ class Service
         }
     }
 
+    /**
+     * Run the Service.
+     *
+     * @return fkooman\Http\Response the HTTP response object after mathing
+     *                               is done and the appropriate callback was
+     *                               executed. If nothing matches either 404
+     *                               or 405 response is returned.
+     */
     public function run()
     {
         // run the beforeMatchingPlugins
