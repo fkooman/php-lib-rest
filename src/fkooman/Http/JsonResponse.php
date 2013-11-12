@@ -29,11 +29,11 @@ class JsonResponse extends Response
 
     public function setContent($content)
     {
-        parent::setContent(Json::enc($content));
+        parent::setContent(Json::encode($content));
     }
 
     public function getContent()
     {
-        return Json::dec(parent::getContent());
+        return Json::decode(parent::getContent());
     }
 }

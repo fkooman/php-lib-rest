@@ -16,7 +16,7 @@
     "license": "Apache-2.0",
     "name": "fkooman/php-lib-rest",
     "require": {
-        "fkooman/php-lib-json": "0.1.*",
+        "fkooman/php-lib-json": "0.3.*",
         "php": ">=5.3.3"
     },
     "require-dev": {

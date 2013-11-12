@@ -1,5 +1,8 @@
 # Release History
 
+## 0.3.1
+* update to php-lib-json 0.3.x
+
 ## 0.3.0
 * **BREAKS API**, move `Service` to `fkooman\Rest` namespace
 * Introduce plugins for `Service` class to execute code before
