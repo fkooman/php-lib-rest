@@ -83,9 +83,9 @@ class Service
      * @param string   $requestMethod  the request method, e.g. 'GET', 'POST'
      * @param string   $requestPattern the pattern to match
      * @param callback $callback       the callback to execute when this pattern
-     *                           matches
-     * @param array $skipPlugin the full namespaced names of the plugin classes
-     *                          to skip
+     *                                 matches
+     * @param array    $skipPlugin     the full namespaced names of the plugin classes
+     *                                 to skip
      */
     public function match($requestMethod, $requestPattern, $callback, array $skipPlugin = array())
     {

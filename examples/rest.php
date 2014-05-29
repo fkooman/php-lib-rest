@@ -34,6 +34,11 @@ try {
         )
     );
 
+    // require all requests to have valid authentication
+    //$service->registerBeforeMatchingPlugin(
+    //   new BasicAuthentication("foo", "bar", "My Secured Foo Service")
+    //);
+
     $service->match(
         "GET",
         "/hello/:str",
