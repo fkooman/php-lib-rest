@@ -26,6 +26,7 @@ use fkooman\Rest\Service;
 use fkooman\Http\Request;
 use fkooman\Http\JsonResponse;
 use fkooman\Http\IncomingRequest;
+use fkooman\Rest\Plugin\BasicAuthentication;
 
 try {
     $service = new Service(
