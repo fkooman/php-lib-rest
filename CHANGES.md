@@ -1,5 +1,9 @@
 # Release History
 
+## 0.4.0
+* rename package to fkooman/rest
+* update fkooman/json dependency
+
 ## 0.3.1
 * update to php-lib-json 0.3.x
 

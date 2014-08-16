@@ -14,9 +14,9 @@
     },
     "description": "Simple PHP library for writing REST services.",
     "license": "Apache-2.0",
-    "name": "fkooman/php-lib-rest",
+    "name": "fkooman/rest",
     "require": {
-        "fkooman/php-lib-json": "0.3.*",
+        "fkooman/json": "0.4.*",
         "php": ">=5.3.3"
     }
 }
