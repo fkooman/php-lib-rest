@@ -184,7 +184,7 @@ class Service
         }
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern) {
-            return call_user_func_array($callback, array());
+            return call_user_func_array($callback, array($this->request->getPathInfo()));
         }
         // both the pattern and request path should start with a "/"
         if (0 !== strpos($this->request->getPathInfo(), "/") || 0 !== strpos($requestPattern, "/")) {

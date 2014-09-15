@@ -1,5 +1,9 @@
 # Release History
 
+## 0.4.1
+* implement support for obtaining the entire path as a callback parameter
+  if `null` is used as a pattern match
+
 ## 0.4.0
 * rename package to fkooman/rest
 * update fkooman/json dependency
