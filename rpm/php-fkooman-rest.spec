@@ -5,7 +5,7 @@
 %global github_name      php-lib-rest
 
 Name:       php-%{composer_vendor}-%{composer_project}
-Version:    0.4.1
+Version:    0.4.3
 Release:    1%{?dist}
 Summary:    Simple PHP library for writing REST services
 
@@ -19,8 +19,8 @@ Provides:   php-composer(%{composer_vendor}/%{composer_project}) = %{version}
 
 Requires:   php >= 5.3.3
 
-Requires:   php-composer(fkooman/json) >= 0.4.0
-Requires:   php-composer(fkooman/json) < 0.5.0
+Requires:   php-composer(fkooman/json) >= 0.5.1
+Requires:   php-composer(fkooman/json) < 0.6.0
 
 %description
 Library written in PHP to make it easy to develop REST applications.
@@ -43,6 +43,12 @@ cp -pr src/* ${RPM_BUILD_ROOT}%{_datadir}/php
 %doc README.md CHANGES.md COPYING composer.json
 
 %changelog
+* Tue Sep 16 2014 François Kooman <fkooman@tuxed.net> - 0.4.3-1
+- update to 0.4.3
+
+* Tue Sep 16 2014 François Kooman <fkooman@tuxed.net> - 0.4.2-1
+- update to 0.4.2
+
 * Mon Sep 15 2014 François Kooman <fkooman@tuxed.net> - 0.4.1-1
 - update to 0.4.1
 
