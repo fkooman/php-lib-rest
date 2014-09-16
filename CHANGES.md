@@ -1,5 +1,8 @@
 # Release History
 
+## 0.4.2
+* update to new `fkooman/json` version
+
 ## 0.4.1
 * implement support for obtaining the entire path as a callback parameter
   if `null` is used as a pattern match
