@@ -4,20 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ae37efb5b9003f8d37a10259f0bfa689",
+    "hash": "d523c9fa118307bea06b0a92f6fa2c90",
     "packages": [
         {
             "name": "fkooman/json",
-            "version": "0.5.0",
+            "version": "0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fkooman/php-lib-json.git",
-                "reference": "fa0737fa8aa83e684b9154934525801cb91077d2"
+                "reference": "b07e3e4166e14ff41ac23f917285fb4061c21ad3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fkooman/php-lib-json/zipball/fa0737fa8aa83e684b9154934525801cb91077d2",
-                "reference": "fa0737fa8aa83e684b9154934525801cb91077d2",
+                "url": "https://api.github.com/repos/fkooman/php-lib-json/zipball/b07e3e4166e14ff41ac23f917285fb4061c21ad3",
+                "reference": "b07e3e4166e14ff41ac23f917285fb4061c21ad3",
                 "shasum": ""
             },
             "require": {
@@ -41,7 +41,7 @@
                 }
             ],
             "description": "PHP library to encode and decode JSON",
-            "time": "2014-09-16 10:35:37"
+            "time": "2014-09-16 11:16:29"
         }
     ],
     "packages-dev": [],

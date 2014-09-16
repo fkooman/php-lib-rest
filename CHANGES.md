@@ -1,5 +1,8 @@
 # Release History
 
+## 0.4.3
+* update to new `fkooman/json` version
+
 ## 0.4.2
 * update to new `fkooman/json` version
 
