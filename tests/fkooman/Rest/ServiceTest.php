@@ -587,4 +587,21 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('/admin/money/a/b/c/', $response->getContent());
     }
+
+    public function testMatchAllWithStarParameter()
+    {
+        $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
+        $request->setPathInfo("/admin/money/a/b/c/");
+        $service = new Service($request);
+        $service->match(
+            "GET",
+            "*",
+            function ($all) {
+                return $all;
+            }
+        );
+        $response = $service->run();
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('/admin/money/a/b/c/', $response->getContent());
+    }
 }
