@@ -1,5 +1,9 @@
 # Release History
 
+## 0.4.5
+* implement get,put,post,delete,options calls in Service class mapping
+  for easier syntax
+
 ## 0.4.4
 * also allow "*" as a pattern in addition to null to match all URIs
 

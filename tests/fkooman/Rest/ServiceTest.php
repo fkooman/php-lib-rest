@@ -30,8 +30,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setPathInfo("/foo/bar/baz.txt");
 
         $service = new Service($request);
-        $service->match(
-            "GET",
+        $service->get(
             "/foo/bar/baz.txt",
             function () {
                 $response = new Response(200, "plain/text");
@@ -168,8 +167,8 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setPathInfo("/foo/bar/baz.txt");
 
         $service = new Service($request);
-        $service->match("POST", "/foo/bar/baz.txt", null);
-        $service->match("DELETE", "/foo/bar/baz.txt", null);
+        $service->post("/foo/bar/baz.txt", null);
+        $service->delete("/foo/bar/baz.txt", null);
         $response = $service->run();
         $this->assertEquals(405, $response->getStatusCode());
         $this->assertEquals("POST,DELETE", $response->getHeader("Allow"));
@@ -436,18 +435,15 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/");
         $service = new Service($request);
-        $service->match(
-            "GET",
+        $service->get(
             "/foo/:bar",
             null
         );
-        $service->match(
-            "POST",
+        $service->post(
             "/foo/:bar",
             null
         );
-        $service->match(
-            "PUT",
+        $service->put(
             "/foo/:bar",
             null
         );
@@ -494,8 +490,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/api.php", "OPTIONS");
         $request->setPathInfo("/foo/bar/baz/foobar");
         $service = new Service($request);
-        $service->match(
-            "OPTIONS",
+        $service->options(
             null,
             function () {
                 return "match";
@@ -511,8 +506,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $request->setPathInfo("/admin/public/money/");
         $service = new Service($request);
-        $service->match(
-            "GET",
+        $service->get(
             "/:user/public/:module(/:path+)/",
             function ($user, $module, $path = null) {
                 return json_encode(array($user, $module, $path));
@@ -590,11 +584,10 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
 
     public function testMatchAllWithStarParameter()
     {
-        $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
+        $request = new Request("http://localhost/php-remoteStorage/api.php", "DELETE");
         $request->setPathInfo("/admin/money/a/b/c/");
         $service = new Service($request);
-        $service->match(
-            "GET",
+        $service->delete(
             "*",
             function ($all) {
                 return $all;

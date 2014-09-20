@@ -77,6 +77,31 @@ class Service
         $this->beforeEachMatchPlugins[] = $servicePlugin;
     }
 
+    public function get($requestPattern, $callback, array $skipPlugin = array())
+    {
+        $this->match("GET", $requestPattern, $callback, $skipPlugin);
+    }
+
+    public function put($requestPattern, $callback, array $skipPlugin = array())
+    {
+        $this->match("PUT", $requestPattern, $callback, $skipPlugin);
+    }
+
+    public function post($requestPattern, $callback, array $skipPlugin = array())
+    {
+        $this->match("POST", $requestPattern, $callback, $skipPlugin);
+    }
+
+    public function delete($requestPattern, $callback, array $skipPlugin = array())
+    {
+        $this->match("DELETE", $requestPattern, $callback, $skipPlugin);
+    }
+
+    public function options($requestPattern, $callback, array $skipPlugin = array())
+    {
+        $this->match("OPTIONS", $requestPattern, $callback, $skipPlugin);
+    }
+
     /**
      * Register a method/pattern match.
      *
