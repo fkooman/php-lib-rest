@@ -1,5 +1,8 @@
 # Release History
 
+## 0.4.4
+* also allow "*" as a pattern in addition to null to match all URIs
+
 ## 0.4.3
 * update to new `fkooman/json` version
 
