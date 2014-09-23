@@ -119,14 +119,20 @@ class Service
      */
     public function match($requestMethod, $requestPattern, $callback, array $skipPlugin = array())
     {
+        if (!is_array($requestMethod)) {
+            $requestMethod = array($requestMethod);
+        }
+
         $this->match[] = array(
             "requestMethod" => $requestMethod,
             "requestPattern" => $requestPattern,
             "callback" => $callback,
             "skipPlugin" => $skipPlugin
         );
-        if (!in_array($requestMethod, $this->supportedMethods)) {
-            $this->supportedMethods[] = $requestMethod;
+        foreach ($requestMethod as $r) {
+            if (!in_array($r, $this->supportedMethods)) {
+                $this->supportedMethods[] = $r;
+            }
         }
     }
 
@@ -207,9 +213,9 @@ class Service
         return $response;
     }
 
-    private function matchRest($requestMethod, $requestPattern, $callback)
+    private function matchRest(array $requestMethod, $requestPattern, $callback)
     {
-        if ($requestMethod !== $this->request->getRequestMethod()) {
+        if (!in_array($this->request->getRequestMethod(), $requestMethod)) {
             return false;
         }
         // if no pattern is defined, all paths are valid

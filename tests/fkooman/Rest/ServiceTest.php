@@ -613,4 +613,36 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertSame(0, strlen($response->getContent()));
     }
+
+    public function testMultipleMethodMatchGet()
+    {
+        $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
+        $request->setPathInfo("/admin/money/a/b/c/");
+        $service = new Service($request);
+        $service->match(array("GET", "HEAD"),
+            "*",
+            function ($all) use ($request) {
+                return "HEAD" === $request->getRequestMethod() ? "" : $all;
+            }
+        );
+        $response = $service->run();
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('/admin/money/a/b/c/', $response->getContent());
+    }
+
+    public function testMultipleMethodMatchHead()
+    {
+        $request = new Request("http://localhost/php-remoteStorage/api.php", "HEAD");
+        $request->setPathInfo("/admin/money/a/b/c/");
+        $service = new Service($request);
+        $service->match(array("GET", "HEAD"),
+            "*",
+            function ($all) use ($request) {
+                return "HEAD" === $request->getRequestMethod() ? "" : $all;
+            }
+        );
+        $response = $service->run();
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("", $response->getContent());
+    }
 }
