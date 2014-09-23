@@ -102,6 +102,11 @@ class Service
         $this->match("OPTIONS", $requestPattern, $callback, $skipPlugin);
     }
 
+    public function head($requestPattern, $callback, array $skipPlugin = array())
+    {
+        $this->match("HEAD", $requestPattern, $callback, $skipPlugin);
+    }
+
     /**
      * Register a method/pattern match.
      *

@@ -1,5 +1,8 @@
 # Release History
 
+## 0.4.6
+* implement head shortcut as well
+
 ## 0.4.5
 * implement get,put,post,delete,options calls in Service class mapping
   for easier syntax

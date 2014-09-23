@@ -5,8 +5,8 @@
 %global github_name      php-lib-rest
 
 Name:       php-%{composer_vendor}-%{composer_project}
-Version:    0.4.5
-Release:    1%{?dist}
+Version:    0.4.6
+Release:    2%{?dist}
 Summary:    Simple PHP library for writing REST services
 
 Group:      System Environment/Libraries
@@ -43,5 +43,8 @@ cp -pr src/* ${RPM_BUILD_ROOT}%{_datadir}/php
 %doc README.md CHANGES.md COPYING composer.json
 
 %changelog
+* Tue Sep 23 2014 François Kooman <fkooman@tuxed.net> - 0.4.6-1
+- update to 0.4.6
+
 * Sat Sep 20 2014 François Kooman <fkooman@tuxed.net> - 0.4.5-1
 - initial package
