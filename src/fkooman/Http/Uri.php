@@ -24,24 +24,30 @@ class Uri
 
     public function __construct($inputUri)
     {
-        $this->validateUri($inputUri);
-        $this->setUriParts($inputUri);
+        self::validateUri($inputUri);
+
+        $this->uriParts = parse_url($inputUri);
+
+        if (!array_key_exists("port", $this->uriParts)) {
+            if ("http" === $this->uriParts['scheme']) {
+                $this->uriParts['port'] = 80;
+            } elseif ("https" === $this->uriParts['scheme']) {
+                $this->uriParts['port'] = 443;
+            } else {
+                throw new UriException("unsupported scheme");
+            }
+        }
     }
 
-    private function validateUri($uri)
+    private static function validateUri($inputUri)
     {
-        $u = filter_var($uri, FILTER_VALIDATE_URL);
+        $u = filter_var($inputUri, FILTER_VALIDATE_URL);
         if ($u === false) {
             throw new UriException("the uri is malformed");
         }
     }
 
-    private function setUriParts($uri)
-    {
-        $this->uriParts = parse_url($uri);
-    }
-
-    private function constructUriFromParts()
+    private function constructBaseUriFromParts()
     {
         $uri = "";
         if (null !== $this->getScheme()) {
@@ -58,8 +64,20 @@ class Uri
             $uri .= $this->getHost();
         }
         if (null !== $this->getPort()) {
-            $uri .= ":" . $this->getPort();
+            if ("https" === $this->getScheme() && 443 !== $this->getPort()) {
+                $uri .= ":" . $this->getPort();
+            }
+            if ("http" === $this->getScheme() && 80 !== $this->getPort()) {
+                $uri .= ":" . $this->getPort();
+            }
         }
+
+        return $uri;
+    }
+
+    private function constructUriFromParts()
+    {
+        $uri = $this->constructBaseUriFromParts();
         if (null !== $this->getPath()) {
             $uri .= $this->getPath();
         }
@@ -132,10 +150,18 @@ class Uri
         $this->uriParts['fragment'] = $fragment;
     }
 
+    public function getBaseUri()
+    {
+        $baseUri = $this->constructBaseUriFromParts();
+        self::validateUri($baseUri);
+
+        return $baseUri;
+    }
+
     public function getUri()
     {
         $uri = $this->constructUriFromParts();
-        $this->validateUri($uri);
+        self::validateUri($uri);
 
         return $uri;
     }

@@ -3,6 +3,9 @@
 ## 0.4.8
 - add `isHttps()` method to `Request` object to determine if the 
   connection was made over HTTPS
+- add `getBaseUri()` method to `Uri` object
+- normalize Uri by stripping ports if they are the default ports
+  for HTTP (80) and HTTPS (443)
 
 ## 0.4.7
 - support multiple request methods per match line

@@ -125,6 +125,50 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("action=foo", $h->getQuery());
     }
 
+    public function testGetHttpsPort()
+    {
+        $h = new Uri("https://www.example.com/request?action=foo");
+        $this->assertEquals(443, $h->getPort());
+    }
+
+    public function testGetHttpPort()
+    {
+        $h = new Uri("http://www.example.com/request?action=foo");
+        $this->assertEquals(80, $h->getPort());
+    }
+
+    public function testGetHttpsUriNormalized()
+    {
+        $h = new Uri("https://www.example.com:443/request?action=foo");
+        $this->assertEquals(443, $h->getPort());
+        $this->assertEquals("https://www.example.com/request?action=foo", $h->getUri());
+    }
+
+    public function testGetHttpUriNormalized()
+    {
+        $h = new Uri("http://www.example.com:80/request?action=foo");
+        $this->assertEquals(80, $h->getPort());
+        $this->assertEquals("http://www.example.com/request?action=foo", $h->getUri());
+    }
+
+    public function testGetHttpBaseUri()
+    {
+        $h = new Uri("http://www.example.com/request?action=foo");
+        $this->assertEquals("http://www.example.com", $h->getBaseUri());
+    }
+
+    public function testGetHttpsFragmentBaseUri()
+    {
+        $h = new Uri("https://www.example.com:443/request?action=foo#frag=foo");
+        $this->assertEquals("https://www.example.com", $h->getBaseUri());
+    }
+
+    public function testGetHttpBaseUriDifferentPort()
+    {
+        $h = new Uri("http://www.example.com:8080/request?action=foo");
+        $this->assertEquals("http://www.example.com:8080", $h->getBaseUri());
+    }
+
     /**
      * @expectedException \fkooman\Http\UriException
      */
