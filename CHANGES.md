@@ -1,5 +1,8 @@
 # Release History
 
+## 0.4.9
+- initial version of very simple Session handler
+
 ## 0.4.8
 - add `isHttps()` method to `Request` object to determine if the 
   connection was made over HTTPS
