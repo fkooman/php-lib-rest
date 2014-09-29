@@ -1,5 +1,9 @@
 # Release History
 
+## 0.4.8
+- add `isHttps()` method to `Request` object to determine if the 
+  connection was made over HTTPS
+
 ## 0.4.7
 - support multiple request methods per match line
 

@@ -141,4 +141,16 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("foo", $h->getBasicAuthUser());
         $this->assertEquals("bar", $h->getBasicAuthPass());
     }
+
+    public function testHttpScheme()
+    {
+        $h = new Request("http://www.example.org", "GET");
+        $this->assertFalse($h->isHttps());
+    }
+
+    public function testHttpsScheme()
+    {
+        $h = new Request("https://www.example.org", "GET");
+        $this->assertTrue($h->isHttps());
+    }
 }

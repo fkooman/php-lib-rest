@@ -203,6 +203,11 @@ class Request
         return $this->basicAuthPass;
     }
 
+    public function isHttps()
+    {
+        return "https" === $this->getRequestUri()->getScheme();
+    }
+
     public static function normalizeHeaderKey($key)
     {
         // strip HTTP_ if needed
