@@ -40,8 +40,7 @@ try {
     //   new BasicAuthentication("foo", "bar", "My Secured Foo Service")
     //);
 
-    $service->match(
-        "GET",
+    $service->get(
         "/hello/:str",
         function ($str) {
             $response = new JsonResponse(200);
@@ -56,8 +55,7 @@ try {
         }
     );
 
-    $service->match(
-        "POST",
+    $service->post(
         "/hello/:str",
         function ($str) {
             if ("foo" === $str) {
