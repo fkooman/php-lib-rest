@@ -619,7 +619,11 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $request->setPathInfo("/admin/money/a/b/c/");
         $service = new Service($request);
-        $service->match(array("GET", "HEAD"),
+        $service->match(
+            array(
+                "GET",
+                "HEAD"
+            ),
             "*",
             function ($all) use ($request) {
                 return "HEAD" === $request->getRequestMethod() ? "" : $all;
@@ -635,7 +639,11 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://localhost/php-remoteStorage/api.php", "HEAD");
         $request->setPathInfo("/admin/money/a/b/c/");
         $service = new Service($request);
-        $service->match(array("GET", "HEAD"),
+        $service->match(
+            array(
+                "GET",
+                "HEAD"
+            ),
             "*",
             function ($all) use ($request) {
                 return "HEAD" === $request->getRequestMethod() ? "" : $all;
