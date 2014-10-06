@@ -127,7 +127,7 @@ class Service
             "requestMethod" => $requestMethod,
             "requestPattern" => $requestPattern,
             "callback" => $callback,
-            "skipPlugin" => $skipPlugin
+            "skipPlugin" => $skipPlugin,
         );
         foreach ($requestMethod as $r) {
             if (!in_array($r, $this->supportedMethods)) {
@@ -194,7 +194,7 @@ class Service
             $response->setContent(
                 array(
                     "code" => 404,
-                    "error" => "Not Found"
+                    "error" => "Not Found",
                 )
             );
 
@@ -206,7 +206,7 @@ class Service
         $response->setContent(
             array(
                 "code" => 405,
-                "error" => "Method Not Allowed"
+                "error" => "Method Not Allowed",
             )
         );
 
@@ -248,10 +248,10 @@ class Service
         foreach ($matches[0] as $m) {
             // determine pattern based on whether variable is wildcard or not
             $mm = str_replace(array(":", "+"), "", $m);
-            $pattern = (strpos($m, "+") === strlen($m) -1) ? '(?P<' . $mm . '>(.+?[^/]))' : '(?P<' . $mm . '>([^/]+))';
+            $pattern = (strpos($m, "+") === strlen($m) -1) ? '(?P<'.$mm.'>(.+?[^/]))' : '(?P<'.$mm.'>([^/]+))';
             $requestPattern = str_replace($m, $pattern, $requestPattern);
         }
-        $pm = preg_match("#^" . $requestPattern . "$#", $this->request->getPathInfo(), $parameters);
+        $pm = preg_match("#^".$requestPattern."$#", $this->request->getPathInfo(), $parameters);
         if (false === $pm) {
             throw new RequestException("regex for path matching failed");
         }

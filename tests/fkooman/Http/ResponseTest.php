@@ -20,12 +20,11 @@ namespace fkooman\Http;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
-
     private $filePath;
 
     public function setUp()
     {
-        $this->filePath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . "data";
+        $this->filePath = dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR."data";
     }
 
     public function testResponse()
@@ -39,7 +38,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testResponseFromFile()
     {
-        $h = Response::fromFile($this->filePath . DIRECTORY_SEPARATOR . "simple.txt");
+        $h = Response::fromFile($this->filePath.DIRECTORY_SEPARATOR."simple.txt");
         $this->assertEquals(200, $h->getStatusCode());
         $this->assertEquals("text/plain", $h->getContentType());
         $this->assertEquals("Hello World", $h->getContent());
@@ -48,7 +47,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testResponseBearerFromFile()
     {
-        $h = Response::fromFile($this->filePath . DIRECTORY_SEPARATOR . "bearer.txt");
+        $h = Response::fromFile($this->filePath.DIRECTORY_SEPARATOR."bearer.txt");
         $this->assertEquals(401, $h->getStatusCode());
         $this->assertEquals("application/json", $h->getContentType());
         $this->assertEquals(
@@ -63,7 +62,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testResponseEmptyResponseFromFile()
     {
-        $h = Response::fromFile($this->filePath . DIRECTORY_SEPARATOR . "empty_response.txt");
+        $h = Response::fromFile($this->filePath.DIRECTORY_SEPARATOR."empty_response.txt");
         $this->assertEquals(200, $h->getStatusCode());
         $this->assertEquals("text/html", $h->getContentType());
         $this->assertEquals("", $h->getContent());

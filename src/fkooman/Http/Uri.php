@@ -51,12 +51,12 @@ class Uri
     {
         $uri = "";
         if (null !== $this->getScheme()) {
-            $uri .= $this->getScheme() . "://";
+            $uri .= $this->getScheme()."://";
         }
         if (null !== $this->getUser()) {
             $uri .= $this->getUser();
             if (null !== $this->getPass()) {
-                $uri .= ":" . $this->getPass();
+                $uri .= ":".$this->getPass();
             }
             $uri .= "@";
         }
@@ -65,10 +65,10 @@ class Uri
         }
         if (null !== $this->getPort()) {
             if ("https" === $this->getScheme() && 443 !== $this->getPort()) {
-                $uri .= ":" . $this->getPort();
+                $uri .= ":".$this->getPort();
             }
             if ("http" === $this->getScheme() && 80 !== $this->getPort()) {
-                $uri .= ":" . $this->getPort();
+                $uri .= ":".$this->getPort();
             }
         }
 
@@ -82,10 +82,10 @@ class Uri
             $uri .= $this->getPath();
         }
         if (null !== $this->getQuery()) {
-            $uri .= "?" . $this->getQuery();
+            $uri .= "?".$this->getQuery();
         }
         if (null !== $this->getFragment()) {
-            $uri .= "#" . $this->getFragment();
+            $uri .= "#".$this->getFragment();
         }
 
         return $uri;
@@ -136,7 +136,7 @@ class Uri
         if ($this->getQuery() === null) {
             $this->setQuery($query);
         } else {
-            $this->setQuery($this->getQuery() . "&" . $query);
+            $this->setQuery($this->getQuery()."&".$query);
         }
     }
 

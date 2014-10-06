@@ -147,7 +147,7 @@ class Request
         }
         $hdrs = array();
         foreach ($this->headers as $k => $v) {
-            array_push($hdrs, $k . ": " . $v);
+            array_push($hdrs, $k.": ".$v);
         }
 
         return $hdrs;
@@ -221,17 +221,17 @@ class Request
     public function __toString()
     {
         $s  = PHP_EOL;
-        $s .= "*Request*" . PHP_EOL;
-        $s .= "Request Method: " . $this->getRequestMethod() . PHP_EOL;
-        $s .= "Request URI: " . $this->getRequestUri()->getUri() . PHP_EOL;
+        $s .= "*Request*".PHP_EOL;
+        $s .= "Request Method: ".$this->getRequestMethod().PHP_EOL;
+        $s .= "Request URI: ".$this->getRequestUri()->getUri().PHP_EOL;
         if (null !== $this->getBasicAuthUser()) {
-            $s .= "Basic Authentication: " . $this->getBasicAuthUser() . ":" . $this->getBasicAuthPass();
+            $s .= "Basic Authentication: ".$this->getBasicAuthUser().":".$this->getBasicAuthPass();
         }
-        $s .= "Headers:" . PHP_EOL;
+        $s .= "Headers:".PHP_EOL;
         foreach ($this->getHeaders(true) as $v) {
-            $s .= "\t" . $v . PHP_EOL;
+            $s .= "\t".$v.PHP_EOL;
         }
-        $s .= "Content:" . PHP_EOL;
+        $s .= "Content:".PHP_EOL;
         $s .= $this->getContent();
 
         return $s;

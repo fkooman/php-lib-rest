@@ -57,7 +57,7 @@ class BasicAuthentication implements ServicePluginInterface
             $response->setContent(
                 array(
                     "code" => 401,
-                    "error" => "Unauthorized"
+                    "error" => "Unauthorized",
                 )
             );
 

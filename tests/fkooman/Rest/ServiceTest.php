@@ -622,7 +622,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $service->match(
             array(
                 "GET",
-                "HEAD"
+                "HEAD",
             ),
             "*",
             function ($all) use ($request) {
@@ -642,7 +642,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $service->match(
             array(
                 "GET",
-                "HEAD"
+                "HEAD",
             ),
             "*",
             function ($all) use ($request) {

@@ -97,7 +97,7 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
                 "/request",
                 "off",
                 "http://www.example.com/request",
-                ""
+                "",
             ),
             array(
                 "80",
@@ -105,7 +105,7 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
                 "/request",
                 "off",
                 "http://www.example.com/request",
-                "action=foo"
+                "action=foo",
             ),
             array(
                 "443",
@@ -113,7 +113,7 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
                 "/request",
                 "on",
                 "https://www.example.com/request",
-                "action=foo"
+                "action=foo",
             ),
             array(
                 "80",
@@ -121,7 +121,7 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
                 "/request",
                 "off",
                 "http://www.example.com/request",
-                pack("nvc*", 0x1234, 0x5678, 65, 66)
+                pack("nvc*", 0x1234, 0x5678, 65, 66),
             ),
         );
     }

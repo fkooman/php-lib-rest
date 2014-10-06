@@ -58,17 +58,17 @@ class IncomingRequest
         if (filter_var($_SERVER['SERVER_NAME'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) {
             $name = $_SERVER['SERVER_NAME'];
         } else {
-            $name = '[' . $_SERVER['SERVER_NAME'] . ']';
+            $name = '['.$_SERVER['SERVER_NAME'].']';
         }
 
         // server port
         if (($_SERVER['SERVER_PORT'] === "80" && ($scheme === "http" || $proxy)) || ($_SERVER['SERVER_PORT'] === "443" && $scheme === "https")) {
             $port = "";
         } else {
-            $port = ":" . $_SERVER['SERVER_PORT'];
+            $port = ":".$_SERVER['SERVER_PORT'];
         }
 
-        return $scheme . "://" . $name . $port . $_SERVER['REQUEST_URI'];
+        return $scheme."://".$name.$port.$_SERVER['REQUEST_URI'];
     }
 
     public function getContent()

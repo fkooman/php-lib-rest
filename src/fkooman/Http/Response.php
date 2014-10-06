@@ -67,7 +67,7 @@ class Response
         502 => "Bad Gateway",
         503 => "Service Unavailable",
         504 => "Gateway Timeout",
-        505 => "HTTP Version Not Supported"
+        505 => "HTTP Version Not Supported",
     );
 
     private $useXSendfile;
@@ -183,7 +183,7 @@ class Response
         }
         $hdrs = array();
         foreach ($this->headers as $k => $v) {
-            array_push($hdrs, $k . ": " . $v);
+            array_push($hdrs, $k.": ".$v);
         }
 
         return $hdrs;
@@ -191,22 +191,22 @@ class Response
 
     public function getStatusLine()
     {
-        return "HTTP/1.1 " . $this->getStatusCode() . " " . $this->getStatusReason();
+        return "HTTP/1.1 ".$this->getStatusCode()." ".$this->getStatusReason();
     }
 
     public function sendResponse()
     {
         header($this->getStatusLine());
         foreach ($this->getHeaders() as $k => $v) {
-            header($k . ": " . $v);
+            header($k.": ".$v);
         }
         if (null !== $this->getContentFile()) {
             if ($this->useXSendfile) {
                 // use X-Sendfile (see https://tn123.org/mod_xsendfile/)
-                header("X-Sendfile: " . $this->getContentFile());
+                header("X-Sendfile: ".$this->getContentFile());
             } else {
                 // just use PHP to send it (less efficient than X-Sendfile)
-                header("Content-Length: " . filesize($this->getContentFile()));
+                header("Content-Length: ".filesize($this->getContentFile()));
                 readfile($this->getContentFile());
             }
         } else {
@@ -248,14 +248,14 @@ class Response
     public function __toString()
     {
         $s  = PHP_EOL;
-        $s .= "*Response*" . PHP_EOL;
-        $s .= "Status:" . PHP_EOL;
-        $s .= "\t" . $this->getStatusLine() . PHP_EOL;
-        $s .= "Headers:" . PHP_EOL;
+        $s .= "*Response*".PHP_EOL;
+        $s .= "Status:".PHP_EOL;
+        $s .= "\t".$this->getStatusLine().PHP_EOL;
+        $s .= "Headers:".PHP_EOL;
         foreach ($this->getHeaders() as $k => $v) {
-            $s .= "\t" . ($k . ": " . $v) . PHP_EOL;
+            $s .= "\t".($k.": ".$v).PHP_EOL;
         }
-        $s .= "Content:" . PHP_EOL;
+        $s .= "Content:".PHP_EOL;
         $s .= $this->content;
 
         return $s;
