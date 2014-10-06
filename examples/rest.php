@@ -10,13 +10,13 @@
 // Code 200, {"type":"GET","response":"hello world"}:
 // curl http://localhost/php-lib-rest/examples/rest.php/hello/world
 //
-// Code 404, {"error":"not_found","error_description":"resource not found"}
+// Code 404, {"code":404,"error":"Not Found"}
 // curl http://localhost/php-lib-rest/examples/rest.php/foo
 //
-// Code 405, {"error":"method_not_allowed","error_description":"request method not allowed"}
+// {"code":405,"error":"Method Not Allowed"}
 // curl -X DELETE http://localhost/php-lib-rest/examples/rest.php/hello/world
 //
-// Code 500, {"error":"internal_server_error","error_description":"you cannot say 'foo'!'"}
+// Code 400, {"error":"Bad Request","error_description":"you cannot say \"foo!\""}
 // curl -X POST http://localhost/php-lib-rest/examples/rest.php/hello/foo
 //
 
@@ -28,6 +28,7 @@ use fkooman\Http\JsonResponse;
 use fkooman\Http\IncomingRequest;
 use fkooman\Rest\Plugin\BasicAuthentication;
 use fkooman\Http\Exception\HttpException;
+use fkooman\Http\Exception\BadRequestException;
 
 try {
     $service = new Service(
