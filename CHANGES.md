@@ -1,5 +1,8 @@
 # Release History
 
+## 0.4.10
+- add some Http response exceptions for use by applications
+
 ## 0.4.9
 - initial version of very simple Session handler
 

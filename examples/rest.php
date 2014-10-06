@@ -20,13 +20,14 @@
 // curl -X POST http://localhost/php-lib-rest/examples/rest.php/hello/foo
 //
 
-require_once dirname(__DIR__) . '/vendor/autoload.php';
+require_once dirname(__DIR__).'/vendor/autoload.php';
 
 use fkooman\Rest\Service;
 use fkooman\Http\Request;
 use fkooman\Http\JsonResponse;
 use fkooman\Http\IncomingRequest;
 use fkooman\Rest\Plugin\BasicAuthentication;
+use fkooman\Http\Exception\HttpException;
 
 try {
     $service = new Service(
@@ -37,17 +38,17 @@ try {
 
     // require all requests to have valid authentication
     //$service->registerBeforeMatchingPlugin(
-    //   new BasicAuthentication("foo", "bar", "My Secured Foo Service")
+    //   new BasicAuthentication('foo', 'bar', 'My Secured Foo Service')
     //);
 
     $service->get(
-        "/hello/:str",
+        '/hello/:str',
         function ($str) {
             $response = new JsonResponse(200);
             $response->setContent(
                 array(
-                    "type" => "GET",
-                    "response" => sprintf("hello %s", $str)
+                    'type' => 'GET',
+                    'response' => sprintf('hello %s', $str),
                 )
             );
 
@@ -56,19 +57,19 @@ try {
     );
 
     $service->post(
-        "/hello/:str",
+        '/hello/:str',
         function ($str) {
-            if ("foo" === $str) {
+            if ('foo' === $str) {
                 // it would make more sense to create something like an ApiException
                 // class that would return the code 400 "Bad Request" instead of
                 // internal server error as this is a 'mistake' by the client...
-                throw new InvalidArgumentException("you cannot say 'foo'!'");
+                throw new BadRequestException('you cannot say "foo!"');
             }
             $response = new JsonResponse(200);
             $response->setContent(
                 array(
-                    "type" => "POST",
-                    "response" => sprintf("hello %s", $str)
+                    'type' => 'POST',
+                    'response' => sprintf('hello %s', $str),
                 )
             );
 
@@ -78,11 +79,19 @@ try {
 
     $service->run()->sendResponse();
 } catch (Exception $e) {
-    $response = new JsonResponse(500);
+    $message = $e->getMessage();
+    if ($e instanceof HttpException) {
+        $code = $e->getCode();
+        $reason = $e->getReason();
+    } else {
+        $code = 500;
+        $reason = 'Internal Server Error';
+    }
+    $response = new JsonResponse($code);
     $response->setContent(
         array(
-            "error" => "internal_server_error",
-            "error_description" => $e->getMessage()
+            'error' => $reason,
+            'error_description' => $message,
         )
     );
     $response->sendResponse();
