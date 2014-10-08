@@ -22,13 +22,14 @@
 
 require_once dirname(__DIR__).'/vendor/autoload.php';
 
-use fkooman\Rest\Service;
 use fkooman\Http\Request;
 use fkooman\Http\JsonResponse;
 use fkooman\Http\IncomingRequest;
+use fkooman\Rest\Service;
 use fkooman\Rest\Plugin\BasicAuthentication;
 use fkooman\Http\Exception\HttpException;
 use fkooman\Http\Exception\BadRequestException;
+use fkooman\Http\Exception\InternalServerErrorException;
 
 try {
     $service = new Service(
@@ -45,7 +46,7 @@ try {
     $service->get(
         '/hello/:str',
         function ($str) {
-            $response = new JsonResponse(200);
+            $response = new JsonResponse();
             $response->setContent(
                 array(
                     'type' => 'GET',
@@ -61,12 +62,9 @@ try {
         '/hello/:str',
         function ($str) {
             if ('foo' === $str) {
-                // it would make more sense to create something like an ApiException
-                // class that would return the code 400 "Bad Request" instead of
-                // internal server error as this is a 'mistake' by the client...
                 throw new BadRequestException('you cannot say "foo!"');
             }
-            $response = new JsonResponse(200);
+            $response = new JsonResponse();
             $response->setContent(
                 array(
                     'type' => 'POST',
@@ -80,20 +78,12 @@ try {
 
     $service->run()->sendResponse();
 } catch (Exception $e) {
-    $message = $e->getMessage();
     if ($e instanceof HttpException) {
-        $code = $e->getCode();
-        $reason = $e->getReason();
+        $response = $e->getResponse();
     } else {
-        $code = 500;
-        $reason = 'Internal Server Error';
+        // we catch all other (unexpected) exceptions and return a 500
+        $e = new InternalServerErrorException($e->getMessage());
+        $response = $e->getResponse();
     }
-    $response = new JsonResponse($code);
-    $response->setContent(
-        array(
-            'error' => $reason,
-            'error_description' => $message,
-        )
-    );
     $response->sendResponse();
 }

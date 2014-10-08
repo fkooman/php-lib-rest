@@ -19,6 +19,7 @@
 namespace fkooman\Http\Exception;
 
 use fkooman\Http\Response;
+use fkooman\Http\JsonResponse;
 use Exception;
 
 class HttpException extends Exception
@@ -30,6 +31,36 @@ class HttpException extends Exception
 
     public function getReason()
     {
-        return array_key_exists($this->code, Response::$statusCodes) ? Response::$statusCodes[$this->code] : null;
+        if (!array_key_exists($this->code, Response::$statusCodes)) {
+            return null;
+        }
+
+        return Response::$statusCodes[$this->code];
+    }
+
+    public function getResponse($useJson = true)
+    {
+        if ($useJson) {
+            $response = new JsonResponse($this->getCode());
+            $response->setContent(
+                array(
+                    'code' => $this->getCode(),
+                    'error' => $this->getReason(),
+                    'error_description' => $this->getMessage(),
+                )
+            );
+        } else {
+            $response = new Response($this->getCode());
+            $htmlData = sprintf(
+                '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>%s %s</title></head><body><h1>%s</h1><p>%s</p></body></html>',
+                $this->getCode(),
+                $this->getReason(),
+                $this->getReason(),
+                $this->getMessage()
+            );
+            $response->setContent($htmlData);
+        }
+
+        return $response;
     }
 }
