@@ -18,22 +18,20 @@
 
 namespace fkooman\Http\Exception;
 
-class UnauthorizedException extends HttpException
+class MethodNotAllowedException extends HttpException
 {
-    /** @var string */
-    private $authType;
+    /** @var array */
+    private $allowedMethods;
 
-    /** @var string */
-    private $authRealm;
-
-    public function __construct($authType, $authRealm = 'My Realm', $code = 0, Exception $previous = null)
+    public function __construct(array $allowedMethods, $code = 0, Exception $previous = null)
     {
-        $this->authType = $authType;
-        $this->authRealm = $authRealm;
-
+        $this->allowedMethods = $allowedMethods;
         parent::__construct(
-            sprintf('%s: %s', $authType, $authRealm),
-            401,
+            sprintf(
+                'Only %s allowed',
+                implode(",", $this->allowedMethods)
+            ),
+            405,
             $previous
         );
     }
@@ -41,10 +39,7 @@ class UnauthorizedException extends HttpException
     public function getResponse($useJson = true)
     {
         $response = parent::getResponse($useJson);
-        $response->setHeader(
-            'WWW-Authenticate',
-            sprintf('%s realm="%s"', $this->authType, $this->authRealm)
-        );
+        $response->setHeader('Allow', implode(",", $this->allowedMethods));
 
         return $response;
     }

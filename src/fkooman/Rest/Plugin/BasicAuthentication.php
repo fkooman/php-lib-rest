@@ -19,8 +19,8 @@
 namespace fkooman\Rest\Plugin;
 
 use fkooman\Http\Request;
-use fkooman\Http\JsonResponse;
 use fkooman\Rest\ServicePluginInterface;
+use fkooman\Http\Exception\UnauthorizedException;
 
 class BasicAuthentication implements ServicePluginInterface
 {
@@ -40,28 +40,13 @@ class BasicAuthentication implements ServicePluginInterface
         $this->basicAuthRealm = $basicAuthRealm;
     }
 
-    /**
-     * @return true|fkooman\Http\JsonResponse
-     */
     public function execute(Request $request)
     {
         $requestBasicAuthUser = $request->getBasicAuthUser();
         $requestBasicAuthPass = $request->getBasicAuthPass();
 
         if ($this->basicAuthUser !== $requestBasicAuthUser || $this->basicAuthPass !== $requestBasicAuthPass) {
-            $response = new JsonResponse(401);
-            $response->setHeader(
-                "WWW-Authenticate",
-                sprintf('Basic realm="%s"', $this->basicAuthRealm)
-            );
-            $response->setContent(
-                array(
-                    "code" => 401,
-                    "error" => "Unauthorized",
-                )
-            );
-
-            return $response;
+            throw new UnauthorizedException('Basic', $this->basicAuthRealm);
         }
 
         return true;

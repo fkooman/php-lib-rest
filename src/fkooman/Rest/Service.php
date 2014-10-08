@@ -20,8 +20,9 @@ namespace fkooman\Rest;
 
 use UnexpectedValueException;
 use fkooman\Http\Request;
-use fkooman\Http\JsonResponse;
 use fkooman\Http\Response;
+use fkooman\Http\Exception\MethodNotAllowedException;
+use fkooman\Http\Exception\NotFoundException;
 
 class Service
 {
@@ -181,7 +182,7 @@ class Service
                 if (!is_string($response)) {
                     throw new UnexpectedValueException("callback MUST return Response object or string");
                 }
-                $responseObj = new Response(200, "text/html");
+                $responseObj = new Response();
                 $responseObj->setContent($response);
 
                 return $responseObj;
@@ -190,27 +191,10 @@ class Service
 
         // handle non matching patterns
         if (in_array($this->request->getRequestMethod(), $this->supportedMethods)) {
-            $response = new JsonResponse(404);
-            $response->setContent(
-                array(
-                    "code" => 404,
-                    "error" => "Not Found",
-                )
-            );
-
-            return $response;
+            throw new NotFoundException('url not found');
         }
 
-        $response = new JsonResponse(405);
-        $response->setHeader("Allow", implode(",", $this->supportedMethods));
-        $response->setContent(
-            array(
-                "code" => 405,
-                "error" => "Method Not Allowed",
-            )
-        );
-
-        return $response;
+        throw new MethodNotAllowedException($this->supportedMethods);
     }
 
     private function matchRest(array $requestMethod, $requestPattern, $callback)
@@ -233,7 +217,7 @@ class Service
         // check for variables in the requestPattern
         $pma = preg_match_all('#:([\w]+)\+?#', $requestPattern, $matches);
         if (false === $pma) {
-            throw new RequestException("regex for variable search failed");
+            throw new InternalServerErrorException("regex for variable search failed");
         }
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
@@ -253,7 +237,7 @@ class Service
         }
         $pm = preg_match("#^".$requestPattern."$#", $this->request->getPathInfo(), $parameters);
         if (false === $pm) {
-            throw new RequestException("regex for path matching failed");
+            throw new InternalServerErrorException("regex for path matching failed");
         }
         if (0 === $pm) {
             // request path does not match pattern

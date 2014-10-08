@@ -1,5 +1,10 @@
 # Release History
 
+## 0.4.11
+- make better use of included HttpExceptions
+- cleanup example
+- add MethodNotAllowedException
+
 ## 0.4.10
 - add some Http response exceptions for use by applications
 
