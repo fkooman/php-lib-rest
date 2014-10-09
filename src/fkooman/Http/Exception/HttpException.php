@@ -29,15 +29,6 @@ class HttpException extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public function getReason()
-    {
-        if (!array_key_exists($this->code, Response::$statusCodes)) {
-            return null;
-        }
-
-        return Response::$statusCodes[$this->code];
-    }
-
     public function getResponse($useJson = true)
     {
         if ($useJson) {
@@ -45,7 +36,7 @@ class HttpException extends Exception
             $response->setContent(
                 array(
                     'code' => $this->getCode(),
-                    'error' => $this->getReason(),
+                    'error' => $response->getStatusReason(),
                     'error_description' => $this->getMessage(),
                 )
             );
@@ -54,8 +45,8 @@ class HttpException extends Exception
             $htmlData = sprintf(
                 '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>%s %s</title></head><body><h1>%s</h1><p>%s</p></body></html>',
                 $this->getCode(),
-                $this->getReason(),
-                $this->getReason(),
+                $response->getStatusReason(),
+                $response->getStatusReason(),
                 $this->getMessage()
             );
             $response->setContent($htmlData);

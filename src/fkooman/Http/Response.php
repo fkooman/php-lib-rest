@@ -26,7 +26,7 @@ class Response
 
     private $statusCode;
 
-    public static $statusCodes = array(
+    private $statusCodes = array(
         100 => "Continue",
         101 => "Switching Protocols",
         200 => "OK",
@@ -99,7 +99,7 @@ class Response
 
     public function getStatusReason()
     {
-        return self::$statusCodes[$this->statusCode];
+        return $this->statusCodes[$this->statusCode];
     }
 
     public function setContentType($contentType)
@@ -129,7 +129,7 @@ class Response
 
     public function setStatusCode($code)
     {
-        if (!is_numeric($code) || !array_key_exists($code, self::$statusCodes)) {
+        if (!is_numeric($code) || !array_key_exists($code, $this->statusCodes)) {
             throw new ResponseException("invalid status code");
         }
         $this->statusCode = (int) $code;

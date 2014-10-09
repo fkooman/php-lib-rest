@@ -4,6 +4,7 @@
 - make better use of included HttpExceptions
 - cleanup example
 - add MethodNotAllowedException
+- revert Response to not expose statusCodes anymore
 
 ## 0.4.10
 - add some Http response exceptions for use by applications

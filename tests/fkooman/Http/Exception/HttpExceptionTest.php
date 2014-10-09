@@ -26,7 +26,6 @@ class HttpExceptionTest extends PHPUnit_Framework_TestCase
     {
         $e = new HttpException("foo", 404);
         $this->assertEquals(404, $e->getCode());
-        $this->assertEquals("Not Found", $e->getReason());
         $this->assertEquals("foo", $e->getMessage());
     }
 }

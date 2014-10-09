@@ -5,7 +5,7 @@
 %global github_name      php-lib-rest
 
 Name:       php-%{composer_vendor}-%{composer_project}
-Version:    0.4.10
+Version:    0.4.11
 Release:    1%{?dist}
 Summary:    Simple PHP library for writing REST services
 
@@ -43,6 +43,9 @@ cp -pr src/* ${RPM_BUILD_ROOT}%{_datadir}/php
 %doc README.md CHANGES.md COPYING composer.json
 
 %changelog
+* Thu Oct 09 2014 François Kooman <fkooman@tuxed.net> - 0.4.11-1
+- update to 0.4.11
+
 * Mon Oct 06 2014 François Kooman <fkooman@tuxed.net> - 0.4.10-1
 - update to 0.4.10
 
