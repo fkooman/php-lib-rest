@@ -2,6 +2,8 @@
 
 ## 0.4.11
 - make better use of included HttpExceptions
+- implement `getResponse()` method for (derived) HttpExceptions, both JSON and
+  HTML response supported by parameter. `true` is JSON, `false` is HTML
 - cleanup example
 - add MethodNotAllowedException
 - revert Response to not expose statusCodes anymore
