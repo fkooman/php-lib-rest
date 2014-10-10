@@ -29,7 +29,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
 
-        $service = new Service($request);
+        $service = new Service();
         $service->get(
             "/foo/bar/baz.txt",
             function () {
@@ -39,7 +39,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return $response;
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals("Hello World", $response->getContent());
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -50,7 +50,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setPathInfo("/foo/bar/baz.txt");
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("bar");
-        $service = new Service($request);
+        $service = new Service();
         $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", password_hash('bar', PASSWORD_DEFAULT), "Foo Realm"));
         $service->match(
             "GET",
@@ -62,7 +62,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return $response;
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals("Hello World", $response->getContent());
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -77,7 +77,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setPathInfo("/foo/bar/baz.txt");
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("baz");
-        $service = new Service($request);
+        $service = new Service();
         $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
@@ -89,7 +89,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return $response;
             }
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -100,7 +100,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
-        $service = new Service($request);
+        $service = new Service();
         $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
@@ -112,7 +112,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return $response;
             }
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -125,7 +125,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setPathInfo("/foo/bar/baz.txt");
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("baz");
-        $service = new Service($request);
+        $service = new Service();
         $service->registerBeforeEachMatchPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
@@ -137,7 +137,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return $response;
             }
         );
-        $service->run();
+        $service->run($request);
     }
 
     public function testBeforeEachMatchPluginSkip()
@@ -146,7 +146,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setPathInfo("/foo/bar/baz.txt");
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("baz");
-        $service = new Service($request);
+        $service = new Service();
         $service->registerBeforeEachMatchPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
         $service->match(
             "GET",
@@ -159,7 +159,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
             },
             array('fkooman\Rest\Plugin\BasicAuthentication')
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals("Hello World", $response->getContent());
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -173,10 +173,10 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
 
-        $service = new Service($request);
+        $service = new Service();
         $service->post("/foo/bar/baz.txt", null);
         $service->delete("/foo/bar/baz.txt", null);
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -188,9 +188,9 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/bar/foo.txt");
 
-        $service = new Service($request);
+        $service = new Service();
         $service->match("GET", "/foo/:xyz", null);
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(404, $response->getStatusCode());
     }
 
@@ -199,7 +199,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
 
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -207,7 +207,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return "Hello World";
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals("text/html", $response->getContentType());
         $this->assertEquals("Hello World", $response->getContent());
         $this->assertEquals(200, $response->getStatusCode());
@@ -218,7 +218,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/bar/baz");
 
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:one/:two/:three",
@@ -226,7 +226,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return json_encode(array($one, $two, $three));
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals('["foo","bar","baz"]', $response->getContent());
     }
 
@@ -235,7 +235,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/api.php", "POST");
         $request->setPathInfo("/foo/bar/baz");
 
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "POST",
             "/foo/bar/baz",
@@ -243,7 +243,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return "match";
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals("match", $response->getContent());
     }
 
@@ -255,13 +255,13 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "POST");
         $request->setPathInfo("/");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:one/:two/:three",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -272,13 +272,13 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/bar/baz/foobar");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:one/:two/:three",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -289,20 +289,20 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/bar/");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:one/:two/:three+",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     public function testMatchRestMatchWildcard()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/bar/baz/foobar");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:one/:two/:three+",
@@ -310,7 +310,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return json_encode(array($one, $two, $three));
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('["foo","bar","baz\/foobar"]', $response->getContent());
     }
@@ -319,7 +319,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/bar/baz/foobar");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:one/:two+/foobar",
@@ -327,7 +327,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return json_encode(array($one, $two));
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('["foo","bar\/baz"]', $response->getContent());
     }
@@ -340,20 +340,20 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/bar/baz/foobar");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:abc+/foobaz",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     public function testMatchRestMatchWildcardInMiddle()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/bar/baz/foobar");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:one/:two+/:three",
@@ -361,7 +361,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return json_encode(array($one, $two, $three));
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('["foo","bar\/baz","foobar"]', $response->getContent());
     }
@@ -374,13 +374,13 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("foo");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "foo",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -391,13 +391,13 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -408,13 +408,13 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "x",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -425,13 +425,13 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/bar",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -442,13 +442,13 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/bar/foo/bar/baz");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/foo/bar/foo/bar/bar",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -459,13 +459,13 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/foo/bar/:foo/bar/bar",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     /**
@@ -476,7 +476,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "GET");
         $request->setPathInfo("/foo/");
-        $service = new Service($request);
+        $service = new Service();
         $service->get(
             "/foo/:bar",
             null
@@ -489,14 +489,14 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
             "/foo/:bar",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     public function testMatchRestVootGroups()
     {
         $request = new Request("http://localhost/oauth/php-voot-proxy/voot.php", "GET");
         $request->setPathInfo("/groups/@me");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/groups/@me",
@@ -504,7 +504,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return "match";
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("match", $response->getContent());
     }
@@ -513,7 +513,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://localhost/oauth/php-voot-proxy/voot.php", "GET");
         $request->setPathInfo("/people/@me/urn:groups:demo:member");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/people/@me/:groupId",
@@ -521,7 +521,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return $groupId;
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("urn:groups:demo:member", $response->getContent());
     }
@@ -530,14 +530,14 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/api.php", "OPTIONS");
         $request->setPathInfo("/foo/bar/baz/foobar");
-        $service = new Service($request);
+        $service = new Service();
         $service->options(
             null,
             function () {
                 return "match";
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("match", $response->getContent());
     }
@@ -546,14 +546,14 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $request->setPathInfo("/admin/public/money/");
-        $service = new Service($request);
+        $service = new Service();
         $service->get(
             "/:user/public/:module(/:path+)/",
             function ($user, $module, $path = null) {
                 return json_encode(array($user, $module, $path));
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('["admin","money",null]', $response->getContent());
     }
@@ -562,7 +562,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $request->setPathInfo("/admin/public/money/a/b/c/");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:user/public/:module(/:path+)/",
@@ -570,7 +570,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return json_encode(array($user, $module, $path));
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('["admin","money","a\/b\/c"]', $response->getContent());
     }
@@ -583,20 +583,20 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $request->setPathInfo("/admin/money/a/b/c/");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:user/:module/:path+",
             null
         );
-        $service->run();
+        $service->run($request);
     }
 
     public function testWildcardShouldMatchDir()
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $request->setPathInfo("/admin/money/a/b/c/");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             "/:user/:module/:path+/",
@@ -604,7 +604,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return json_encode(array($user, $module, $path));
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('["admin","money","a\/b\/c"]', $response->getContent());
     }
@@ -613,7 +613,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $request->setPathInfo("/admin/money/a/b/c/");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             "GET",
             null,
@@ -621,7 +621,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return $all;
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('/admin/money/a/b/c/', $response->getContent());
     }
@@ -630,14 +630,14 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "DELETE");
         $request->setPathInfo("/admin/money/a/b/c/");
-        $service = new Service($request);
+        $service = new Service();
         $service->delete(
             "*",
             function ($all) {
                 return $all;
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('/admin/money/a/b/c/', $response->getContent());
     }
@@ -646,14 +646,14 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "HEAD");
         $request->setPathInfo("/admin/money/a/b/c/");
-        $service = new Service($request);
+        $service = new Service();
         $service->head(
             "*",
             function ($all) {
                 return "";
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertSame(0, strlen($response->getContent()));
     }
@@ -662,7 +662,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
         $request->setPathInfo("/admin/money/a/b/c/");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             array(
                 "GET",
@@ -673,7 +673,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return "HEAD" === $request->getRequestMethod() ? "" : $all;
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('/admin/money/a/b/c/', $response->getContent());
     }
@@ -682,7 +682,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "HEAD");
         $request->setPathInfo("/admin/money/a/b/c/");
-        $service = new Service($request);
+        $service = new Service();
         $service->match(
             array(
                 "GET",
@@ -693,7 +693,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 return "HEAD" === $request->getRequestMethod() ? "" : $all;
             }
         );
-        $response = $service->run();
+        $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("", $response->getContent());
     }

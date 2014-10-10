@@ -8,17 +8,16 @@
 // http://localhost/php-lib-rest/examples/rest.php:
 //
 // Code 200, {"type":"GET","response":"hello world"}:
-// curl http://localhost/php-lib-rest/examples/rest.php/hello/world
+// curl -i http://localhost/php-lib-rest/examples/rest.php/hello/world
 //
 // Code 404, {"code":404,"error":"Not Found"}
-// curl http://localhost/php-lib-rest/examples/rest.php/foo
+// curl -i http://localhost/php-lib-rest/examples/rest.php/foo
 //
 // {"code":405,"error":"Method Not Allowed"}
-// curl -X DELETE http://localhost/php-lib-rest/examples/rest.php/hello/world
+// curl -i -X DELETE http://localhost/php-lib-rest/examples/rest.php/hello/world
 //
 // Code 400, {"error":"Bad Request","error_description":"you cannot say \"foo!\""}
-// curl -X POST http://localhost/php-lib-rest/examples/rest.php/hello/foo
-//
+// curl -i -X POST http://localhost/php-lib-rest/examples/rest.php/hello/foo
 
 require_once dirname(__DIR__).'/vendor/autoload.php';
 
@@ -32,15 +31,11 @@ use fkooman\Http\Exception\BadRequestException;
 use fkooman\Http\Exception\InternalServerErrorException;
 
 try {
-    $service = new Service(
-        Request::fromIncomingRequest(
-            new IncomingRequest()
-        )
-    );
+    $service = new Service();
 
     // require all requests to have valid authentication
     //$u = 'foo';
-    // NOTE: password is generated using the "password_hash()" function from 
+    // NOTE: password is generated using the "password_hash()" function from
     // PHP 5.6 or the ircmaxell/password-compat library. This way no plain
     // text passwords are stored anywhere, below is the hashed value of 'bar'
     //$p = '$2y$10$ARD9Oq9xCzFANYGhv0mWxOsOallAS3qLQxLoOtzzRuLhv0U1IU9EO';
@@ -82,7 +77,10 @@ try {
         }
     );
 
-    $service->run()->sendResponse();
+    $request = Request::fromIncomingRequest(
+        new IncomingRequest()
+    );
+    $service->run($request)->sendResponse();
 } catch (Exception $e) {
     if ($e instanceof HttpException) {
         $response = $e->getJsonResponse();

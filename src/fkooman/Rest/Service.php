@@ -26,9 +26,6 @@ use fkooman\Http\Exception\NotFoundException;
 
 class Service
 {
-    /** @var fkooman\Http\Request */
-    private $request;
-
     /** @var array */
     private $match;
 
@@ -41,17 +38,10 @@ class Service
     /** @var array */
     private $beforeEachMatchPlugins;
 
-    /**
-     * Create a new Service object.
-     *
-     * @param fkooman\Http\Request $request the HTTP request
-     */
-    public function __construct(Request $request)
+    public function __construct()
     {
-        $this->request = $request;
         $this->match = array();
         $this->supportedMethods = array();
-
         $this->beforeMatchingPlugins = array();
         $this->beforeEachMatchPlugins = array();
     }
@@ -145,11 +135,11 @@ class Service
      *                               executed. If nothing matches either 404
      *                               or 405 response is returned.
      */
-    public function run()
+    public function run(Request $request)
     {
         // run the beforeMatchingPlugins
         foreach ($this->beforeMatchingPlugins as $plugin) {
-            $response = $plugin->execute($this->request);
+            $response = $plugin->execute($request);
             if ($response instanceof Response) {
                 return $response;
             }
@@ -162,13 +152,14 @@ class Service
                 if (in_array(get_class($plugin), $m['skipPlugin'])) {
                     continue;
                 }
-                $response = $plugin->execute($this->request);
+                $response = $plugin->execute($request);
                 if ($response instanceof Response) {
                     return $response;
                 }
             }
 
             $response = $this->matchRest(
+                $request,
                 $m['requestMethod'],
                 $m['requestPattern'],
                 $m['callback']
@@ -190,24 +181,24 @@ class Service
         }
 
         // handle non matching patterns
-        if (in_array($this->request->getRequestMethod(), $this->supportedMethods)) {
+        if (in_array($request->getRequestMethod(), $this->supportedMethods)) {
             throw new NotFoundException('url not found');
         }
 
         throw new MethodNotAllowedException($this->supportedMethods);
     }
 
-    private function matchRest(array $requestMethod, $requestPattern, $callback)
+    private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback)
     {
-        if (!in_array($this->request->getRequestMethod(), $requestMethod)) {
+        if (!in_array($request->getRequestMethod(), $requestMethod)) {
             return false;
         }
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern || "*" === $requestPattern) {
-            return call_user_func_array($callback, array($this->request->getPathInfo()));
+            return call_user_func_array($callback, array($request->getPathInfo()));
         }
         // both the pattern and request path should start with a "/"
-        if (0 !== strpos($this->request->getPathInfo(), "/") || 0 !== strpos($requestPattern, "/")) {
+        if (0 !== strpos($request->getPathInfo(), "/") || 0 !== strpos($requestPattern, "/")) {
             return false;
         }
 
@@ -221,7 +212,7 @@ class Service
         }
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
-            if ($this->request->getPathInfo() === $requestPattern) {
+            if ($request->getPathInfo() === $requestPattern) {
                 return call_user_func_array($callback, array());
             }
             // FIXME?!
@@ -235,7 +226,7 @@ class Service
             $pattern = (strpos($m, "+") === strlen($m) -1) ? '(?P<'.$mm.'>(.+?[^/]))' : '(?P<'.$mm.'>([^/]+))';
             $requestPattern = str_replace($m, $pattern, $requestPattern);
         }
-        $pm = preg_match("#^".$requestPattern."$#", $this->request->getPathInfo(), $parameters);
+        $pm = preg_match("#^".$requestPattern."$#", $request->getPathInfo(), $parameters);
         if (false === $pm) {
             throw new InternalServerErrorException("regex for path matching failed");
         }
