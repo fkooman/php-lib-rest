@@ -77,6 +77,7 @@ try {
     $request = Request::fromIncomingRequest(
         new IncomingRequest()
     );
+
     $service->run($request)->sendResponse();
 } catch (Exception $e) {
     if ($e instanceof HttpException) {
