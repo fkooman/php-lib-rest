@@ -39,8 +39,14 @@ try {
     );
 
     // require all requests to have valid authentication
+    //$u = 'foo';
+    // NOTE: password is generated using the "password_hash()" function from 
+    // PHP 5.6 or the ircmaxell/password-compat library. This way no plain
+    // text passwords are stored anywhere, below is the hashed value of 'bar'
+    //$p = '$2y$10$ARD9Oq9xCzFANYGhv0mWxOsOallAS3qLQxLoOtzzRuLhv0U1IU9EO';
+
     //$service->registerBeforeMatchingPlugin(
-    //   new BasicAuthentication('foo', 'bar', 'My Secured Foo Service')
+    //   new BasicAuthentication($u, $p, 'My Secured Foo Service')
     //);
 
     $service->get(
@@ -79,11 +85,11 @@ try {
     $service->run()->sendResponse();
 } catch (Exception $e) {
     if ($e instanceof HttpException) {
-        $response = $e->getResponse();
+        $response = $e->getJsonResponse();
     } else {
         // we catch all other (unexpected) exceptions and return a 500
         $e = new InternalServerErrorException($e->getMessage());
-        $response = $e->getResponse();
+        $response = $e->getJsonResponse();
     }
     $response->sendResponse();
 }

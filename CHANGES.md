@@ -1,5 +1,16 @@
 # Release History
 
+## 0.5.0
+**Breaking API changes**:
+- Removed 'NotModifiedException' as this is expected behavior, not an error
+- Make `getResponse()` of Exceptions `protected`, you will have to call
+  `getHtmlResponse()` or `getJsonResponse()` now from your application
+- Update the BasicAuthentication plugin to require the use of secure 
+  password verification created using password_hash() instead of simple 
+  (unhashed) string compare
+- The `Service` class now takes the `Request` object parameter in 
+  the `run()` method and not in the constructor
+
 ## 0.4.11
 - make better use of included HttpExceptions
 - implement `getResponse()` method for (derived) HttpExceptions, both JSON and

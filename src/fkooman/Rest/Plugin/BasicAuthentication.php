@@ -45,8 +45,12 @@ class BasicAuthentication implements ServicePluginInterface
         $requestBasicAuthUser = $request->getBasicAuthUser();
         $requestBasicAuthPass = $request->getBasicAuthPass();
 
-        if ($this->basicAuthUser !== $requestBasicAuthUser || $this->basicAuthPass !== $requestBasicAuthPass) {
-            throw new UnauthorizedException('Basic', $this->basicAuthRealm);
+        if ($this->basicAuthUser !== $requestBasicAuthUser) {
+            throw new UnauthorizedException("invalid credentials", $this->basicAuthRealm);
+        }
+
+        if (!password_verify($requestBasicAuthPass, $this->basicAuthPass)) {
+            throw new UnauthorizedException("invalid credentials");
         }
 
         return true;

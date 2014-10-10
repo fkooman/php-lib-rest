@@ -24,10 +24,17 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testUnauthorizeException()
     {
-        $e = new UnauthorizedException("Basic", "Foo");
-        $response = $e->getResponse();
+        $e = new UnauthorizedException("invalid credentials", "Foo", "Bearer");
+        $response = $e->getJsonResponse();
         $this->assertEquals(401, $response->getStatusCode());
-        $this->assertEquals('Basic realm="Foo"', $response->getHeader("WWW-Authenticate"));
-        //$this->assertEquals("Unauthorized", $response->getReason());
+        $this->assertEquals('Bearer realm="Foo"', $response->getHeader("WWW-Authenticate"));
+        $this->assertEquals(
+            array(
+                'code' => 401,
+                'error' => 'Unauthorized',
+                'error_description' => 'invalid credentials',
+            ),
+            $response->getContent()
+        );
     }
 }

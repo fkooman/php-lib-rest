@@ -26,21 +26,16 @@ class UnauthorizedException extends HttpException
     /** @var string */
     private $authRealm;
 
-    public function __construct($authType, $authRealm = 'My Realm', $code = 0, Exception $previous = null)
+    public function __construct($message, $authRealm = 'My Realm', $authType = 'Basic', $code = 0, Exception $previous = null)
     {
         $this->authType = $authType;
         $this->authRealm = $authRealm;
-
-        parent::__construct(
-            sprintf('%s: %s', $authType, $authRealm),
-            401,
-            $previous
-        );
+        parent::__construct($message, 401, $previous);
     }
 
-    public function getResponse($useJson = true)
+    protected function getResponse($getJsonResponse)
     {
-        $response = parent::getResponse($useJson);
+        $response = parent::getResponse($getJsonResponse);
         $response->setHeader(
             'WWW-Authenticate',
             sprintf('%s realm="%s"', $this->authType, $this->authRealm)

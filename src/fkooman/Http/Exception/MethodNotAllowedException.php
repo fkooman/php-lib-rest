@@ -36,9 +36,9 @@ class MethodNotAllowedException extends HttpException
         );
     }
 
-    public function getResponse($useJson = true)
+    protected function getResponse($getJsonResponse)
     {
-        $response = parent::getResponse($useJson);
+        $response = parent::getResponse($getJsonResponse);
         $response->setHeader('Allow', implode(",", $this->allowedMethods));
 
         return $response;

@@ -51,7 +51,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setBasicAuthUser("foo");
         $request->setBasicAuthPass("bar");
         $service = new Service($request);
-        $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
+        $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", password_hash('bar', PASSWORD_DEFAULT), "Foo Realm"));
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
@@ -69,7 +69,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException fkooman\Http\Exception\UnauthorizedException
-     * @expectedExceptionMessage Basic: Foo Realm
+     * @expectedExceptionMessage invalid credentials
      */
     public function testBasicAuthIncorrectCredentials()
     {
@@ -94,7 +94,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException fkooman\Http\Exception\UnauthorizedException
-     * @expectedExceptionMessage Basic: Foo Realm
+     * @expectedExceptionMessage invalid credentials
      */
     public function testBasicAuthNoCredentials()
     {
@@ -117,7 +117,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException fkooman\Http\Exception\UnauthorizedException
-     * @expectedExceptionMessage Basic: Foo Realm
+     * @expectedExceptionMessage invalid credentials
      */
     public function testBeforeEachMatchPluginNoSkip()
     {

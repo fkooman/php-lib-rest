@@ -29,29 +29,41 @@ class HttpException extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public function getResponse($useJson = true)
+    public function getJsonResponse()
     {
-        if ($useJson) {
-            $response = new JsonResponse($this->getCode());
-            $response->setContent(
-                array(
-                    'code' => $this->getCode(),
-                    'error' => $response->getStatusReason(),
-                    'error_description' => $this->getMessage(),
-                )
-            );
-        } else {
-            $response = new Response($this->getCode());
-            $htmlData = sprintf(
-                '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>%s %s</title></head><body><h1>%s</h1><p>%s</p></body></html>',
-                $this->getCode(),
-                $response->getStatusReason(),
-                $response->getStatusReason(),
-                $this->getMessage()
-            );
-            $response->setContent($htmlData);
-        }
+        $response = $this->getResponse(true);
+        $response->setContent(
+            array(
+                'code' => $this->getCode(),
+                'error' => $response->getStatusReason(),
+                'error_description' => $this->getMessage(),
+            )
+        );
 
         return $response;
+    }
+
+    public function getHtmlResponse()
+    {
+        $response = $this->getResponse(false);
+        $htmlData = sprintf(
+            '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>%s %s</title></head><body><h1>%s</h1><p>%s</p></body></html>',
+            $this->getCode(),
+            $response->getStatusReason(),
+            $response->getStatusReason(),
+            $this->getMessage()
+        );
+        $response->setContent($htmlData);
+
+        return $response;
+    }
+
+    protected function getResponse($getJsonResponse)
+    {
+        if ($getJsonResponse) {
+            return new JsonResponse($this->getCode());
+        }
+
+        return new Response($this->getCode());
     }
 }
