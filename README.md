@@ -1,4 +1,4 @@
-[![Build Status](https://www.travis-ci.org/fkooman/php-lib-rest.png?branch=master)](https://www.travis-ci.org/fkooman/php-lib-rest)
+[![Build Status](https://travis-ci.org/fkooman/php-lib-rest.png?branch=master)](https://travis-ci.org/fkooman/php-lib-rest)
 
 # Introduction
 Library written in PHP to make it easy to develop REST applications. 

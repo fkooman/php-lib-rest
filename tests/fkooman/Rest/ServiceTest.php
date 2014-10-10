@@ -701,9 +701,11 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     public function testCallbackRequestParameter()
     {
         $service = new Service();
-        $service->get('/:foo', function (Request $r, $foo) {
-            $this->assertEquals('GET', $r->getRequestMethod());
-            $this->assertEquals('xyz', $foo);
+        $t = &$this;    // needed for PHP 5.3, together with the 'use ($t) below'
+        $service->get('/:foo', function (Request $r, $foo) use ($t) {
+            // $t is needed for PHP 5.3, in PHP >5.3 you can just use $this
+            $t->assertEquals('GET', $r->getRequestMethod());
+            $t->assertEquals('xyz', $foo);
 
             return 'foo';
         });
