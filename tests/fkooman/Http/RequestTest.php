@@ -73,7 +73,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \fkooman\Http\RequestException
+     * @expectedException fkooman\Http\Exception\RequestException
      */
     public function testTryGetPostParametersOnGetRequest()
     {
@@ -82,7 +82,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \fkooman\Http\RequestException
+     * @expectedException fkooman\Http\Exception\RequestException
      */
     public function testTrySetPostParametersOnGetRequest()
     {
@@ -91,7 +91,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \fkooman\Http\UriException
+     * @expectedException fkooman\Http\Exception\UriException
      */
     public function testInvalidUri()
     {
@@ -99,7 +99,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \fkooman\Http\RequestException
+     * @expectedException fkooman\Http\Exception\RequestException
      */
     public function testUnsupportedRequestMethod()
     {

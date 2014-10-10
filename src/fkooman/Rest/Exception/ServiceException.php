@@ -16,8 +16,10 @@
 * limitations under the License.
 */
 
-namespace fkooman\Http;
+namespace fkooman\Rest\Exception;
 
-class ResponseException extends \Exception
+use Exception;
+
+class ServiceException extends Exception
 {
 }

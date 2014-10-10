@@ -127,7 +127,7 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \fkooman\Http\IncomingRequestException
+     * @expectedException fkooman\Http\Exception\IncomingRequestException
      */
     public function testNoServer()
     {

@@ -18,6 +18,8 @@
 
 namespace fkooman\Http;
 
+use fkooman\Http\Exception\ResponseException;
+
 class Response
 {
     private $headers;

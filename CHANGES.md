@@ -10,6 +10,13 @@
   (unhashed) string compare
 - The `Service` class now takes the `Request` object parameter in 
   the `run()` method and not in the constructor
+- Move the exceptions `UriException`, `RequestException`, `ResponseException`
+  and `IncomingRequestException` in the `fkooman\Http\Exception` namespace
+
+Other changes:
+- Introduce the option to get the Request object by specifying it as the first 
+  parameter of your callback function, you no longer need `use ($request)` in
+  your closure definition, mainly for cleanup reasons
 
 ## 0.4.11
 - make better use of included HttpExceptions

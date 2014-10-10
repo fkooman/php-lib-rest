@@ -18,6 +18,8 @@
 
 namespace fkooman\Http;
 
+use fkooman\Http\Exception\RequestException;
+
 class Request
 {
     protected $uri;

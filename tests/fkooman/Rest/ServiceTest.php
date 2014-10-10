@@ -697,4 +697,18 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("", $response->getContent());
     }
+
+    public function testCallbackRequestParameter()
+    {
+        $service = new Service();
+        $service->get('/:foo', function (Request $r, $foo) {
+            $this->assertEquals('GET', $r->getRequestMethod());
+            $this->assertEquals('xyz', $foo);
+
+            return 'foo';
+        });
+        $request = new Request('http://www.example.org', 'GET');
+        $request->setPathInfo('/xyz');
+        $service->run($request);
+    }
 }

@@ -18,6 +18,8 @@
 
 namespace fkooman\Http;
 
+use fkooman\Http\Exception\IncomingRequestException;
+
 class IncomingRequest
 {
     public function __construct()

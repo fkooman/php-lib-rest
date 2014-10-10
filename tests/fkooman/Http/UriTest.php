@@ -170,7 +170,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \fkooman\Http\UriException
+     * @expectedException fkooman\Http\Exception\UriException
      */
     public function testMalformedUri()
     {

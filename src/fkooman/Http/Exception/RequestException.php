@@ -16,8 +16,10 @@
 * limitations under the License.
 */
 
-namespace fkooman\Http;
+namespace fkooman\Http\Exception;
 
-class RequestException extends \Exception
+use Exception;
+
+class RequestException extends Exception
 {
 }

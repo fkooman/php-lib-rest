@@ -18,11 +18,12 @@
 
 namespace fkooman\Rest;
 
-use UnexpectedValueException;
+use ReflectionFunction;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
 use fkooman\Http\Exception\MethodNotAllowedException;
 use fkooman\Http\Exception\NotFoundException;
+use fkooman\Rest\Exception\ServiceException;
 
 class Service
 {
@@ -171,7 +172,7 @@ class Service
                     return $response;
                 }
                 if (!is_string($response)) {
-                    throw new UnexpectedValueException("callback MUST return Response object or string");
+                    throw new ServiceException("unsupported callback return value");
                 }
                 $responseObj = new Response();
                 $responseObj->setContent($response);
@@ -193,9 +194,30 @@ class Service
         if (!in_array($request->getRequestMethod(), $requestMethod)) {
             return false;
         }
+
+        $cbParams = array();
+
+        if (null !== $callback) {
+            // we have a callback
+            $reflectionFunction = new ReflectionFunction($callback);
+            $p = $reflectionFunction->getParameters();
+            if (0 < count($p)) {
+                // we have parameters
+                if (null !== $p[0]->getClass()) {
+                    // and it is a class
+                    if ('fkooman\Http\Request' === $p[0]->getClass()->getName()) {
+                        // and it is Request! add it as the first callback parameter
+                        $cbParams[] = $request;
+                    }
+                }
+            }
+        }
+
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern || "*" === $requestPattern) {
-            return call_user_func_array($callback, array($request->getPathInfo()));
+            $cbParams[] = $request->getPathInfo();
+
+            return call_user_func_array($callback, $cbParams);
         }
         // both the pattern and request path should start with a "/"
         if (0 !== strpos($request->getPathInfo(), "/") || 0 !== strpos($requestPattern, "/")) {
@@ -208,12 +230,12 @@ class Service
         // check for variables in the requestPattern
         $pma = preg_match_all('#:([\w]+)\+?#', $requestPattern, $matches);
         if (false === $pma) {
-            throw new InternalServerErrorException("regex for variable search failed");
+            throw new ServiceException("regex for variable search failed");
         }
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
             if ($request->getPathInfo() === $requestPattern) {
-                return call_user_func_array($callback, array());
+                return call_user_func_array($callback, $cbParams);
             }
             // FIXME?!
             //return false;
@@ -228,18 +250,18 @@ class Service
         }
         $pm = preg_match("#^".$requestPattern."$#", $request->getPathInfo(), $parameters);
         if (false === $pm) {
-            throw new InternalServerErrorException("regex for path matching failed");
+            throw new ServiceException("regex for path matching failed");
         }
         if (0 === $pm) {
             // request path does not match pattern
             return false;
         }
         foreach ($parameters as $k => $v) {
-            if (!is_string($k)) {
-                unset($parameters[$k]);
+            if (is_string($k)) {
+                $cbParams[] = $v;
             }
         }
         // request path matches pattern!
-        return call_user_func_array($callback, array_values($parameters));
+        return call_user_func_array($callback, $cbParams);
     }
 }
