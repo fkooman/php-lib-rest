@@ -12,12 +12,16 @@
   the `run()` method and not in the constructor
 - Move the exceptions `UriException`, `RequestException`, `ResponseException`
   and `IncomingRequestException` in the `fkooman\Http\Exception` namespace
+- The variables in your callback need to have the same name as the matcher, so
+  if your match is `/:foo/:bar/` your capture parameters need to be called 
+  `$foo` and `$bar`. For the `*` match case the name `$matchAll` needs to be 
+  used
 
 Other changes:
-- Introduce the option to get the Request object by specifying it as the first 
-  parameter of your callback function, you no longer need `use ($request)` in
-  your closure definition, mainly for cleanup reasons
-
+- Introduce the option to get the Request object and objects from plugins by 
+  specifying their prototype as a parameter of your callback function, you no 
+  longer need `use ($request)` in your closure definition.
+ 
 ## 0.4.11
 - make better use of included HttpExceptions
 - implement `getResponse()` method for (derived) HttpExceptions, both JSON and

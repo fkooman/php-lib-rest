@@ -21,8 +21,9 @@ namespace fkooman\Rest;
 use fkooman\Rest\Plugin\BasicAuthentication;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
+use PHPUnit_Framework_TestCase;
 
-class ServiceTest extends \PHPUnit_Framework_TestCase
+class ServiceTest extends PHPUnit_Framework_TestCase
 {
     public function testSimpleMatch()
     {
@@ -617,8 +618,8 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $service->match(
             "GET",
             null,
-            function ($all) {
-                return $all;
+            function ($matchAll) {
+                return $matchAll;
             }
         );
         $response = $service->run($request);
@@ -633,8 +634,8 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $service = new Service();
         $service->delete(
             "*",
-            function ($all) {
-                return $all;
+            function ($matchAll) {
+                return $matchAll;
             }
         );
         $response = $service->run($request);
@@ -649,7 +650,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $service = new Service();
         $service->head(
             "*",
-            function ($all) {
+            function ($matchAll) {
                 return "";
             }
         );
@@ -669,8 +670,8 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 "HEAD",
             ),
             "*",
-            function ($all) use ($request) {
-                return "HEAD" === $request->getRequestMethod() ? "" : $all;
+            function ($matchAll) use ($request) {
+                return "HEAD" === $request->getRequestMethod() ? "" : $matchAll;
             }
         );
         $response = $service->run($request);
@@ -689,8 +690,8 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
                 "HEAD",
             ),
             "*",
-            function ($all) use ($request) {
-                return "HEAD" === $request->getRequestMethod() ? "" : $all;
+            function ($matchAll) use ($request) {
+                return "HEAD" === $request->getRequestMethod() ? "" : $matchAll;
             }
         );
         $response = $service->run($request);
@@ -713,4 +714,85 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $request->setPathInfo('/xyz');
         $service->run($request);
     }
+
+    public function testNonMatchAllParameterWithWildcard()
+    {
+        $service = new Service();
+        $service->get(
+            "*",
+            function ($matchAll) {
+                return "foobar";
+            }
+        );
+        $request = new Request("http://example.org", "GET");
+        $request->setPathInfo("/foo/bar/baz");
+        $response = $service->run($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("foobar", $response->getContent());
+    }
+
+    public function testMatchRequestParameterOrder()
+    {
+        $service = new Service();
+        $service->get(
+            "/:foo/:bar/baz",
+            function ($bar, $foo, Request $request) {
+                return $foo.$bar.$request->getRequestMethod();
+            }
+        );
+        $request = new Request("http://example.org", "GET");
+        $request->setPathInfo("/xxx/yyy/baz");
+        $response = $service->run($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("xxxyyyGET", $response->getContent());
+    }
+
+    public function testMatchRequestParameterMatchAll()
+    {
+        $service = new Service();
+        $service->get(
+            "*",
+            function ($matchAll, Request $request) {
+                return $matchAll.$request->getRequestMethod();
+            }
+        );
+        $request = new Request("http://example.org", "GET");
+        $request->setPathInfo("/xxx/yyy/baz");
+        $response = $service->run($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("/xxx/yyy/bazGET", $response->getContent());
+    }
+
+    public function testMatchRequestParameterMatchExactNoVariablesRequest()
+    {
+        $service = new Service();
+        $service->get(
+            "/foo/bar/baz",
+            function (Request $request) {
+                return $request->getRequestMethod();
+            }
+        );
+        $request = new Request("http://example.org", "GET");
+        $request->setPathInfo("/foo/bar/baz");
+        $response = $service->run($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("GET", $response->getContent());
+    }
+
+#    public function testMatchReturnUriReflectionTestPlugin()
+#    {
+#        $service = new Service();
+#        $service->registerBeforeMatchingPlugin(new Demo("http://www.example.org/foo/bar"));
+#        $service->get(
+#            "/foo/bar/baz",
+#            function (Request $request, Uri $u) {
+#                return $u->getUri();
+#            }
+#        );
+#        $request = new Request("http://example.org", "GET");
+#        $request->setPathInfo("/foo/bar/baz");
+#        $response = $service->run($request);
+#        $this->assertEquals(200, $response->getStatusCode());
+#        $this->assertEquals("http://www.example.org/foo/bar", $response->getContent());
+#    }
 }

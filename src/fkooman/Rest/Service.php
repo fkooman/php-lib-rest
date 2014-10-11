@@ -138,11 +138,18 @@ class Service
      */
     public function run(Request $request)
     {
+        $paramsAvailableForCallback = array();
+        $paramsAvailableForCallback[get_class($request)] = $request;
+
         // run the beforeMatchingPlugins
         foreach ($this->beforeMatchingPlugins as $plugin) {
             $response = $plugin->execute($request);
             if ($response instanceof Response) {
                 return $response;
+            }
+            if (is_object($response)) {
+                $className = get_class($response);
+                $paramsAvailableForCallback[$className] = $response;
             }
         }
 
@@ -157,13 +164,18 @@ class Service
                 if ($response instanceof Response) {
                     return $response;
                 }
+                $className = get_class($response);
+                if (false !== $className) {
+                    $paramsAvailableForCallback[$className] = $response;
+                }
             }
 
             $response = $this->matchRest(
                 $request,
                 $m['requestMethod'],
                 $m['requestPattern'],
-                $m['callback']
+                $m['callback'],
+                $paramsAvailableForCallback
             );
 
             // false indicates not a match
@@ -189,35 +201,40 @@ class Service
         throw new MethodNotAllowedException($this->supportedMethods);
     }
 
-    private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback)
+    private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback)
     {
         if (!in_array($request->getRequestMethod(), $requestMethod)) {
             return false;
         }
 
         $cbParams = array();
+        $cbMatchParams = array();
 
         if (null !== $callback) {
-            // we have a callback
             $reflectionFunction = new ReflectionFunction($callback);
-            $p = $reflectionFunction->getParameters();
-            if (0 < count($p)) {
-                // we have parameters
-                if (null !== $p[0]->getClass()) {
-                    // and it is a class
-                    if ('fkooman\Http\Request' === $p[0]->getClass()->getName()) {
-                        // and it is Request! add it as the first callback parameter
-                        $cbParams[] = $request;
+            $parameters = $reflectionFunction->getParameters();
+            for ($i = 0; $i < count($parameters); $i++) {
+                if (null !== $parameters[$i]->getClass()) {
+                    if (!array_key_exists($parameters[$i]->getClass()->getName(), $paramsAvailableForCallback)) {
+                        throw new ServiceException("expected parameter by callback not available");
                     }
+                    // we store the class at the offset it was found at in the callback
+                    $cbParams[$i] = $paramsAvailableForCallback[$parameters[$i]->getClass()->getName()];
+                } else {
+                    $cbMatchParams[$parameters[$i]->getName()] = $i;
                 }
             }
         }
 
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern || "*" === $requestPattern) {
-            $cbParams[] = $request->getPathInfo();
+            if (array_key_exists('matchAll', $cbMatchParams)) {
+                $cbParams[$cbMatchParams['matchAll']] = $request->getPathInfo();
+            }
 
-            return call_user_func_array($callback, $cbParams);
+            ksort($cbParams);
+
+            return call_user_func_array($callback, array_values($cbParams));
         }
         // both the pattern and request path should start with a "/"
         if (0 !== strpos($request->getPathInfo(), "/") || 0 !== strpos($requestPattern, "/")) {
@@ -235,7 +252,7 @@ class Service
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
             if ($request->getPathInfo() === $requestPattern) {
-                return call_user_func_array($callback, $cbParams);
+                return call_user_func_array($callback, array_values($cbParams));
             }
             // FIXME?!
             //return false;
@@ -256,12 +273,17 @@ class Service
             // request path does not match pattern
             return false;
         }
+
         foreach ($parameters as $k => $v) {
+            // find the name of the parameter in the callback and set it to
+            // the value
             if (is_string($k)) {
-                $cbParams[] = $v;
+                $cbParams[$cbMatchParams[$k]] = $v;
             }
         }
         // request path matches pattern!
-        return call_user_func_array($callback, $cbParams);
+        ksort($cbParams);
+
+        return call_user_func_array($callback, array_values($cbParams));
     }
 }
