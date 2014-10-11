@@ -29,7 +29,7 @@ Example where URL is missing:
     Content-Length: 68
     Content-Type: application/json
 
-    {"code":404,"error":"Not Found","error_description":"url not found"}
+    {"error":"url not found"}
 
 Example where the request method is not supported:
 
@@ -42,7 +42,7 @@ Example where the request method is not supported:
     Content-Length: 85
     Content-Type: application/json
 
-    {"code":405,"error":"Method Not Allowed","error_description":"Only GET,POST allowed"}
+    {"error":"unsupported method"}
 
 Example where a certain request is not acceptable
 
@@ -55,7 +55,7 @@ Example where a certain request is not acceptable
     Connection: close
     Content-Type: application/json
 
-    {"code":400,"error":"Bad Request","error_description":"you cannot say \"foo!\""}
+    {"error":"you cannot say \"foo!\""}
 
 Example with `BasicAuthentication` plugin enabled (without credentials):
 
@@ -64,11 +64,11 @@ Example with `BasicAuthentication` plugin enabled (without credentials):
     Date: Fri, 10 Oct 2014 14:46:56 GMT
     Server: Apache/2.4.10 (Fedora) OpenSSL/1.0.1e-fips PHP/5.5.17
     X-Powered-By: PHP/5.5.17
-    WWW-Authenticate: Basic realm="My Secured Foo Service"
+    WWW-Authenticate: Basic realm="My Realm"
     Content-Length: 77
     Content-Type: application/json
 
-    {"code":401,"error":"Unauthorized","error_description":"invalid credentials"}
+    {"error":"invalid credentials"}
 
 Example with `BasicAuthentication` plugin enabled (with wrong credentials):
 
@@ -81,7 +81,7 @@ Example with `BasicAuthentication` plugin enabled (with wrong credentials):
     Content-Length: 77
     Content-Type: application/json
 
-    {"code":401,"error":"Unauthorized","error_description":"invalid credentials"}
+    {"error":"invalid credentials"}
 
 Example with `BasicAuthentication` plugin enabled (with correct credentials):
 

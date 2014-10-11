@@ -34,9 +34,7 @@ class HttpException extends Exception
         $response = $this->getResponse(true);
         $response->setContent(
             array(
-                'code' => $this->getCode(),
-                'error' => $response->getStatusReason(),
-                'error_description' => $this->getMessage(),
+                'error' => $this->getMessage(),
             )
         );
 

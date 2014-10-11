@@ -198,7 +198,7 @@ class Service
             throw new NotFoundException('url not found');
         }
 
-        throw new MethodNotAllowedException($this->supportedMethods);
+        throw new MethodNotAllowedException('unsupported method', $this->supportedMethods);
     }
 
     private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback)

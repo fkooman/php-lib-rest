@@ -23,17 +23,10 @@ class MethodNotAllowedException extends HttpException
     /** @var array */
     private $allowedMethods;
 
-    public function __construct(array $allowedMethods, $code = 0, Exception $previous = null)
+    public function __construct($message, array $allowedMethods, $code = 0, Exception $previous = null)
     {
         $this->allowedMethods = $allowedMethods;
-        parent::__construct(
-            sprintf(
-                'Only %s allowed',
-                implode(",", $this->allowedMethods)
-            ),
-            405,
-            $previous
-        );
+        parent::__construct($message, 405, $previous);
     }
 
     protected function getResponse($getJsonResponse)

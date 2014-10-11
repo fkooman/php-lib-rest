@@ -30,9 +30,7 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Bearer realm="Foo"', $response->getHeader("WWW-Authenticate"));
         $this->assertEquals(
             array(
-                'code' => 401,
-                'error' => 'Unauthorized',
-                'error_description' => 'invalid credentials',
+                'error' => 'invalid credentials',
             ),
             $response->getContent()
         );

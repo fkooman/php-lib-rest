@@ -167,7 +167,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException fkooman\Http\Exception\MethodNotAllowedException
-     * @expectedExceptionMessage Only POST,DELETE allowed
+     * @expectedExceptionMessage unsupported method
      */
     public function testNonMethodMatch()
     {
@@ -250,7 +250,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException fkooman\Http\Exception\MethodNotAllowedException
-     * @expectedExceptionMessage Only GET allowed
+     * @expectedExceptionMessage unsupported method
      */
     public function testMatchRestWrongMethod()
     {

@@ -33,9 +33,7 @@ class BadRequestExceptionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $jsonResponse->getContentType());
         $this->assertEquals(
             array(
-                'code' => 400,
-                'error' => 'Bad Request',
-                'error_description' => 'foo',
+                'error' => 'foo',
             ),
             $jsonResponse->getContent()
         );
