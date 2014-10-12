@@ -21,7 +21,12 @@ Other changes:
 - Introduce the option to get the Request object and objects from plugins by 
   specifying their prototype as a parameter of your callback function, you no 
   longer need `use ($request)` in your closure definition.
- 
+- Plugins can now return objects that can be captured in the callback function,
+  all objects are passed to the callback if a type hint for that specific 
+  returned object is available in the callback. All objects, except Response
+  objects are returned to the callback. Response objects are sent back to the 
+  client immediately
+   
 ## 0.4.11
 - make better use of included HttpExceptions
 - implement `getResponse()` method for (derived) HttpExceptions, both JSON and
