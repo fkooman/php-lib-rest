@@ -50,7 +50,7 @@ class Service
     /**
      * Register a plugin that is always run before the matching starts.
      *
-     * @param fkooman\Http\ServicePluginInterface $servicePlugin the plugin to
+     * @param fkooman\Rest\ServicePluginInterface $servicePlugin the plugin to
      *                                                           register
      */
     public function registerBeforeMatchingPlugin(ServicePluginInterface $servicePlugin)
@@ -62,7 +62,7 @@ class Service
      * Register a plugin that is run for every match, allowing you to skip it
      * for particular matches.
      *
-     * @param fkooman\Http\ServicePluginInterface the plugin to register
+     * @param fkooman\Rest\ServicePluginInterface the plugin to register
      */
     public function registerBeforeEachMatchPlugin(ServicePluginInterface $servicePlugin)
     {
@@ -106,10 +106,10 @@ class Service
      * @param string   $requestPattern the pattern to match
      * @param callback $callback       the callback to execute when this pattern
      *                                 matches
-     * @param array    $skipPlugin     the full namespaced names of the plugin classes
+     * @param array    $skipPlugins    the full namespaced names of the plugin classes
      *                                 to skip
      */
-    public function match($requestMethod, $requestPattern, $callback, array $skipPlugin = array())
+    public function match($requestMethod, $requestPattern, $callback, array $skipPlugins = array())
     {
         if (!is_array($requestMethod)) {
             $requestMethod = array($requestMethod);
@@ -119,7 +119,7 @@ class Service
             "requestMethod" => $requestMethod,
             "requestPattern" => $requestPattern,
             "callback" => $callback,
-            "skipPlugin" => $skipPlugin,
+            "skipPlugins" => $skipPlugins,
         );
         foreach ($requestMethod as $r) {
             if (!in_array($r, $this->supportedMethods)) {
@@ -139,6 +139,7 @@ class Service
     public function run(Request $request)
     {
         $paramsAvailableForCallback = array();
+        // make Request always available
         $paramsAvailableForCallback[get_class($request)] = $request;
 
         // run the beforeMatchingPlugins
@@ -148,34 +149,18 @@ class Service
                 return $response;
             }
             if (is_object($response)) {
-                $className = get_class($response);
-                $paramsAvailableForCallback[$className] = $response;
+                $paramsAvailableForCallback[get_class($response)] = $response;
             }
         }
 
         foreach ($this->match as $m) {
-            // run the beforeEachMatchPlugins
-            foreach ($this->beforeEachMatchPlugins as $plugin) {
-                // only run when plugin should not be skipped
-                if (in_array(get_class($plugin), $m['skipPlugin'])) {
-                    continue;
-                }
-                $response = $plugin->execute($request);
-                if ($response instanceof Response) {
-                    return $response;
-                }
-                $className = get_class($response);
-                if (false !== $className) {
-                    $paramsAvailableForCallback[$className] = $response;
-                }
-            }
-
             $response = $this->matchRest(
                 $request,
                 $m['requestMethod'],
                 $m['requestPattern'],
                 $m['callback'],
-                $paramsAvailableForCallback
+                $paramsAvailableForCallback,
+                $m['skipPlugins']
             );
 
             // false indicates not a match
@@ -201,40 +186,17 @@ class Service
         throw new MethodNotAllowedException('unsupported method', $this->supportedMethods);
     }
 
-    private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback)
+    private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback, array $skipPlugins)
     {
         if (!in_array($request->getRequestMethod(), $requestMethod)) {
             return false;
         }
 
-        $cbParams = array();
-        $cbMatchParams = array();
-
-        if (null !== $callback) {
-            $reflectionFunction = new ReflectionFunction($callback);
-            $parameters = $reflectionFunction->getParameters();
-            for ($i = 0; $i < count($parameters); $i++) {
-                if (null !== $parameters[$i]->getClass()) {
-                    if (!array_key_exists($parameters[$i]->getClass()->getName(), $paramsAvailableForCallback)) {
-                        throw new ServiceException("expected parameter by callback not available");
-                    }
-                    // we store the class at the offset it was found at in the callback
-                    $cbParams[$i] = $paramsAvailableForCallback[$parameters[$i]->getClass()->getName()];
-                } else {
-                    $cbMatchParams[$parameters[$i]->getName()] = $i;
-                }
-            }
-        }
-
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern || "*" === $requestPattern) {
-            if (array_key_exists('matchAll', $cbMatchParams)) {
-                $cbParams[$cbMatchParams['matchAll']] = $request->getPathInfo();
-            }
+            $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
 
-            ksort($cbParams);
-
-            return call_user_func_array($callback, array_values($cbParams));
+            return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $skipPlugins);
         }
         // both the pattern and request path should start with a "/"
         if (0 !== strpos($request->getPathInfo(), "/") || 0 !== strpos($requestPattern, "/")) {
@@ -252,10 +214,10 @@ class Service
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
             if ($request->getPathInfo() === $requestPattern) {
-                return call_user_func_array($callback, array_values($cbParams));
+                return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $skipPlugins);
             }
-            // FIXME?!
-            //return false;
+
+            return false;
         }
         // replace all the variables with a regex so the actual value in the request
         // can be captured
@@ -278,11 +240,58 @@ class Service
             // find the name of the parameter in the callback and set it to
             // the value
             if (is_string($k)) {
-                $cbParams[$cbMatchParams[$k]] = $v;
+                $paramsAvailableForCallback[$k] = $v;
             }
         }
         // request path matches pattern!
-        ksort($cbParams);
+        return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $skipPlugins);
+    }
+
+    private function executeCallback(Request $request, $callback, array $paramsAvailableForCallback, array $skipPlugins)
+    {
+        // run the beforeEachMatchPlugins
+        foreach ($this->beforeEachMatchPlugins as $plugin) {
+            if (in_array(get_class($plugin), $skipPlugins)) {
+                continue;
+            }
+            $response = $plugin->execute($request);
+            if ($response instanceof Response) {
+                return $response;
+            }
+            if (is_object($response)) {
+                $paramsAvailableForCallback[get_class($response)] = $response;
+            }
+        }
+
+        // determine the parameters in the callback and match them with the
+        // available parameters
+        $cbParams = array();
+        if (null !== $callback) {
+            $reflectionFunction = new ReflectionFunction($callback);
+            $parameters = $reflectionFunction->getParameters();
+            foreach ($reflectionFunction->getParameters() as $p) {
+                if (null !== $p->getClass()) {
+                    // object
+                    if (!array_key_exists($p->getClass()->getName(), $paramsAvailableForCallback)) {
+                        if (!$p->isDefaultValueAvailable()) {
+                            throw new ServiceException("expected parameter by callback not available");
+                        }
+                    } else {
+                        $cbParams[] = $paramsAvailableForCallback[$p->getClass()->getName()];
+                    }
+                } else {
+                    // internal type
+                    if (!array_key_exists($p->getName(), $paramsAvailableForCallback)) {
+                        if (!$p->isDefaultValueAvailable()) {
+                            throw new ServiceException("expected parameter by callback not available");
+                        }
+                    } else {
+                        $cbParams[] = $paramsAvailableForCallback[$p->getName()];
+                    }
+                }
+                // FIXME: are there other types we should consider?
+            }
+        }
 
         return call_user_func_array($callback, array_values($cbParams));
     }

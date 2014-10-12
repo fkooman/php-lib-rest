@@ -1,5 +1,10 @@
 # Release History
 
+## 0.5.1
+- fix bug with registerBeforeEachMatchPlugin where skipping a plugin didn't 
+  work if the first match was not the correct match
+- refactored more matching code to make it more robust, remove some FIXMEs
+
 ## 0.5.0
 **Breaking API changes**:
 - Removed 'NotModifiedException' as this is expected behavior, not an error

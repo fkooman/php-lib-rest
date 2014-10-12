@@ -122,14 +122,9 @@ class ServiceTest extends PHPUnit_Framework_TestCase
      */
     public function testBeforeEachMatchPluginNoSkip()
     {
-        $request = new Request("http://www.example.org/foo", "GET");
-        $request->setPathInfo("/foo/bar/baz.txt");
-        $request->setBasicAuthUser("foo");
-        $request->setBasicAuthPass("baz");
         $service = new Service();
         $service->registerBeforeEachMatchPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
-        $service->match(
-            "GET",
+        $service->get(
             "/foo/bar/baz.txt",
             function () {
                 $response = new Response(200, "plain/text");
@@ -138,19 +133,22 @@ class ServiceTest extends PHPUnit_Framework_TestCase
                 return $response;
             }
         );
+
+        $request = new Request("http://www.example.org/foo", "GET");
+        $request->setPathInfo("/foo/bar/baz.txt");
         $service->run($request);
     }
 
     public function testBeforeEachMatchPluginSkip()
     {
-        $request = new Request("http://www.example.org/foo", "GET");
-        $request->setPathInfo("/foo/bar/baz.txt");
-        $request->setBasicAuthUser("foo");
-        $request->setBasicAuthPass("baz");
         $service = new Service();
         $service->registerBeforeEachMatchPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
-        $service->match(
-            "GET",
+        $service->get(
+            "/foo/bar/foobar.txt",
+            function () {
+            }
+        );
+        $service->get(
             "/foo/bar/baz.txt",
             function () {
                 $response = new Response(200, "plain/text");
@@ -160,6 +158,9 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             },
             array('fkooman\Rest\Plugin\BasicAuthentication')
         );
+
+        $request = new Request("http://www.example.org/foo", "GET");
+        $request->setPathInfo("/foo/bar/baz.txt");
         $response = $service->run($request);
         $this->assertEquals("Hello World", $response->getContent());
         $this->assertEquals(200, $response->getStatusCode());
