@@ -21,16 +21,31 @@ namespace fkooman\Http\Exception;
 class UnauthorizedException extends HttpException
 {
     /** @var string */
-    private $authType;
+    private $authScheme;
 
     /** @var string */
-    private $authRealm;
+    private $authParams;
 
-    public function __construct($message, $authRealm = 'My Realm', $authType = 'Basic', $code = 0, Exception $previous = null)
+    public function __construct($message, $authScheme = 'Basic', array $authParams = array(), $code = 0, Exception $previous = null)
     {
-        $this->authType = $authType;
-        $this->authRealm = $authRealm;
+        $this->authScheme = $authScheme;
+        if (!array_key_exists('realm', $authParams)) {
+            $authParams['realm'] = 'My Realm';
+        }
+        $this->authParams = $authParams;
         parent::__construct($message, 401, $previous);
+    }
+
+    private function authParamsToString()
+    {
+        $a = array();
+        foreach ($this->authParams as $k => $v) {
+            if (is_string($k) && is_string($v) && 0 < strlen($k) && 0 < strlen($v)) {
+                $a[] = sprintf('%s="%s"', $k, $v);
+            }
+        }
+
+        return implode(",", $a);
     }
 
     protected function getResponse($getJsonResponse)
@@ -38,7 +53,7 @@ class UnauthorizedException extends HttpException
         $response = parent::getResponse($getJsonResponse);
         $response->setHeader(
             'WWW-Authenticate',
-            sprintf('%s realm="%s"', $this->authType, $this->authRealm)
+            sprintf('%s %s', $this->authScheme, $this->authParamsToString())
         );
 
         return $response;

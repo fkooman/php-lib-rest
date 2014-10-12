@@ -8,6 +8,8 @@
 - Update the BasicAuthentication plugin to require the use of secure 
   password verification created using password_hash() instead of simple 
   (unhashed) string compare
+- Modify the signature of `UnauthorizedException`, allow to specify 
+  authparams as 3rd parameter for realm and error (in case of Bearer)
 - The `Service` class now takes the `Request` object parameter in 
   the `run()` method and not in the constructor
 - Move the exceptions `UriException`, `RequestException`, `ResponseException`
