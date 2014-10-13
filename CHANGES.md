@@ -1,6 +1,8 @@
 # Release History
 
 ## 0.5.2
+- `BasicAuthentication` plugin now returns a UserInfo object so it becomes
+  available to the callback function by 'catching' the UserInfo type
 - fix a small bug with `getPostParameter()` where the requested key points to
   an array
 
@@ -11,7 +13,7 @@
 
 ## 0.5.0
 **Breaking API changes**:
-- Removed 'NotModifiedException' as this is expected behavior, not an error
+- Removed `NotModifiedException` as this is expected behavior, not an error
 - Make `getResponse()` of Exceptions `protected`, you will have to call
   `getHtmlResponse()` or `getJsonResponse()` now from your application
 - Update the BasicAuthentication plugin to require the use of secure 

@@ -31,7 +31,8 @@ class BasicAuthenticationTest extends PHPUnit_Framework_TestCase
         $request->setBasicAuthPass('pass');
 
         $basicAuth = new BasicAuthentication('user', password_hash('pass', PASSWORD_DEFAULT), 'realm');
-        $this->assertTrue($basicAuth->execute($request));
+        $userInfo = $basicAuth->execute($request);
+        $this->assertEquals('user', $userInfo->getUserId());
     }
 
     /**

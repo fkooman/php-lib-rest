@@ -53,6 +53,6 @@ class BasicAuthentication implements ServicePluginInterface
             throw new UnauthorizedException("invalid credentials", 'Basic', array('realm' => $this->basicAuthRealm));
         }
 
-        return true;
+        return new UserInfo($this->basicAuthUser);
     }
 }
