@@ -107,7 +107,7 @@ class Request
     {
         $parameters = $this->getPostParameters();
 
-        return (array_key_exists($key, $parameters) && 0 !== strlen($parameters[$key])) ? $parameters[$key] : null;
+        return (array_key_exists($key, $parameters) && is_string($key) && 0 !== strlen($key)) ? $parameters[$key] : null;
     }
 
     public function getPostParameters()

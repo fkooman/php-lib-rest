@@ -1,5 +1,9 @@
 # Release History
 
+## 0.5.2
+- fix a small bug with `getPostParameter()` where the requested key points to
+  an array
+
 ## 0.5.1
 - fix bug with registerBeforeEachMatchPlugin where skipping a plugin didn't 
   work if the first match was not the correct match
