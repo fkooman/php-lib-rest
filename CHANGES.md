@@ -1,6 +1,7 @@
 # Release History
 
 ## 0.5.2
+- add `MellonAuthentication` plugin for SAML support to authenticate users
 - `BasicAuthentication` plugin now returns a UserInfo object so it becomes
   available to the callback function by 'catching' the UserInfo type
 - fix a small bug with `getPostParameter()` where the requested key points to
