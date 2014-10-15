@@ -796,25 +796,4 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $response = $service->run($request);
         $this->assertEquals("hello, delete!", $response->getContent());
     }
-
-    public function testRedirect()
-    {
-        $service = new Service();
-        $service->get(
-            "/foo/bar/baz",
-            function() {
-                return "baz";
-            }
-        );
-        $service->get(
-            "/foo",
-            function() {
-                return new Redirect('/foo/bar/baz');
-            }
-        );
-        $request = new Request("http://www.example.org");
-        $request->setPathInfo('/foo');
-        $response = $service->run($request);
-        $this->assertEquals("baz", $response->getContent());
-    }
 }

@@ -8,9 +8,6 @@
   an array
 - add method override support in form post for DELETE and PUT by setting the
   hidden form field "_METHOD" to either "PUT" or "DELETE"
-- implement Rest `Redirect` object for redirecting the browser to another 
-  location (can be used for creating an alias, or to redirect to some place 
-  after executing some code)
 
 ## 0.5.1
 - fix bug with registerBeforeEachMatchPlugin where skipping a plugin didn't 
