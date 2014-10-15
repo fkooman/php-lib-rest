@@ -23,22 +23,13 @@ class Redirect
     /** @var string */
     private $redirectUri;
 
-    /** @var string */
-    private $requestMethod;
-
-    public function __construct($redirectUri, $requestMethod = "GET")
+    public function __construct($redirectUri)
     {
         $this->redirectUri = $redirectUri;
-        $this->requestMethod = $requestMethod;
     }
 
     public function getRedirectUri()
     {
         return $this->redirectUri;
-    }
-
-    public function getRequestMethod()
-    {
-        return $this->requestMethod;
     }
 }
