@@ -792,7 +792,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $request = new Request("http://example.org", "POST");
         $request->setPathInfo("/foo/bar/baz");
-        $request->setPostParameters(["_METHOD" => "DELETE"]);
+        $request->setPostParameters(array("_METHOD" => "DELETE"));
         $response = $service->run($request);
         $this->assertEquals("hello, delete!", $response->getContent());
     }
