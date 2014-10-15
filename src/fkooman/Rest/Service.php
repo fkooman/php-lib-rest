@@ -138,6 +138,17 @@ class Service
      */
     public function run(Request $request)
     {
+        // support PUT and DELETE method override when _METHOD is set in a form
+        // POST
+        if ("POST" === $request->getRequestMethod()) {
+            if ("PUT" === $request->getPostParameter("_METHOD")) {
+                $request->setRequestMethod("PUT");
+            }
+            if ("DELETE" === $request->getPostParameter("_METHOD")) {
+                $request->setRequestMethod("DELETE");
+            }
+        }
+
         $paramsAvailableForCallback = array();
         // make Request always available
         $paramsAvailableForCallback[get_class($request)] = $request;

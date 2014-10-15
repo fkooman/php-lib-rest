@@ -19,6 +19,7 @@
 namespace fkooman\Rest;
 
 use fkooman\Rest\Plugin\BasicAuthentication;
+use fkooman\Rest\Plugin\UserInfo;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
 use PHPUnit_Framework_TestCase;
@@ -56,15 +57,15 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service->match(
             "GET",
             "/foo/bar/baz.txt",
-            function () {
+            function (UserInfo $u) {
                 $response = new Response(200, "plain/text");
-                $response->setContent("Hello World");
+                $response->setContent($u->getUserId());
 
                 return $response;
             }
         );
         $response = $service->run($request);
-        $this->assertEquals("Hello World", $response->getContent());
+        $this->assertEquals("foo", $response->getContent());
         $this->assertEquals(200, $response->getStatusCode());
     }
 
@@ -780,20 +781,19 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("GET", $response->getContent());
     }
 
-#    public function testMatchReturnUriReflectionTestPlugin()
-#    {
-#        $service = new Service();
-#        $service->registerBeforeMatchingPlugin(new Demo("http://www.example.org/foo/bar"));
-#        $service->get(
-#            "/foo/bar/baz",
-#            function (Request $request, Uri $u) {
-#                return $u->getUri();
-#            }
-#        );
-#        $request = new Request("http://example.org", "GET");
-#        $request->setPathInfo("/foo/bar/baz");
-#        $response = $service->run($request);
-#        $this->assertEquals(200, $response->getStatusCode());
-#        $this->assertEquals("http://www.example.org/foo/bar", $response->getContent());
-#    }
+    public function testFormMethodOverrideDelete()
+    {
+        $service = new Service();
+        $service->delete(
+            "/foo/bar/baz",
+            function (Request $request) {
+                return "hello, delete!";
+            }
+        );
+        $request = new Request("http://example.org", "POST");
+        $request->setPathInfo("/foo/bar/baz");
+        $request->setPostParameters(["_METHOD" => "DELETE"]);
+        $response = $service->run($request);
+        $this->assertEquals("hello, delete!", $response->getContent());
+    }
 }

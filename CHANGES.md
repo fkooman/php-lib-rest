@@ -6,6 +6,8 @@
   available to the callback function by 'catching' the UserInfo type
 - fix a small bug with `getPostParameter()` where the requested key points to
   an array
+- add method override support in form post for DELETE and PUT by setting the
+  hidden form field "_METHOD" to either "PUT" or "DELETE"
 
 ## 0.5.1
 - fix bug with registerBeforeEachMatchPlugin where skipping a plugin didn't 
