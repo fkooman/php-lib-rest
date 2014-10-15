@@ -802,13 +802,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service = new Service();
         $service->get(
             "/foo/bar/baz",
-            function() {
+            function () {
                 return "baz";
             }
         );
         $service->get(
             "/foo",
-            function() {
+            function () {
                 return new Redirect('/foo/bar/baz');
             }
         );

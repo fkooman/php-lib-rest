@@ -182,6 +182,7 @@ class Service
                 }
                 if ($response instanceof Redirect) {
                     $request->setPathInfo($response->getRedirectUri());
+                    $request->setRequestMethod($response->getRequestMethod());
 
                     return $this->run($request);
                 }
