@@ -145,6 +145,7 @@ class Service
                 $request->setRequestMethod("PUT");
             }
             if ("DELETE" === $request->getPostParameter("_METHOD")) {
+                $request->setPostParameters(array());
                 $request->setRequestMethod("DELETE");
             }
         }
@@ -178,6 +179,11 @@ class Service
             if (false !== $response) {
                 if ($response instanceof Response) {
                     return $response;
+                }
+                if ($response instanceof Redirect) {
+                    $request->setPathInfo($response->getRedirectUri());
+
+                    return $this->run($request);
                 }
                 if (!is_string($response)) {
                     throw new ServiceException("unsupported callback return value");
