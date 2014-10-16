@@ -807,9 +807,14 @@ class ServiceTest extends PHPUnit_Framework_TestCase
                 return "default_route_works";
             }
         );
-        $request = new Request("http://www.example.org", "GET");
+        $request = new Request("http://www.example.org/index.php", "GET");
+        $response = $service->run($request);
+        $this->assertEquals(301, $response->getStatusCode());
+        $this->assertEquals("http://www.example.org/index.php/manage/", $response->getHeader('Location'));
+        $request = new Request("http://www.example.org/index.php", "GET");
+        $request->setPathInfo('/manage/');
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("default_route_works", $response->getContent());
+        $this->assertEquals('default_route_works', $response->getContent());
     }
 }

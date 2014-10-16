@@ -75,6 +75,9 @@ class Service
 
     public function setDefaultRoute($defaultRoute)
     {
+        if (0 !== strpos($defaultRoute, '/')) {
+            throw new ServiceException('default route needs to start with a /');
+        }
         $this->defaultRoute = $defaultRoute;
     }
 
@@ -173,6 +176,18 @@ class Service
             }
         }
 
+        // dafaultRoute
+        if (null === $request->getPathInfo()) {
+            if (null === $this->defaultRoute) {
+                return false;
+            }
+            // FIXME: should this be 301 or 302?
+            $response = new Response(301);
+            $response->setHeader("Location", sprintf('%s%s', $request->getRequestUri()->getUri(), $this->defaultRoute));
+
+            return $response;
+        }
+
         foreach ($this->match as $m) {
             $response = $this->matchRest(
                 $request,
@@ -210,14 +225,6 @@ class Service
     {
         if (!in_array($request->getRequestMethod(), $requestMethod)) {
             return false;
-        }
-
-        // dafaultRoute
-        if (null === $request->getPathInfo()) {
-            if (null === $this->defaultRoute) {
-                return false;
-            }
-            $request->setPathInfo($this->defaultRoute);
         }
 
         // if no pattern is defined, all paths are valid
