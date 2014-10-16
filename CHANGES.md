@@ -9,6 +9,7 @@
 - add method override support in form post for DELETE and PUT by setting the
   hidden form field "_METHOD" to either "PUT" or "DELETE"
 - implement default route support using `Service::setDefaultRoute`
+- add `RedirectResponse` class
 
 ## 0.5.1
 - fix bug with registerBeforeEachMatchPlugin where skipping a plugin didn't 
