@@ -535,7 +535,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request->setPathInfo("/foo/bar/baz/foobar");
         $service = new Service();
         $service->options(
-            null,
+            "*",
             function () {
                 return "match";
             }
@@ -619,7 +619,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service = new Service();
         $service->match(
             "GET",
-            null,
+            "*",
             function ($matchAll) {
                 return $matchAll;
             }
@@ -795,5 +795,21 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request->setPostParameters(array("_METHOD" => "DELETE"));
         $response = $service->run($request);
         $this->assertEquals("hello, delete!", $response->getContent());
+    }
+
+    public function testDefaultRoute()
+    {
+        $service = new Service();
+        $service->setDefaultRoute('/manage/');
+        $service->get(
+            '/manage/',
+            function () {
+                return "default_route_works";
+            }
+        );
+        $request = new Request("http://www.example.org", "GET");
+        $response = $service->run($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("default_route_works", $response->getContent());
     }
 }

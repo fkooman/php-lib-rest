@@ -63,6 +63,7 @@ Other changes:
 - add `getBaseUri()` method to `Uri` object
 - normalize Uri by stripping ports if they are the default ports
   for HTTP (80) and HTTPS (443)
+- implement default route support using `Service::setDefaultRoute`
 
 ## 0.4.7
 - support multiple request methods per match line

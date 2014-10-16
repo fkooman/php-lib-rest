@@ -39,12 +39,16 @@ class Service
     /** @var array */
     private $beforeEachMatchPlugins;
 
+    /** @var string */
+    private $defaultRoute;
+
     public function __construct()
     {
         $this->match = array();
         $this->supportedMethods = array();
         $this->beforeMatchingPlugins = array();
         $this->beforeEachMatchPlugins = array();
+        $this->defaultRoute = null;
     }
 
     /**
@@ -67,6 +71,11 @@ class Service
     public function registerBeforeEachMatchPlugin(ServicePluginInterface $servicePlugin)
     {
         $this->beforeEachMatchPlugins[] = $servicePlugin;
+    }
+
+    public function setDefaultRoute($defaultRoute)
+    {
+        $this->defaultRoute = $defaultRoute;
     }
 
     public function get($requestPattern, $callback, array $skipPlugin = array())
@@ -203,6 +212,14 @@ class Service
             return false;
         }
 
+        // dafaultRoute
+        if (null === $request->getPathInfo()) {
+            if (null === $this->defaultRoute) {
+                return false;
+            }
+            $request->setPathInfo($this->defaultRoute);
+        }
+
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern || "*" === $requestPattern) {
             $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
@@ -210,7 +227,7 @@ class Service
             return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $skipPlugins);
         }
         // both the pattern and request path should start with a "/"
-        if (0 !== strpos($request->getPathInfo(), "/") || 0 !== strpos($requestPattern, "/")) {
+        if (0 !== strpos($requestPattern, "/")) {
             return false;
         }
 
