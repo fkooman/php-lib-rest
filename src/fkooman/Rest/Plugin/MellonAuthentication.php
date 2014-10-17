@@ -20,7 +20,7 @@ namespace fkooman\Rest\Plugin;
 
 use fkooman\Http\Request;
 use fkooman\Rest\ServicePluginInterface;
-use fkooman\Http\Exception\UnauthorizedException;
+use fkooman\Http\Exception\InternalServerErrorException;
 
 class MellonAuthentication implements ServicePluginInterface
 {
@@ -35,8 +35,8 @@ class MellonAuthentication implements ServicePluginInterface
     public function execute(Request $request)
     {
         $mellonUserId = $request->getHeader($this->userIdAttribute);
-        if (null !== $mellonUserId || !is_string($mellonUserId)) {
-            throw new UnauthorizedException("mellon configuration error");
+        if (null === $mellonUserId || !is_string($mellonUserId)) {
+            throw new InternalServerErrorException("mellon configuration error, expected attribute not available");
         }
 
         return new UserInfo($mellonUserId);
