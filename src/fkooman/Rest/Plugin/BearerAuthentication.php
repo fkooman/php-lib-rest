@@ -101,7 +101,7 @@ class BearerAuthentication implements ServicePluginInterface
             )
         );
 
-        $tokenIntrospection = new TokenIntrospection($jsonResponse->json());
+        $tokenIntrospection = new TokenIntrospection($response->json());
         if (!$tokenIntrospection->isValid()) {
             throw new UnauthorizedException(
                 'invalid_token',
