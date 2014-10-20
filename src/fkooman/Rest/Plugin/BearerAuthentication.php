@@ -35,7 +35,7 @@ class BearerAuthentication implements ServicePluginInterface
     /** @var GuzzleHttp\Client */
     private $guzzleClient;
 
-    public function __construct($introspectionEndpoint, $bearerAuthRealm = "Protected Resource", GuzzleHttp\Client $guzzleClient = null)
+    public function __construct($introspectionEndpoint, $bearerAuthRealm = "Protected Resource", Client $guzzleClient = null)
     {
         $this->introspectionEndpoint = $introspectionEndpoint;
         $this->bearerAuthRealm = $bearerAuthRealm;
