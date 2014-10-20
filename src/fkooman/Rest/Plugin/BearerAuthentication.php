@@ -96,7 +96,7 @@ class BearerAuthentication implements ServicePluginInterface
             $this->introspectionEndpoint,
             array(
                 'query' => array(
-                    'access_token' => $bearerToken,
+                    'token' => $bearerToken,
                 ),
             )
         );
