@@ -20,8 +20,8 @@ namespace fkooman\Http\Exception;
 
 class ForbiddenException extends HttpException
 {
-    public function __construct($message, $code = 0, Exception $previous = null)
+    public function __construct($message, $description = null, $code = 0, Exception $previous = null)
     {
-        parent::__construct($message, 403, $previous);
+        parent::__construct($message, $description, 403, $previous);
     }
 }

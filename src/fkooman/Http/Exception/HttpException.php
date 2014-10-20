@@ -24,19 +24,29 @@ use Exception;
 
 class HttpException extends Exception
 {
-    public function __construct($message, $code = 0, Exception $previous = null)
+    /** @var string */
+    private $description;
+
+    public function __construct($message, $description = null, $code = 0, Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
+        $this->description = $description;
+    }
+
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     public function getJsonResponse()
     {
         $response = $this->getResponse(true);
-        $response->setContent(
-            array(
-                'error' => $this->getMessage(),
-            )
-        );
+        $responseData = array();
+        $responseData['error'] = $this->getMessage();
+        if (null !== $this->getDescription()) {
+            $responseData['error_description'] = $this->getDescription();
+        }
+        $response->setContent($responseData);
 
         return $response;
     }
@@ -44,12 +54,19 @@ class HttpException extends Exception
     public function getHtmlResponse()
     {
         $response = $this->getResponse(false);
+
+        if (null !== $this->getDescription()) {
+            $message = sprintf('%s (%s)', $this->getMessage(), $this->getDescription());
+        } else {
+            $message = $this->getMessage();
+        }
+
         $htmlData = sprintf(
             '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>%s %s</title></head><body><h1>%s</h1><p>%s</p></body></html>',
             $this->getCode(),
             $response->getStatusReason(),
             $response->getStatusReason(),
-            $this->getMessage()
+            $message
         );
         $response->setContent($htmlData);
 

@@ -26,14 +26,14 @@ class UnauthorizedException extends HttpException
     /** @var string */
     private $authParams;
 
-    public function __construct($message, $authScheme = 'Basic', array $authParams = array(), $code = 0, Exception $previous = null)
+    public function __construct($message, $description, $authScheme = 'Basic', array $authParams = array(), $code = 0, Exception $previous = null)
     {
         $this->authScheme = $authScheme;
         if (!array_key_exists('realm', $authParams)) {
             $authParams['realm'] = 'My Realm';
         }
         $this->authParams = $authParams;
-        parent::__construct($message, 401, $previous);
+        parent::__construct($message, $description, 401, $previous);
     }
 
     private function authParamsToString()

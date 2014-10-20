@@ -218,7 +218,11 @@ class Service
             throw new NotFoundException('url not found');
         }
 
-        throw new MethodNotAllowedException('unsupported method', $this->supportedMethods);
+        throw new MethodNotAllowedException(
+            'unsupported method',
+            sprintf('only %s allowed', implode(',', $this->supportedMethods)),
+            $this->supportedMethods
+        );
     }
 
     private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback, array $skipPlugins)

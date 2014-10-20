@@ -1,5 +1,12 @@
 # Release History
 
+## 0.6.0 
+**Breaking API changes**:
+- modify the exceptions to have a description field after the message field
+
+Other changes:
+- add `BearerAuthentication` plugin
+
 ## 0.5.3
 - fix `MellonAuthentication` plugin
 
