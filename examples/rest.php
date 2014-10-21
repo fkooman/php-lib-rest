@@ -22,7 +22,7 @@ use fkooman\Http\Request;
 use fkooman\Http\JsonResponse;
 use fkooman\Http\IncomingRequest;
 use fkooman\Rest\Service;
-use fkooman\Rest\Plugin\BasicAuthentication;
+#use fkooman\Rest\Plugin\Basic\BasicAuthentication;
 use fkooman\Http\Exception\HttpException;
 use fkooman\Http\Exception\BadRequestException;
 use fkooman\Http\Exception\InternalServerErrorException;

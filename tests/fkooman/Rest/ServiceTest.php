@@ -18,10 +18,9 @@
 
 namespace fkooman\Rest;
 
-use fkooman\Rest\Plugin\BasicAuthentication;
-use fkooman\Rest\Plugin\UserInfo;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
+use StdClass;
 use PHPUnit_Framework_TestCase;
 
 class ServiceTest extends PHPUnit_Framework_TestCase
@@ -46,125 +45,78 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testBasicAuthCorrectCredentials()
-    {
-        $request = new Request("http://www.example.org/foo", "GET");
-        $request->setPathInfo("/foo/bar/baz.txt");
-        $request->setBasicAuthUser("foo");
-        $request->setBasicAuthPass("bar");
-        $service = new Service();
-        $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", password_hash('bar', PASSWORD_DEFAULT), "Foo Realm"));
-        $service->match(
-            "GET",
-            "/foo/bar/baz.txt",
-            function (UserInfo $u) {
-                $response = new Response(200, "plain/text");
-                $response->setContent($u->getUserId());
-
-                return $response;
-            }
-        );
-        $response = $service->run($request);
-        $this->assertEquals("foo", $response->getContent());
-        $this->assertEquals(200, $response->getStatusCode());
-    }
-
-    /**
-     * @expectedException fkooman\Http\Exception\UnauthorizedException
-     * @expectedExceptionMessage invalid credentials
-     */
-    public function testBasicAuthIncorrectCredentials()
-    {
-        $request = new Request("http://www.example.org/foo", "GET");
-        $request->setPathInfo("/foo/bar/baz.txt");
-        $request->setBasicAuthUser("foo");
-        $request->setBasicAuthPass("baz");
-        $service = new Service();
-        $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
-        $service->match(
-            "GET",
-            "/foo/bar/baz.txt",
-            function () {
-                $response = new Response(200, "plain/text");
-                $response->setContent("Hello World");
-
-                return $response;
-            }
-        );
-        $service->run($request);
-    }
-
-    /**
-     * @expectedException fkooman\Http\Exception\UnauthorizedException
-     * @expectedExceptionMessage invalid credentials
-     */
-    public function testBasicAuthNoCredentials()
-    {
-        $request = new Request("http://www.example.org/foo", "GET");
-        $request->setPathInfo("/foo/bar/baz.txt");
-        $service = new Service();
-        $service->registerBeforeMatchingPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
-        $service->match(
-            "GET",
-            "/foo/bar/baz.txt",
-            function () {
-                $response = new Response(200, "plain/text");
-                $response->setContent("Hello World");
-
-                return $response;
-            }
-        );
-        $service->run($request);
-    }
-
-    /**
-     * @expectedException fkooman\Http\Exception\UnauthorizedException
-     * @expectedExceptionMessage invalid credentials
-     */
     public function testBeforeEachMatchPluginNoSkip()
     {
         $service = new Service();
-        $service->registerBeforeEachMatchPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
+
+        $stub = $this->getMock('fkooman\Rest\ServicePluginInterface');
+        $stub->method('execute')
+             ->willReturn((object) array("foo" => "bar"));
+
+        $service->registerBeforeEachMatchPlugin($stub);
         $service->get(
             "/foo/bar/baz.txt",
-            function () {
+            function (StdClass $x) {
                 $response = new Response(200, "plain/text");
-                $response->setContent("Hello World");
+                $response->setContent($x->foo);
 
                 return $response;
             }
         );
+        $service->get(
+            "/foo/bar/bazzz.txt",
+            function (StdClass $x) {
+                $response = new Response(200, "plain/text");
+                $response->setContent($x->foo);
 
+                return $response;
+            }
+        );
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
-        $service->run($request);
+        $response = $service->run($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("bar", $response->getContent());
+
+        $request->setPathInfo("/foo/bar/bazzz.txt");
+        $response = $service->run($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("bar", $response->getContent());
     }
 
+    /**
+     * @expectedException fkooman\Rest\Exception\ServiceException
+     * @expectedExceptionMessage parameter expected by callback not available
+     */
     public function testBeforeEachMatchPluginSkip()
     {
         $service = new Service();
-        $service->registerBeforeEachMatchPlugin(new BasicAuthentication("foo", "bar", "Foo Realm"));
+
+        $stub = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')
+                     ->setMockClassName('FooPlugin')
+                     ->getMock();
+        $stub->method('execute')
+             ->willReturn((object) array("foo" => "bar"));
+        $service->registerBeforeEachMatchPlugin($stub);
         $service->get(
             "/foo/bar/foobar.txt",
-            function () {
+            function (StdClass $x) {
             }
         );
         $service->get(
             "/foo/bar/baz.txt",
-            function () {
+            function (StdClass $x) {
                 $response = new Response(200, "plain/text");
                 $response->setContent("Hello World");
 
                 return $response;
             },
-            array('fkooman\Rest\Plugin\BasicAuthentication')
+            array('FooPlugin')
         );
 
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
-        $response = $service->run($request);
-        $this->assertEquals("Hello World", $response->getContent());
-        $this->assertEquals(200, $response->getStatusCode());
+        $service->run($request);
     }
 
     /**
