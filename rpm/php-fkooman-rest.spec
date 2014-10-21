@@ -6,7 +6,7 @@
 
 Name:       php-%{composer_vendor}-%{composer_project}
 Version:    0.6.0
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    Simple PHP library for writing REST services
 
 Group:      System Environment/Libraries
@@ -18,7 +18,6 @@ BuildArch:  noarch
 Provides:   php-composer(%{composer_vendor}/%{composer_project}) = %{version}
 
 Requires:   php >= 5.3.3
-Requires:   php-password-compat >= 1.0.0
 Requires:   php-composer(fkooman/json) >= 0.5.1
 Requires:   php-composer(fkooman/json) < 0.6.0
 
@@ -43,29 +42,8 @@ cp -pr src/* ${RPM_BUILD_ROOT}%{_datadir}/php
 %doc README.md CHANGES.md COPYING composer.json
 
 %changelog
+* Tue Oct 21 2014 François Kooman <fkooman@tuxed.net> - 0.6.0-2
+- no longer require php-password-compat
+
 * Mon Oct 20 2014 François Kooman <fkooman@tuxed.net> - 0.6.0-1
 - update to 0.6.0
-
-* Fri Oct 17 2014 François Kooman <fkooman@tuxed.net> - 0.5.3-1
-- update to 0.5.3
-
-* Fri Oct 17 2014 François Kooman <fkooman@tuxed.net> - 0.5.2-1
-- update to 0.5.2
-
-* Sun Oct 12 2014 François Kooman <fkooman@tuxed.net> - 0.5.1-1
-- update to 0.5.1
-
-* Sun Oct 12 2014 François Kooman <fkooman@tuxed.net> - 0.5.0-1
-- update to 0.5.0
-
-* Thu Oct 09 2014 François Kooman <fkooman@tuxed.net> - 0.4.11-1
-- update to 0.4.11
-
-* Mon Oct 06 2014 François Kooman <fkooman@tuxed.net> - 0.4.10-1
-- update to 0.4.10
-
-* Tue Sep 30 2014 François Kooman <fkooman@tuxed.net> - 0.4.9-1
-- update to 0.4.9
-
-* Mon Sep 29 2014 François Kooman <fkooman@tuxed.net> - 0.4.8-1
-- update to 0.4.8
