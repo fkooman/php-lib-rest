@@ -178,14 +178,12 @@ class Service
 
         // dafaultRoute
         if (null === $request->getPathInfo()) {
-            if (null === $this->defaultRoute) {
-                return false;
-            }
-            // FIXME: should this be 301 or 302?
-            $response = new Response(301);
-            $response->setHeader("Location", sprintf('%s%s', $request->getRequestUri()->getUri(), $this->defaultRoute));
+            if (null !== $this->defaultRoute) {
+                $response = new Response(302);
+                $response->setHeader("Location", sprintf('%s%s', $request->getRequestUri()->getUri(), $this->defaultRoute));
 
-            return $response;
+                return $response;
+            }
         }
 
         foreach ($this->match as $m) {

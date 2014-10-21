@@ -5,6 +5,11 @@
 - modify the exceptions to have a description field after the message field
 - remove all the rest plugins and move them to separate projects
 
+Other changes:
+- fix Service class when no default route is set but there is no path 
+  specified in PATH_INFO
+- redirect is now 302 and not 301 in case of default route
+
 ## 0.5.3
 - fix `MellonAuthentication` plugin
 
