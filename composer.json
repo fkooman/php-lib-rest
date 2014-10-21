@@ -17,9 +17,6 @@
     "name": "fkooman/rest",
     "require": {
         "fkooman/json": "~0.5.1",
-        "fkooman/oauth-common": "~0.6.0",
-        "guzzlehttp/guzzle": "4.*",
-        "ircmaxell/password-compat": "~1.0",
         "php": ">=5.3.3"
     }
 }

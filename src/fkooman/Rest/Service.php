@@ -313,7 +313,7 @@ class Service
                     // object
                     if (!array_key_exists($p->getClass()->getName(), $paramsAvailableForCallback)) {
                         if (!$p->isDefaultValueAvailable()) {
-                            throw new ServiceException("expected parameter by callback not available");
+                            throw new ServiceException("parameter expected by callback not available");
                         }
                     } else {
                         $cbParams[] = $paramsAvailableForCallback[$p->getClass()->getName()];
@@ -322,7 +322,7 @@ class Service
                     // internal type
                     if (!array_key_exists($p->getName(), $paramsAvailableForCallback)) {
                         if (!$p->isDefaultValueAvailable()) {
-                            throw new ServiceException("expected parameter by callback not available");
+                            throw new ServiceException("parameter expected by callback not available");
                         }
                     } else {
                         $cbParams[] = $paramsAvailableForCallback[$p->getName()];

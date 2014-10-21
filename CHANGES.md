@@ -3,9 +3,7 @@
 ## 0.6.0 
 **Breaking API changes**:
 - modify the exceptions to have a description field after the message field
-
-Other changes:
-- add `BearerAuthentication` plugin
+- remove all the rest plugins and move them to separate projects
 
 ## 0.5.3
 - fix `MellonAuthentication` plugin
