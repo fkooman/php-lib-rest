@@ -5,8 +5,8 @@
 %global github_name      php-lib-rest
 
 Name:       php-%{composer_vendor}-%{composer_project}
-Version:    0.6.0
-Release:    2%{?dist}
+Version:    0.6.1
+Release:    1%{?dist}
 Summary:    Simple PHP library for writing REST services
 
 Group:      System Environment/Libraries
@@ -18,8 +18,8 @@ BuildArch:  noarch
 Provides:   php-composer(%{composer_vendor}/%{composer_project}) = %{version}
 
 Requires:   php >= 5.3.3
-Requires:   php-composer(fkooman/json) >= 0.5.1
-Requires:   php-composer(fkooman/json) < 0.6.0
+Requires:   php-composer(fkooman/json) >= 0.6.0
+Requires:   php-composer(fkooman/json) < 0.7.0
 
 %description
 Library written in PHP to make it easy to develop REST applications.
@@ -42,6 +42,9 @@ cp -pr src/* ${RPM_BUILD_ROOT}%{_datadir}/php
 %doc README.md CHANGES.md COPYING composer.json
 
 %changelog
+* Wed Oct 22 2014 François Kooman <fkooman@tuxed.net> - 0.6.1-1
+- update to 0.6.1
+
 * Tue Oct 21 2014 François Kooman <fkooman@tuxed.net> - 0.6.0-2
 - no longer require php-password-compat
 

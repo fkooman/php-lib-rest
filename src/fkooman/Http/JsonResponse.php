@@ -22,22 +22,18 @@ use fkooman\Json\Json;
 
 class JsonResponse extends Response
 {
-    /* @var fkooman\Json\Json */
-    private $j;
-
     public function __construct($statusCode = 200)
     {
-        $this->j = new Json();
-        parent::__construct($statusCode, "application/json");
+        parent::__construct($statusCode, 'application/json');
     }
 
     public function setContent($content)
     {
-        parent::setContent($this->j->encode($content));
+        parent::setContent(Json::encode($content));
     }
 
     public function getContent()
     {
-        return $this->j->decode(parent::getContent());
+        return Json::decode(parent::getContent());
     }
 }

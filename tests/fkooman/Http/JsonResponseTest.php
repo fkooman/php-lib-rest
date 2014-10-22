@@ -18,7 +18,9 @@
 
 namespace fkooman\Http;
 
-class JsonResponseTest extends \PHPUnit_Framework_TestCase
+use PHPUnit_Framework_TestCase;
+
+class JsonResponseTest extends PHPUnit_Framework_TestCase
 {
     public function testResponse()
     {

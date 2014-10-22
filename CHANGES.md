@@ -1,6 +1,7 @@
 # Release History
 
 ## 0.6.1
+- update version of `fkooman/json`
 - make the `Request` parameter to the `run()` method optional, the `Service` 
   class will create the request itself from `IncomingRequest` instead
 
