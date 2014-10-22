@@ -21,6 +21,7 @@ namespace fkooman\Rest;
 use ReflectionFunction;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
+use fkooman\Http\IncomingRequest;
 use fkooman\Http\Exception\MethodNotAllowedException;
 use fkooman\Http\Exception\NotFoundException;
 use fkooman\Rest\Exception\ServiceException;
@@ -148,8 +149,14 @@ class Service
      *                               executed. If nothing matches either 404
      *                               or 405 response is returned.
      */
-    public function run(Request $request)
+    public function run(Request $request = null)
     {
+        if (null === $request) {
+            $request = Request::fromIncomingRequest(
+                new IncomingRequest()
+            );
+        }
+
         // support PUT and DELETE method override when _METHOD is set in a form
         // POST
         if ("POST" === $request->getRequestMethod()) {

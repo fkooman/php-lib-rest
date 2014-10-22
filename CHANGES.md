@@ -1,5 +1,9 @@
 # Release History
 
+## 0.6.1
+- make the `Request` parameter to the `run()` method optional, the `Service` 
+  class will create the request itself from `IncomingRequest` instead
+
 ## 0.6.0 
 **Breaking API changes**:
 - modify the exceptions to have a description field after the message field

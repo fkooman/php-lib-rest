@@ -18,9 +18,7 @@
 
 require_once dirname(__DIR__).'/vendor/autoload.php';
 
-use fkooman\Http\Request;
 use fkooman\Http\JsonResponse;
-use fkooman\Http\IncomingRequest;
 use fkooman\Rest\Service;
 use fkooman\Http\Exception\HttpException;
 use fkooman\Http\Exception\BadRequestException;
@@ -62,11 +60,7 @@ try {
         }
     );
 
-    $request = Request::fromIncomingRequest(
-        new IncomingRequest()
-    );
-
-    $service->run($request)->sendResponse();
+    $service->run()->sendResponse();
 } catch (Exception $e) {
     if ($e instanceof HttpException) {
         $response = $e->getJsonResponse();
