@@ -13,7 +13,7 @@ Furthermore extensive tests are available written in PHPUnit.
 
 # Installation
 You can use this library through [Composer](http://getcomposer.org/) by 
-requiring `fkooman/php-lib-rest`. 
+requiring `fkooman/rest`.
 
 # Tests
 You can run the PHPUnit tests if PHPUnit is installed:
