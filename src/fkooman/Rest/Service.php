@@ -171,6 +171,7 @@ class Service
         $paramsAvailableForCallback = array();
         // make Request always available
         $paramsAvailableForCallback[get_class($request)] = $request;
+        $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
 
         // run the beforeMatchingPlugins
         foreach ($this->beforeMatchingPlugins as $plugin) {
@@ -238,8 +239,6 @@ class Service
 
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern || "*" === $requestPattern) {
-            $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
-
             return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $skipPlugins);
         }
         // both the pattern and request path should start with a "/"

@@ -304,6 +304,21 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service->run($request);
     }
 
+    public function testEndingSlashWildcard()
+    {
+        $request = new Request("http://www.example.org/api.php", "GET");
+        $request->setPathInfo("/admin/public/calendar/42/16/");
+        $service = new Service();
+        $service->get(
+            '/:userId/public/:moduleName/:path+/',
+            function ($userId, $moduleName, $path, $matchAll) {
+                return $matchAll;
+            }
+        );
+        $response = $service->run($request);
+        $this->assertEquals('/admin/public/calendar/42/16/', $response->getContent());
+    }
+
     public function testMatchRestMatchWildcardInMiddle()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
