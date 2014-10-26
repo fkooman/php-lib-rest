@@ -1,5 +1,8 @@
 # Release History
 
+## 0.6.2
+- make matchAll parameter always available to callbacks
+
 ## 0.6.1
 - update version of `fkooman/json`
 - make the `Request` parameter to the `run()` method optional, the `Service` 

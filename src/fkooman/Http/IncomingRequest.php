@@ -64,7 +64,7 @@ class IncomingRequest
         }
 
         // server port
-        if (($_SERVER['SERVER_PORT'] === "80" && ($scheme === "http" || $proxy)) || ($_SERVER['SERVER_PORT'] === "443" && $scheme === "https")) {
+        if (("80" === $_SERVER['SERVER_PORT'] && ("http" === $scheme || $proxy)) || ("443" === $_SERVER['SERVER_PORT'] && "https" === $scheme)) {
             $port = "";
         } else {
             $port = ":".$_SERVER['SERVER_PORT'];

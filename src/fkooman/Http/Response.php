@@ -147,7 +147,7 @@ class Response
     public function setHeader($headerKey, $headerValue)
     {
         $foundHeaderKey = $this->getHeaderKey($headerKey);
-        if ($foundHeaderKey === null) {
+        if (null === $foundHeaderKey) {
             $this->headers[$headerKey] = $headerValue;
         } else {
             $this->headers[$foundHeaderKey] = $headerValue;
@@ -175,7 +175,7 @@ class Response
         $headerKeys = array_keys($this->headers);
         $keyPositionInArray = array_search(strtolower($headerKey), array_map('strtolower', $headerKeys));
 
-        return ($keyPositionInArray === false) ? null : $headerKeys[$keyPositionInArray];
+        return (false === $keyPositionInArray) ? null : $headerKeys[$keyPositionInArray];
     }
 
     public function getHeaders($formatted = false)

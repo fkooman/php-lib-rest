@@ -44,7 +44,7 @@ class Uri
     private static function validateUri($inputUri)
     {
         $u = filter_var($inputUri, FILTER_VALIDATE_URL);
-        if ($u === false) {
+        if (false === $u) {
             throw new UriException("the uri is malformed");
         }
     }
