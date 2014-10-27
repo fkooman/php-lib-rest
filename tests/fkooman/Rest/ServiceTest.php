@@ -801,4 +801,19 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/index.php", "GET");
         $service->run($request);
     }
+
+    public function testUrlEncodedIndex()
+    {
+        $service = new Service();
+        $service->get(
+            '/info/:url',
+            function ($url) {
+                return $url;
+            }
+        );
+        $request = new Request('http://www.example.org/info/?_index=https://www.example.org/foo/bar/baz');
+        $request->setPathInfo('/info/');
+        $response = $service->run($request);
+        $this->assertEquals('https%3A%2F%2Fwww.example.org%2Ffoo%2Fbar%2Fbaz', $response->getContent());
+    }
 }

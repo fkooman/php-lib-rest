@@ -168,6 +168,14 @@ class Service
             }
         }
 
+        // if there is a query parameter _index take the value, urlencode it and
+        // add it to the end of the path info. This is to support e.g. URLs as
+        // part of the path info. PHP or Apache decodes the PATH INFO, it is not
+        // possible to disable this, so we lose the URL...
+        if (null !== $request->getQueryParameter('_index')) {
+            $request->setPathInfo($request->getPathInfo().urlencode($request->getQueryParameter('_index')));
+        }
+
         $paramsAvailableForCallback = array();
         // make Request always available
         $paramsAvailableForCallback[get_class($request)] = $request;

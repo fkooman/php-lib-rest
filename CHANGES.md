@@ -1,5 +1,11 @@
 # Release History
 
+## 0.6.3
+- implement support for a query parameter (`_index`) instead of specifying
+  it directly in the path info which will give some issues with Apache/PHP 
+  already urldecoding it before passing it to the Request object resulting 
+  in a broken path info
+
 ## 0.6.2
 - make matchAll parameter always available to callbacks
 
