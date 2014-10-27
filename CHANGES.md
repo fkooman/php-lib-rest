@@ -1,5 +1,9 @@
 # Release History
 
+## 0.6.4
+- use `htmlspecialchars()` when showing HTML error pages
+- get rid of `ServiceException` and use appropriate SPL exceptions now
+
 ## 0.6.3
 - implement support for a query parameter (`_index`) instead of specifying
   it directly in the path info which will give some issues with Apache/PHP 
