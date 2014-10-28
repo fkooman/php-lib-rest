@@ -18,16 +18,13 @@
 
 namespace fkooman\Rest;
 
-use LogicException;
-use UnexpectedValueException;
-use InvalidArgumentException;
-use BadFunctionCallException;
 use ReflectionFunction;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
 use fkooman\Http\IncomingRequest;
 use fkooman\Http\Exception\MethodNotAllowedException;
 use fkooman\Http\Exception\NotFoundException;
+use fkooman\Rest\Exception\ServiceException;
 
 class Service
 {
@@ -80,7 +77,7 @@ class Service
     public function setDefaultRoute($defaultRoute)
     {
         if (0 !== strpos($defaultRoute, '/')) {
-            throw new InvalidArgumentException('default route needs to start with a /');
+            throw new ServiceException('default route needs to start with a /');
         }
         $this->defaultRoute = $defaultRoute;
     }
@@ -221,7 +218,7 @@ class Service
                     return $response;
                 }
                 if (!is_string($response)) {
-                    throw new UnexpectedValueException("unsupported callback return value");
+                    throw new ServiceException("unsupported callback return value");
                 }
                 $responseObj = new Response();
                 $responseObj->setContent($response);
@@ -263,7 +260,7 @@ class Service
         // check for variables in the requestPattern
         $pma = preg_match_all('#:([\w]+)\+?#', $requestPattern, $matches);
         if (false === $pma) {
-            throw new LogicException("regex for variable search failed");
+            throw new ServiceException("regex for variable search failed");
         }
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
@@ -283,7 +280,7 @@ class Service
         }
         $pm = preg_match("#^".$requestPattern."$#", $request->getPathInfo(), $parameters);
         if (false === $pm) {
-            throw new LogicException("regex for path matching failed");
+            throw new ServiceException("regex for path matching failed");
         }
         if (0 === $pm) {
             // request path does not match pattern
@@ -328,7 +325,7 @@ class Service
                     // object
                     if (!array_key_exists($p->getClass()->getName(), $paramsAvailableForCallback)) {
                         if (!$p->isDefaultValueAvailable()) {
-                            throw new BadFunctionCallException("parameter expected by callback not available");
+                            throw new ServiceException("parameter expected by callback not available");
                         }
                     } else {
                         $cbParams[] = $paramsAvailableForCallback[$p->getClass()->getName()];
@@ -337,7 +334,7 @@ class Service
                     // internal type
                     if (!array_key_exists($p->getName(), $paramsAvailableForCallback)) {
                         if (!$p->isDefaultValueAvailable()) {
-                            throw new BadFunctionCallException("parameter expected by callback not available");
+                            throw new ServiceException("parameter expected by callback not available");
                         }
                     } else {
                         $cbParams[] = $paramsAvailableForCallback[$p->getName()];

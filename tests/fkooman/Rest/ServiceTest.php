@@ -85,7 +85,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException BadFunctionCallException
+     * @expectedException fkooman\Rest\Exception\ServiceException
      * @expectedExceptionMessage parameter expected by callback not available
      */
     public function testBeforeEachMatchPluginSkip()
