@@ -66,7 +66,7 @@ class HttpException extends Exception
             $this->getCode(),
             $response->getStatusReason(),
             $response->getStatusReason(),
-            $message
+            htmlspecialchars($message, ENT_QUOTES)
         );
         $response->setContent($htmlData);
 

@@ -1,5 +1,8 @@
 # Release History
 
+## 0.6.4
+- use `htmlspecialchars()` on message when showing HTML error pages
+
 ## 0.6.3
 - implement support for a query parameter (`_index`) instead of specifying
   it directly in the path info which will give some issues with Apache/PHP 
