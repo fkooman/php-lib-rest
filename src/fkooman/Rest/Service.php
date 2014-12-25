@@ -319,7 +319,6 @@ class Service
         $cbParams = array();
         if (null !== $callback) {
             $reflectionFunction = new ReflectionFunction($callback);
-            $parameters = $reflectionFunction->getParameters();
             foreach ($reflectionFunction->getParameters() as $p) {
                 if (null !== $p->getClass()) {
                     // object
