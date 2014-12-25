@@ -26,6 +26,8 @@ class Response
 
     private $content;
 
+    private $contentFile;
+
     private $statusCode;
 
     private $statusCodes = array(

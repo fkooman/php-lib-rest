@@ -24,7 +24,7 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testMethodNotAllowedException()
     {
-        $e = new MethodNotAllowedException('foo', 'foo_description', array("GET","POST"));
+        $e = new MethodNotAllowedException('foo', 'foo_description', array("GET", "POST"));
         $response = $e->getJsonResponse();
         $this->assertEquals(405, $response->getStatusCode());
         $this->assertEquals('GET,POST', $response->getHeader("Allow"));
