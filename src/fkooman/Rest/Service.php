@@ -278,6 +278,8 @@ class Service
             $pattern = (strpos($m, "+") === strlen($m) -1) ? '(?P<'.$mm.'>(.+?[^/]))' : '(?P<'.$mm.'>([^/]+))';
             $requestPattern = str_replace($m, $pattern, $requestPattern);
         }
+
+        $parameters = array();
         $pm = preg_match("#^".$requestPattern."$#", $request->getPathInfo(), $parameters);
         if (false === $pm) {
             throw new ServiceException("regex for path matching failed");
