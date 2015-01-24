@@ -2,6 +2,9 @@
 
 ## 0.6.4
 - use `htmlspecialchars()` on message when showing HTML error pages
+- add `FormResponse` class
+- fix `Response` class to not call `setContent(null)` and
+  `setContentFile(null)` on object creation
 
 ## 0.6.3
 - implement support for a query parameter (`_index`) instead of specifying
