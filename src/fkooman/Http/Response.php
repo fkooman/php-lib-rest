@@ -81,8 +81,6 @@ class Response
         $this->headers = array();
         $this->setStatusCode($statusCode);
         $this->setContentType($contentType);
-        $this->setContent(null);
-        $this->setContentFile(null);
         $this->useXSendfile(false);
     }
 
