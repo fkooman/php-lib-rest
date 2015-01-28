@@ -195,8 +195,14 @@ class Service
         // dafaultRoute
         if (null === $request->getPathInfo()) {
             if (null !== $this->defaultRoute) {
+                $requestUri = $request->getRequestUri()->getUri();
+                // if the requestUri already ends in a '/' we should strip it
+                // as to avoid getting '//'
+                if (strlen($requestUri)-1 === strrpos($requestUri, '/')) {
+                    $requestUri = substr($requestUri, 0, -1);
+                }
                 $response = new Response(302);
-                $response->setHeader("Location", sprintf('%s%s', $request->getRequestUri()->getUri(), $this->defaultRoute));
+                $response->setHeader("Location", sprintf('%s%s', $requestUri, $this->defaultRoute));
 
                 return $response;
             }

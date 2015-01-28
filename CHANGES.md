@@ -1,5 +1,9 @@
 # Release History
 
+## 0.6.5
+- avoid getting double '//' when using `setDefaultRoute()` together
+  with Apache rewrites
+
 ## 0.6.4
 - use `htmlspecialchars()` on message when showing HTML error pages
 - add `FormResponse` class
