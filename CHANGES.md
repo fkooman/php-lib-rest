@@ -1,5 +1,9 @@
 # Release History
 
+## 0.6.6
+- set the default route to `/` instead of failing, useful for using the 
+  `Service` class when not using the routing capabilities using `PATH_INFO`
+
 ## 0.6.5
 - avoid getting double '//' when using `setDefaultRoute()` together
   with Apache rewrites

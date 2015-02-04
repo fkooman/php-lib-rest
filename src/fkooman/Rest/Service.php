@@ -156,7 +156,7 @@ class Service
                 new IncomingRequest()
             );
         }
-
+        
         // support PUT and DELETE method override when _METHOD is set in a form
         // POST
         if ("POST" === $request->getRequestMethod()) {
@@ -206,6 +206,7 @@ class Service
 
                 return $response;
             }
+            $request->setPathInfo('/');
         }
 
         foreach ($this->match as $m) {
