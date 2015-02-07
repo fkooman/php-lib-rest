@@ -1,5 +1,9 @@
 # Release History
 
+## 0.6.7
+- add generic `UserInfo` class for the authentication plugins to use to 
+  determin the user ID of the authenticated user
+
 ## 0.6.6
 - set the default route to `/` instead of failing, useful for using the 
   `Service` class when not using the routing capabilities using `PATH_INFO`
