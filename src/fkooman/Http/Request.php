@@ -26,6 +26,7 @@ class Request
     protected $method;
     protected $headers;
     protected $content;
+    protected $appRoot;
     protected $pathInfo;
     protected $basicAuthUser;
     protected $basicAuthPass;
@@ -36,6 +37,7 @@ class Request
         $this->setRequestMethod($requestMethod);
         $this->headers = array();
         $this->content = null;
+        $this->appRoot = null;
         $this->pathInfo = null;
         $this->basicAuthUser = null;
         $this->basicAuthPass = null;
@@ -46,6 +48,7 @@ class Request
         $request = new static($i->getRequestUri(), $i->getRequestMethod());
         $request->setHeaders($i->getRequestHeaders());
         $request->setContent($i->getContent());
+        $request->setAppRoot($i->getAppRoot());
         $request->setPathInfo($i->getPathInfo());
         $request->setBasicAuthUser($i->getBasicAuthUser());
         $request->setBasicAuthPass($i->getBasicAuthPass());
@@ -173,6 +176,16 @@ class Request
     public function getContentType()
     {
         return $this->getHeader("Content-Type");
+    }
+
+    public function setAppRoot($appRoot)
+    {
+        $this->appRoot = $appRoot;
+    }
+
+    public function getAppRoot()
+    {
+        return $this->appRoot;
     }
 
     public function setPathInfo($pathInfo)

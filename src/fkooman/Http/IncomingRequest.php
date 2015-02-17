@@ -24,7 +24,7 @@ class IncomingRequest
 {
     public function __construct()
     {
-        $required_keys = array("SERVER_NAME", "SERVER_PORT", "REQUEST_URI", "REQUEST_METHOD");
+        $required_keys = array("SERVER_NAME", "SERVER_PORT", "REQUEST_URI", "REQUEST_METHOD", "SCRIPT_NAME");
         foreach ($required_keys as $r) {
             if (!array_key_exists($r, $_SERVER) || empty($_SERVER[$r])) {
                 throw new IncomingRequestException("missing (one or more) required environment variables");
@@ -37,9 +37,23 @@ class IncomingRequest
         return $_SERVER['REQUEST_METHOD'];
     }
 
+    public function getScriptName()
+    {
+        return $_SERVER['SCRIPT_NAME'];
+    }
+
     public function getPathInfo()
     {
         return array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : null;
+    }
+
+    public function getAppRoot()
+    {
+        $scriptName = $this->getScriptName();
+        // strip everything after the last '/'
+        $lastSlashPosition = strrpos($scriptName, '/');
+
+        return substr($scriptName, 0, $lastSlashPosition + 1);
     }
 
     public function getRequestUri()

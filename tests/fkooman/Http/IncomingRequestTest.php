@@ -150,4 +150,40 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("Foo/Bar 1.0.0", $h->getHeader("USER_AGENT"));
         $this->assertEquals("Foo/Bar 1.0.0", $h->getHeader("USER-AGENT"));
     }
+
+    public function testAppRoot()
+    {
+        $_SERVER['SERVER_PORT'] = 80;
+        $_SERVER['SERVER_NAME'] = 'foo.example.org';
+        $_SERVER['REQUEST_URI'] = '/index.php/xyz?a=b';
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PATH_INFO'] = "/xyz";
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $h = Request::fromIncomingRequest(new IncomingRequest());
+        $this->assertEquals('/', $h->getAppRoot());
+    }
+
+    public function testAppRootOneLevel()
+    {
+        $_SERVER['SERVER_PORT'] = 80;
+        $_SERVER['SERVER_NAME'] = 'foo.example.org';
+        $_SERVER['REQUEST_URI'] = '/foo/index.php/xyz?a=b';
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PATH_INFO'] = "/xyz";
+        $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
+        $h = Request::fromIncomingRequest(new IncomingRequest());
+        $this->assertEquals('/foo/', $h->getAppRoot());
+    }
+
+    public function testAppRootThreeLevels()
+    {
+        $_SERVER['SERVER_PORT'] = 80;
+        $_SERVER['SERVER_NAME'] = 'foo.example.org';
+        $_SERVER['REQUEST_URI'] = '/foo/bar/baz/index.php/xyz?a=b';
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PATH_INFO'] = "/xyz";
+        $_SERVER['SCRIPT_NAME'] = '/foo/bar/baz/index.php';
+        $h = Request::fromIncomingRequest(new IncomingRequest());
+        $this->assertEquals('/foo/bar/baz/', $h->getAppRoot());
+    }
 }

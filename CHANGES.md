@@ -1,5 +1,9 @@
 # Release History
 
+## 0.6.8
+- implement `getAppRoot()` on `Request` object to get the URL path directory
+  the script is located in, useful for e.g. rewriting URLs
+
 ## 0.6.7
 - add generic `UserInfo` class for the authentication plugins to use to 
   determin the user ID of the authenticated user
