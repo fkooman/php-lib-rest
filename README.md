@@ -8,6 +8,7 @@ The library has the following features:
 * Wrapper HTTP request and response class to make it very easy to test your
   applications
 * RESTful router support
+* Various plugins for authentication
 
 Furthermore extensive tests are available written in PHPUnit.
 
@@ -18,7 +19,7 @@ requiring `fkooman/rest`.
 # Tests
 You can run the PHPUnit tests if PHPUnit is installed:
 
-    $ phpunit tests/
+    $ phpunit
 
 You need to run Composer **FIRST** in order to be able to run the tests:
 
