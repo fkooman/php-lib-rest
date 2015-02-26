@@ -45,7 +45,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testBeforeEachMatchPluginNoSkip()
+    public function testOnMatchPluginNoSkip()
     {
         $service = new Service();
 
@@ -53,7 +53,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $stub->method('execute')
              ->willReturn((object) array("foo" => "bar"));
 
-        $service->registerBeforeEachMatchPlugin($stub);
+        $service->registerOnMatchPlugin($stub);
         $service->get(
             "/foo/bar/baz.txt",
             function (StdClass $x) {
@@ -88,7 +88,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
      * @expectedException fkooman\Rest\Exception\ServiceException
      * @expectedExceptionMessage parameter expected by callback not available
      */
-    public function testBeforeEachMatchPluginSkip()
+    public function testOnMatchPluginSkip()
     {
         $service = new Service();
 
@@ -97,7 +97,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
                      ->getMock();
         $stub->method('execute')
              ->willReturn((object) array("foo" => "bar"));
-        $service->registerBeforeEachMatchPlugin($stub);
+        $service->registerOnMatchPlugin($stub);
         $service->get(
             "/foo/bar/foobar.txt",
             function (StdClass $x) {

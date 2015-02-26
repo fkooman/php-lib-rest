@@ -37,10 +37,7 @@ class Service
     private $supportedMethods;
 
     /** @var array */
-    private $beforeMatchingPlugins;
-
-    /** @var array */
-    private $beforeEachMatchPlugins;
+    private $onMatchPlugins;
 
     /** @var string */
     private $defaultRoute;
@@ -49,31 +46,13 @@ class Service
     {
         $this->match = array();
         $this->supportedMethods = array();
-        $this->beforeMatchingPlugins = array();
-        $this->beforeEachMatchPlugins = array();
+        $this->onMatchPlugins = array();
         $this->defaultRoute = null;
     }
 
-    /**
-     * Register a plugin that is always run before the matching starts.
-     *
-     * @param fkooman\Rest\ServicePluginInterface $servicePlugin the plugin to
-     *                                                           register
-     */
-    public function registerBeforeMatchingPlugin(ServicePluginInterface $servicePlugin)
+    public function registerOnMatchPlugin(ServicePluginInterface $servicePlugin)
     {
-        $this->beforeMatchingPlugins[] = $servicePlugin;
-    }
-
-    /**
-     * Register a plugin that is run for every match, allowing you to skip it
-     * for particular matches.
-     *
-     * @param fkooman\Rest\ServicePluginInterface the plugin to register
-     */
-    public function registerBeforeEachMatchPlugin(ServicePluginInterface $servicePlugin)
-    {
-        $this->beforeEachMatchPlugins[] = $servicePlugin;
+        $this->onMatchPlugins[] = $servicePlugin;
     }
 
     public function setDefaultRoute($defaultRoute)
@@ -183,17 +162,6 @@ class Service
             // make Request always available
             $paramsAvailableForCallback[get_class($request)] = $request;
             $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
-
-            // run the beforeMatchingPlugins
-            foreach ($this->beforeMatchingPlugins as $plugin) {
-                $response = $plugin->execute($request);
-                if ($response instanceof Response) {
-                    return $response;
-                }
-                if (is_object($response)) {
-                    $paramsAvailableForCallback[get_class($response)] = $response;
-                }
-            }
 
             // dafaultRoute
             if (null === $request->getPathInfo()) {
@@ -324,8 +292,8 @@ class Service
 
     private function executeCallback(Request $request, $callback, array $paramsAvailableForCallback, array $skipPlugins)
     {
-        // run the beforeEachMatchPlugins
-        foreach ($this->beforeEachMatchPlugins as $plugin) {
+        // run the onMatchPlugins
+        foreach ($this->onMatchPlugins as $plugin) {
             if (in_array(get_class($plugin), $skipPlugins)) {
                 continue;
             }

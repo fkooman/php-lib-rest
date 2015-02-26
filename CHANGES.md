@@ -5,6 +5,9 @@
   updated code
 - return the correct content type in error cases depending on `Allow` header 
   sent by client
+- **BREAKING**: remove `registerBeforeMatchingPlugin` method in `Service`
+- **BREAKING**: rename `registerBeforeEachMatchPlugin` to 
+  `registerOnMatchPlugin`
 
 ## 0.6.8
 - implement `getAppRoot()` on `Request` object to get the URL path directory
