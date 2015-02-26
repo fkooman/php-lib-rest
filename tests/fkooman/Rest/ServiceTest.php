@@ -122,7 +122,6 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     public function testNonMethodMatch()
     {
         $request = new Request("http://www.example.org/foo", "GET");
-        $request->setHeader('Accept', 'application/json');
         $request->setPathInfo("/foo/bar/baz.txt");
 
         $service = new Service();
@@ -144,6 +143,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/bar/foo.txt");
+        $request->setHeader('Accept', 'text/html,foo/bar');
 
         $service = new Service();
         $service->match("GET", "/foo/:xyz", null);

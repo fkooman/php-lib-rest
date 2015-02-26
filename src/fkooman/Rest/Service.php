@@ -248,18 +248,16 @@ class Service
                 $this->supportedMethods
             );
         } catch (HttpException $e) {
-            if (false !== strpos('application/json', $request->getHeader('Accept'))) {
-                return $e->getJsonResponse();
-            } else {
+            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
                 return $e->getHtmlResponse();
             }
+            return $e->getJsonResponse();
         } catch (Exception $e) {
             $e = new InternalServerErrorException($e->getMessage());
-            if (false !== strpos('application/json', $request->getHeader('Accept'))) {
-                return $e->getJsonResponse();
-            } else {
+            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
                 return $e->getHtmlResponse();
             }
+            return $e->getJsonResponse();
         }
     }
 
