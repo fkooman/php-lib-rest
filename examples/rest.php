@@ -24,50 +24,39 @@ use fkooman\Http\Exception\HttpException;
 use fkooman\Http\Exception\BadRequestException;
 use fkooman\Http\Exception\InternalServerErrorException;
 
-try {
-    $service = new Service();
+$service = new Service();
 
-    $service->get(
-        '/hello/:str',
-        function ($str) {
-            $response = new JsonResponse();
-            $response->setContent(
-                array(
-                    'type' => 'GET',
-                    'response' => sprintf('hello %s', $str),
-                )
-            );
+$service->get(
+    '/hello/:str',
+    function ($str) {
+        $response = new JsonResponse();
+        $response->setContent(
+            array(
+                'type' => 'GET',
+                'response' => sprintf('hello %s', $str),
+            )
+        );
 
-            return $response;
-        }
-    );
-
-    $service->post(
-        '/hello/:str',
-        function ($str) {
-            if ('foo' === $str) {
-                throw new BadRequestException('you cannot say "foo!"');
-            }
-            $response = new JsonResponse();
-            $response->setContent(
-                array(
-                    'type' => 'POST',
-                    'response' => sprintf('hello %s', $str),
-                )
-            );
-
-            return $response;
-        }
-    );
-
-    $service->run()->sendResponse();
-} catch (Exception $e) {
-    if ($e instanceof HttpException) {
-        $response = $e->getJsonResponse();
-    } else {
-        // we catch all other (unexpected) exceptions and return a 500
-        $e = new InternalServerErrorException($e->getMessage());
-        $response = $e->getJsonResponse();
+        return $response;
     }
-    $response->sendResponse();
-}
+);
+
+$service->post(
+    '/hello/:str',
+    function ($str) {
+        if ('foo' === $str) {
+            throw new BadRequestException('you cannot say "foo!"');
+        }
+        $response = new JsonResponse();
+        $response->setContent(
+            array(
+                'type' => 'POST',
+                'response' => sprintf('hello %s', $str),
+            )
+        );
+
+        return $response;
+    }
+);
+
+$service->run()->sendResponse();

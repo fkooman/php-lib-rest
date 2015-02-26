@@ -1,5 +1,11 @@
 # Release History
 
+## 0.7.0
+- **BREAKING**: move error handling back to `Service` class, see example for
+  updated code
+- return the correct content type in error cases depending on `Allow` header 
+  sent by client
+
 ## 0.6.8
 - implement `getAppRoot()` on `Request` object to get the URL path directory
   the script is located in, useful for e.g. rewriting URLs

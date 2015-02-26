@@ -22,6 +22,8 @@ use ReflectionFunction;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
 use fkooman\Http\IncomingRequest;
+use fkooman\Http\Exception\InternalServerErrorException;
+use fkooman\Http\Exception\HttpException;
 use fkooman\Http\Exception\MethodNotAllowedException;
 use fkooman\Http\Exception\NotFoundException;
 use fkooman\Rest\Exception\ServiceException;
@@ -151,99 +153,114 @@ class Service
      */
     public function run(Request $request = null)
     {
-        if (null === $request) {
-            $request = Request::fromIncomingRequest(
-                new IncomingRequest()
-            );
-        }
-        
-        // support PUT and DELETE method override when _METHOD is set in a form
-        // POST
-        if ("POST" === $request->getRequestMethod()) {
-            if ("PUT" === $request->getPostParameter("_METHOD")) {
-                $request->setRequestMethod("PUT");
+        try {
+            if (null === $request) {
+                $request = Request::fromIncomingRequest(
+                    new IncomingRequest()
+                );
             }
-            if ("DELETE" === $request->getPostParameter("_METHOD")) {
-                $request->setRequestMethod("DELETE");
-            }
-        }
-
-        // if there is a query parameter _index take the value, urlencode it and
-        // add it to the end of the path info. This is to support e.g. URLs as
-        // part of the path info. PHP or Apache decodes the PATH INFO, it is not
-        // possible to disable this, so we lose the URL...
-        if (null !== $request->getQueryParameter('_index')) {
-            $request->setPathInfo($request->getPathInfo().urlencode($request->getQueryParameter('_index')));
-        }
-
-        $paramsAvailableForCallback = array();
-        // make Request always available
-        $paramsAvailableForCallback[get_class($request)] = $request;
-        $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
-
-        // run the beforeMatchingPlugins
-        foreach ($this->beforeMatchingPlugins as $plugin) {
-            $response = $plugin->execute($request);
-            if ($response instanceof Response) {
-                return $response;
-            }
-            if (is_object($response)) {
-                $paramsAvailableForCallback[get_class($response)] = $response;
-            }
-        }
-
-        // dafaultRoute
-        if (null === $request->getPathInfo()) {
-            if (null !== $this->defaultRoute) {
-                $requestUri = $request->getRequestUri()->getUri();
-                // if the requestUri already ends in a '/' we should strip it
-                // as to avoid getting '//'
-                if (strlen($requestUri)-1 === strrpos($requestUri, '/')) {
-                    $requestUri = substr($requestUri, 0, -1);
+            
+            // support PUT and DELETE method override when _METHOD is set in a form
+            // POST
+            if ("POST" === $request->getRequestMethod()) {
+                if ("PUT" === $request->getPostParameter("_METHOD")) {
+                    $request->setRequestMethod("PUT");
                 }
-                $response = new Response(302);
-                $response->setHeader("Location", sprintf('%s%s', $requestUri, $this->defaultRoute));
-
-                return $response;
+                if ("DELETE" === $request->getPostParameter("_METHOD")) {
+                    $request->setRequestMethod("DELETE");
+                }
             }
-            $request->setPathInfo('/');
-        }
 
-        foreach ($this->match as $m) {
-            $response = $this->matchRest(
-                $request,
-                $m['requestMethod'],
-                $m['requestPattern'],
-                $m['callback'],
-                $paramsAvailableForCallback,
-                $m['skipPlugins']
-            );
+            // if there is a query parameter _index take the value, urlencode it and
+            // add it to the end of the path info. This is to support e.g. URLs as
+            // part of the path info. PHP or Apache decodes the PATH INFO, it is not
+            // possible to disable this, so we lose the URL...
+            if (null !== $request->getQueryParameter('_index')) {
+                $request->setPathInfo($request->getPathInfo().urlencode($request->getQueryParameter('_index')));
+            }
 
-            // false indicates not a match
-            if (false !== $response) {
+            $paramsAvailableForCallback = array();
+            // make Request always available
+            $paramsAvailableForCallback[get_class($request)] = $request;
+            $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
+
+            // run the beforeMatchingPlugins
+            foreach ($this->beforeMatchingPlugins as $plugin) {
+                $response = $plugin->execute($request);
                 if ($response instanceof Response) {
                     return $response;
                 }
-                if (!is_string($response)) {
-                    throw new ServiceException("unsupported callback return value");
+                if (is_object($response)) {
+                    $paramsAvailableForCallback[get_class($response)] = $response;
                 }
-                $responseObj = new Response();
-                $responseObj->setContent($response);
+            }
 
-                return $responseObj;
+            // dafaultRoute
+            if (null === $request->getPathInfo()) {
+                if (null !== $this->defaultRoute) {
+                    $requestUri = $request->getRequestUri()->getUri();
+                    // if the requestUri already ends in a '/' we should strip it
+                    // as to avoid getting '//'
+                    if (strlen($requestUri)-1 === strrpos($requestUri, '/')) {
+                        $requestUri = substr($requestUri, 0, -1);
+                    }
+                    $response = new Response(302);
+                    $response->setHeader("Location", sprintf('%s%s', $requestUri, $this->defaultRoute));
+
+                    return $response;
+                }
+                $request->setPathInfo('/');
+            }
+
+            foreach ($this->match as $m) {
+                $response = $this->matchRest(
+                    $request,
+                    $m['requestMethod'],
+                    $m['requestPattern'],
+                    $m['callback'],
+                    $paramsAvailableForCallback,
+                    $m['skipPlugins']
+                );
+
+                // false indicates not a match
+                if (false !== $response) {
+                    if ($response instanceof Response) {
+                        return $response;
+                    }
+                    if (!is_string($response)) {
+                        throw new ServiceException("unsupported callback return value");
+                    }
+                    $responseObj = new Response();
+                    $responseObj->setContent($response);
+
+                    return $responseObj;
+                }
+            }
+
+            // handle non matching patterns
+            if (in_array($request->getRequestMethod(), $this->supportedMethods)) {
+                throw new NotFoundException('url not found');
+            }
+
+            throw new MethodNotAllowedException(
+                'unsupported method',
+                sprintf('only %s allowed', implode(',', $this->supportedMethods)),
+                $this->supportedMethods
+            );
+        } catch (HttpException $e) {
+            if (false !== strpos('application/json', $request->getHeader('Accept'))) {
+                return $e->getJsonResponse();
+            } else {
+                return $e->getHtmlResponse();
+            }
+        } catch (Exception $e) {
+            $e = new InternalServerErrorException($e->getMessage());
+            if (false !== strpos('application/json', $request->getHeader('Accept'))) {
+                return $e->getJsonResponse();
+            } else {
+                return $e->getHtmlResponse();
             }
         }
-
-        // handle non matching patterns
-        if (in_array($request->getRequestMethod(), $this->supportedMethods)) {
-            throw new NotFoundException('url not found');
-        }
-
-        throw new MethodNotAllowedException(
-            'unsupported method',
-            sprintf('only %s allowed', implode(',', $this->supportedMethods)),
-            $this->supportedMethods
-        );
     }
 
     private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback, array $skipPlugins)
