@@ -1,6 +1,8 @@
 # Release History
 
 ## 0.7.0
+- **BREAKING**: remove all internal exceptions and use SPL exceptions, 
+  except for HTTP exceptions
 - **BREAKING**: move error handling back to `Service` class, see example for
   updated code
 - return the correct content type in error cases depending on `Allow` header 

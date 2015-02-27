@@ -127,7 +127,7 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException fkooman\Http\Exception\IncomingRequestException
+     * @expectedException InvalidArgumentException
      */
     public function testNoServer()
     {

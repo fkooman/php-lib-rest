@@ -73,7 +73,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException fkooman\Http\Exception\RequestException
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage request method should be POST
      */
     public function testTryGetPostParametersOnGetRequest()
     {
@@ -82,7 +83,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException fkooman\Http\Exception\RequestException
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage request method should be POST
      */
     public function testTrySetPostParametersOnGetRequest()
     {
@@ -91,7 +93,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException fkooman\Http\Exception\UriException
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage the uri is malformed
      */
     public function testInvalidUri()
     {
@@ -99,7 +102,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException fkooman\Http\Exception\RequestException
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage invalid or unsupported request method
      */
     public function testUnsupportedRequestMethod()
     {

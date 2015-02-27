@@ -18,7 +18,8 @@
 
 namespace fkooman\Http;
 
-use fkooman\Http\Exception\RequestException;
+use InvalidArgumentException;
+use RuntimeException;
 
 class Request
 {
@@ -69,7 +70,7 @@ class Request
     public function setRequestMethod($method)
     {
         if (!in_array($method, array("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"))) {
-            throw new RequestException("invalid or unsupported request method");
+            throw new InvalidArgumentException("invalid or unsupported request method");
         }
         $this->method = $method;
     }
@@ -82,7 +83,7 @@ class Request
     public function setPostParameters(array $parameters)
     {
         if ($this->getRequestMethod() !== "POST") {
-            throw new RequestException("request method should be POST");
+            throw new RuntimeException("request method should be POST");
         }
         $this->setHeader("Content-Type", "application/x-www-form-urlencoded");
         $this->setContent(http_build_query($parameters, null, "&"));
@@ -116,7 +117,7 @@ class Request
     public function getPostParameters()
     {
         if ($this->getRequestMethod() !== "POST") {
-            throw new RequestException("request method should be POST");
+            throw new RuntimeException("request method should be POST");
         }
         // FIXME: we should check to see if it was a proper FORM post!
         $parameters = array();

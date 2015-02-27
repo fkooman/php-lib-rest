@@ -18,7 +18,7 @@
 
 namespace fkooman\Http;
 
-use fkooman\Http\Exception\UriException;
+use InvalidArgumentException;
 
 class Uri
 {
@@ -36,7 +36,7 @@ class Uri
             } elseif ("https" === $this->uriParts['scheme']) {
                 $this->uriParts['port'] = 443;
             } else {
-                throw new UriException("unsupported scheme");
+                throw new InvalidArgumentException("unsupported scheme");
             }
         }
     }
@@ -45,7 +45,7 @@ class Uri
     {
         $u = filter_var($inputUri, FILTER_VALIDATE_URL);
         if (false === $u) {
-            throw new UriException("the uri is malformed");
+            throw new InvalidArgumentException("the uri is malformed");
         }
     }
 

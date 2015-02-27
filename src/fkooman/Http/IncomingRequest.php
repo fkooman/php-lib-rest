@@ -18,7 +18,7 @@
 
 namespace fkooman\Http;
 
-use fkooman\Http\Exception\IncomingRequestException;
+use InvalidArgumentException;
 
 class IncomingRequest
 {
@@ -27,7 +27,7 @@ class IncomingRequest
         $required_keys = array("SERVER_NAME", "SERVER_PORT", "REQUEST_URI", "REQUEST_METHOD", "SCRIPT_NAME");
         foreach ($required_keys as $r) {
             if (!array_key_exists($r, $_SERVER) || empty($_SERVER[$r])) {
-                throw new IncomingRequestException("missing (one or more) required environment variables");
+                throw new InvalidArgumentException("missing (one or more) required environment variables");
             }
         }
     }
