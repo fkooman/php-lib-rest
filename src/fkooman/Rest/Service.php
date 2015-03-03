@@ -55,6 +55,10 @@ class Service
 
     public function registerOnMatchPlugin(ServicePluginInterface $servicePlugin)
     {
+        // execute init function
+        if (method_exists($servicePlugin, 'init')) {
+            $servicePlugin->init($this);
+        }
         $this->onMatchPlugins[] = $servicePlugin;
     }
 
