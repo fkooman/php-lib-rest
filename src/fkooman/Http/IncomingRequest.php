@@ -50,7 +50,13 @@ class IncomingRequest
     public function getAppRoot()
     {
         $scriptName = $this->getScriptName();
-        // strip everything after the last '/'
+        $requestUri = $_SERVER['REQUEST_URI'];
+
+        // strip everything after the last '/', but only if SCRIPT_NAME is not
+        // the start of REQUEST_URI mentioned in the REQUEST_URI
+        if (0 === strpos($requestUri, $scriptName)) {
+            return $scriptName . '/';
+        }
         $lastSlashPosition = strrpos($scriptName, '/');
 
         return substr($scriptName, 0, $lastSlashPosition + 1);

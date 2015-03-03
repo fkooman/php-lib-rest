@@ -160,7 +160,7 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PATH_INFO'] = "/xyz";
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/', $h->getAppRoot());
+        $this->assertEquals('/index.php/', $h->getAppRoot());
     }
 
     public function testAppRootOneLevel()
@@ -172,7 +172,7 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PATH_INFO'] = "/xyz";
         $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
         $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/foo/', $h->getAppRoot());
+        $this->assertEquals('/foo/index.php/', $h->getAppRoot());
     }
 
     public function testAppRootThreeLevels()
@@ -180,6 +180,30 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['SERVER_PORT'] = 80;
         $_SERVER['SERVER_NAME'] = 'foo.example.org';
         $_SERVER['REQUEST_URI'] = '/foo/bar/baz/index.php/xyz?a=b';
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PATH_INFO'] = "/xyz";
+        $_SERVER['SCRIPT_NAME'] = '/foo/bar/baz/index.php';
+        $h = Request::fromIncomingRequest(new IncomingRequest());
+        $this->assertEquals('/foo/bar/baz/index.php/', $h->getAppRoot());
+    }
+
+    public function testAppRootRewrite()
+    {
+        $_SERVER['SERVER_PORT'] = 80;
+        $_SERVER['SERVER_NAME'] = 'foo.example.org';
+        $_SERVER['REQUEST_URI'] = '/xyz?a=b';
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PATH_INFO'] = "/xyz";
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $h = Request::fromIncomingRequest(new IncomingRequest());
+        $this->assertEquals('/', $h->getAppRoot());
+    }
+
+    public function testAppRootRewriteThreeLevels()
+    {
+        $_SERVER['SERVER_PORT'] = 80;
+        $_SERVER['SERVER_NAME'] = 'foo.example.org';
+        $_SERVER['REQUEST_URI'] = '/foo/bar/baz/xyz?a=b';
         $_SERVER['REQUEST_METHOD'] = "GET";
         $_SERVER['PATH_INFO'] = "/xyz";
         $_SERVER['SCRIPT_NAME'] = '/foo/bar/baz/index.php';

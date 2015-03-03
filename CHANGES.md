@@ -10,6 +10,9 @@
 - **BREAKING**: remove `registerBeforeMatchingPlugin` method in `Service`
 - **BREAKING**: rename `registerBeforeEachMatchPlugin` to 
   `registerOnMatchPlugin`
+- make `getAppRoot()` also work when no URL rewriting takes place, i.e.: if
+  the script is still part of the REQUEST_URI the script name will also be
+  included in the `getAppRoot()` response
 
 ## 0.6.8
 - implement `getAppRoot()` on `Request` object to get the URL path directory
