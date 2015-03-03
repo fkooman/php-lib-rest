@@ -27,7 +27,7 @@ class Request
     protected $method;
     protected $headers;
     protected $content;
-    protected $appRoot;
+    protected $baseDir;
     protected $pathInfo;
     protected $basicAuthUser;
     protected $basicAuthPass;
@@ -38,7 +38,7 @@ class Request
         $this->setRequestMethod($requestMethod);
         $this->headers = array();
         $this->content = null;
-        $this->appRoot = null;
+        $this->baseDir = null;
         $this->pathInfo = null;
         $this->basicAuthUser = null;
         $this->basicAuthPass = null;
@@ -49,7 +49,7 @@ class Request
         $request = new static($i->getRequestUri(), $i->getRequestMethod());
         $request->setHeaders($i->getRequestHeaders());
         $request->setContent($i->getContent());
-        $request->setAppRoot($i->getAppRoot());
+        $request->setBaseDir($i->getBaseDir());
         $request->setPathInfo($i->getPathInfo());
         $request->setBasicAuthUser($i->getBasicAuthUser());
         $request->setBasicAuthPass($i->getBasicAuthPass());
@@ -179,14 +179,19 @@ class Request
         return $this->getHeader("Content-Type");
     }
 
-    public function setAppRoot($appRoot)
+    public function setBaseDir($baseDir)
     {
-        $this->appRoot = $appRoot;
+        $this->baseDir = $baseDir;
+    }
+
+    public function getBaseDir()
+    {
+        return $this->baseDir;
     }
 
     public function getAppRoot()
     {
-        return $this->appRoot;
+        return $this->getRequestUri()->getBaseUri() . $this->getBaseDir();
     }
 
     public function setPathInfo($pathInfo)

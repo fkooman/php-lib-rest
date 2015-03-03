@@ -157,4 +157,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $h = new Request("https://www.example.org", "GET");
         $this->assertTrue($h->isHttps());
     }
+
+    public function testAppRoot()
+    {
+        $request = new Request('https://www.example.org/foo/index.php/bar?foo=bar', 'GET');
+        $request->setBaseDir('/foo/');
+        $request->setPathInfo('/bar');
+
+        $this->assertEquals('https://www.example.org/foo/', $request->getAppRoot());
+    }
 }

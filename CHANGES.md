@@ -1,6 +1,9 @@
 # Release History
 
 ## 0.7.0
+- **BREAKING**: `getAppRoot()` now returns the absolute path to the app, 
+  no longer the base directory. Use `getBaseDir()` for the absolute base
+  dir
 - **BREAKING**: remove all internal exceptions and use SPL exceptions, 
   except for HTTP exceptions
 - **BREAKING**: move error handling back to `Service` class, see example for

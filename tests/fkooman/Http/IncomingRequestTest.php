@@ -151,7 +151,7 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("Foo/Bar 1.0.0", $h->getHeader("USER-AGENT"));
     }
 
-    public function testAppRoot()
+    public function testBaseDir()
     {
         $_SERVER['SERVER_PORT'] = 80;
         $_SERVER['SERVER_NAME'] = 'foo.example.org';
@@ -160,10 +160,10 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PATH_INFO'] = "/xyz";
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/index.php/', $h->getAppRoot());
+        $this->assertEquals('/index.php/', $h->getBaseDir());
     }
 
-    public function testAppRootOneLevel()
+    public function testBaseDirOneLevel()
     {
         $_SERVER['SERVER_PORT'] = 80;
         $_SERVER['SERVER_NAME'] = 'foo.example.org';
@@ -172,10 +172,10 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PATH_INFO'] = "/xyz";
         $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
         $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/foo/index.php/', $h->getAppRoot());
+        $this->assertEquals('/foo/index.php/', $h->getBaseDir());
     }
 
-    public function testAppRootThreeLevels()
+    public function testBaseDirThreeLevels()
     {
         $_SERVER['SERVER_PORT'] = 80;
         $_SERVER['SERVER_NAME'] = 'foo.example.org';
@@ -184,10 +184,10 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PATH_INFO'] = "/xyz";
         $_SERVER['SCRIPT_NAME'] = '/foo/bar/baz/index.php';
         $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/foo/bar/baz/index.php/', $h->getAppRoot());
+        $this->assertEquals('/foo/bar/baz/index.php/', $h->getBaseDir());
     }
 
-    public function testAppRootRewrite()
+    public function testBaseDirRewrite()
     {
         $_SERVER['SERVER_PORT'] = 80;
         $_SERVER['SERVER_NAME'] = 'foo.example.org';
@@ -196,10 +196,10 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PATH_INFO'] = "/xyz";
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/', $h->getAppRoot());
+        $this->assertEquals('/', $h->getBaseDir());
     }
 
-    public function testAppRootRewriteThreeLevels()
+    public function testBaseDirRewriteThreeLevels()
     {
         $_SERVER['SERVER_PORT'] = 80;
         $_SERVER['SERVER_NAME'] = 'foo.example.org';
@@ -208,6 +208,6 @@ class IncomingRequestTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PATH_INFO'] = "/xyz";
         $_SERVER['SCRIPT_NAME'] = '/foo/bar/baz/index.php';
         $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/foo/bar/baz/', $h->getAppRoot());
+        $this->assertEquals('/foo/bar/baz/', $h->getBaseDir());
     }
 }

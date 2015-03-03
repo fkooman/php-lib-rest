@@ -47,7 +47,7 @@ class IncomingRequest
         return array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : null;
     }
 
-    public function getAppRoot()
+    public function getBaseDir()
     {
         $scriptName = $this->getScriptName();
         $requestUri = $_SERVER['REQUEST_URI'];
