@@ -1,6 +1,7 @@
 # Release History
 
 ## 0.7.0
+- bring back `FormResponse`
 - **BREAKING**: `getAppRoot()` now returns the absolute path to the app, 
   no longer the base directory. Use `getBaseDir()` for the absolute base
   dir
