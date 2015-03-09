@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Copyright 2014 François Kooman <fkooman@tuxed.net>
+* Copyright 2015 François Kooman <fkooman@tuxed.net>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,198 +16,289 @@
 * limitations under the License.
 */
 
-namespace fkooman\Http;
+use fkooman\Http\IncomingRequest;
 
-class IncomingRequestTest extends \PHPUnit_Framework_TestCase
+class IncomingRequestTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @dataProvider getDataProvider
-     */
-    public function testGetRequests($port, $name, $request, $https, $request_uri)
-    {
-        $_SERVER['SERVER_PORT'] = $port;
-        $_SERVER['SERVER_NAME'] = $name;
-        $_SERVER['REQUEST_URI'] = $request;
-        $_SERVER['REQUEST_METHOD'] = "GET";
-        $_SERVER['PATH_INFO'] = "/foo/bar";
-        $_SERVER['HTTPS'] = $https;
-        $_SERVER['PHP_AUTH_USER'] = "user";
-        $_SERVER['PHP_AUTH_PW'] = "pass";
-
-        $stub = $this->getMock('\fkooman\Http\IncomingRequest', array('getRequestHeaders'));
-        $stub->expects($this->any())
-                ->method('getRequestHeaders')
-                ->will($this->returnValue(array("A" => "B")));
-        $request = Request::fromIncomingRequest($stub);
-        $this->assertEquals($request_uri, $request->getRequestUri()->getUri());
-        $this->assertEquals("GET", $request->getRequestMethod());
-        $this->assertEquals("/foo/bar", $request->getPathInfo());
-        $this->assertEquals("user", $request->getBasicAuthUser());
-        $this->assertEquals("pass", $request->getBasicAuthPass());
-    }
-
-    public function getDataProvider()
-    {
-        return array(
-            array("80", "www.example.com", "/request", "off", "http://www.example.com/request"),
-            array("443", "www.example.com", "/request", "off", "http://www.example.com:443/request"),
-            array("443", "www.example.com", "/request", "on", "https://www.example.com/request"),
-            array("80", "www.example.com", "/request", "on", "https://www.example.com:80/request"),
-                // can not do IPv6 literals :(
-                // PHP missing feature (bug)
-                // array ("80", "2001:610::4", "/request", "off", "http://[2001:610::4]/request"),
-                // array ("443", "2001:610::4", "/request", "on", "https://[2001:610::4]/request"),
-                // array ("8080", "2001:610::4", "/request", "off", "http://[2001:610::4]:8080/request"),
-        );
-    }
-
-    /**
-     * @dataProvider postDataProvider
-     */
-    public function testPostRequests($port, $name, $request, $https, $request_uri, $content)
-    {
-        $_SERVER['SERVER_PORT'] = $port;
-        $_SERVER['SERVER_NAME'] = $name;
-        $_SERVER['REQUEST_URI'] = $request;
-        $_SERVER['REQUEST_METHOD'] = "POST";
-        $_SERVER['CONTENT_LENGTH'] = strlen($content);
-        $_SERVER['HTTPS'] = $https;
-
-        $stub = $this->getMock('\fkooman\Http\IncomingRequest', array('getRequestHeaders', 'getRawContent'));
-        $stub->expects($this->any())
-                ->method('getRequestHeaders')
-                ->will($this->returnValue(array("A" => "B")));
-
-        $stub->expects($this->any())
-                ->method('getRawContent')
-                ->will($this->returnValue($content));
-
-        $request = Request::fromIncomingRequest($stub);
-        $this->assertEquals($request_uri, $request->getRequestUri()->getUri());
-        $this->assertEquals("POST", $request->getRequestMethod());
-        $this->assertEquals($content, $request->getContent());
-    }
-
-    public function postDataProvider()
-    {
-        return array(
-            array(
-                "80",
-                "www.example.com",
-                "/request",
-                "off",
-                "http://www.example.com/request",
-                "",
-            ),
-            array(
-                "80",
-                "www.example.com",
-                "/request",
-                "off",
-                "http://www.example.com/request",
-                "action=foo",
-            ),
-            array(
-                "443",
-                "www.example.com",
-                "/request",
-                "on",
-                "https://www.example.com/request",
-                "action=foo",
-            ),
-            array(
-                "80",
-                "www.example.com",
-                "/request",
-                "off",
-                "http://www.example.com/request",
-                pack("nvc*", 0x1234, 0x5678, 65, 66),
-            ),
-        );
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
+     * @expectedException RuntimeException
      */
     public function testNoServer()
     {
         $i = new IncomingRequest();
     }
 
-    public function testNormalization()
+    public function testGetRequest()
     {
-        $_SERVER['SERVER_NAME'] = "foo.example.org";
-        $_SERVER['SERVER_PORT'] = 80;
-        $_SERVER['REQUEST_URI'] = "/resource";
-        $_SERVER['REQUEST_METHOD'] = "GET";
-        $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer xyz';
-        $_SERVER['HTTP_USER_AGENT'] = 'Foo/Bar 1.0.0';
-        $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals("Bearer xyz", $h->getHeader("AuThOrIzAtIoN"));
-        $this->assertEquals("Bearer xyz", $h->getHeader("HTTP-AUTHORIZATION"));
-        $this->assertEquals("Bearer xyz", $h->getHeader("HTTP_authorization"));
-        $this->assertEquals("Foo/Bar 1.0.0", $h->getHeader("HTTP_USER_AGENT"));
-        $this->assertEquals("Foo/Bar 1.0.0", $h->getHeader("USER_AGENT"));
-        $this->assertEquals("Foo/Bar 1.0.0", $h->getHeader("USER-AGENT"));
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/index.php'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('www.example.org', $i->getServerName());
+        $this->assertEquals('80', $i->getServerPort());
+        $this->assertEquals('/foo', $i->getRequestUri());
+        $this->assertEquals('GET', $i->getRequestMethod());
+        $this->assertEquals('/index.php', $i->getScriptName());
     }
 
-    public function testBaseDir()
+    public function testPostRequest()
     {
-        $_SERVER['SERVER_PORT'] = 80;
-        $_SERVER['SERVER_NAME'] = 'foo.example.org';
-        $_SERVER['REQUEST_URI'] = '/index.php/xyz?a=b';
-        $_SERVER['REQUEST_METHOD'] = "GET";
-        $_SERVER['PATH_INFO'] = "/xyz";
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/index.php/', $h->getBaseDir());
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+            'SCRIPT_NAME' => '/index.php'
+        );
+        $_POST = array(
+            'foo' => 'bar'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('POST', $i->getRequestMethod());
+        $this->assertEquals(array('foo' => 'bar'), $i->getPost());
     }
 
-    public function testBaseDirOneLevel()
+    public function testNoPostRequest()
     {
-        $_SERVER['SERVER_PORT'] = 80;
-        $_SERVER['SERVER_NAME'] = 'foo.example.org';
-        $_SERVER['REQUEST_URI'] = '/foo/index.php/xyz?a=b';
-        $_SERVER['REQUEST_METHOD'] = "GET";
-        $_SERVER['PATH_INFO'] = "/xyz";
-        $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
-        $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/foo/index.php/', $h->getBaseDir());
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+            'SCRIPT_NAME' => '/index.php'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('POST', $i->getRequestMethod());
+        $this->assertEquals(array(), $i->getPost());
     }
 
-    public function testBaseDirThreeLevels()
+
+    public function testGetRequestAuth()
     {
-        $_SERVER['SERVER_PORT'] = 80;
-        $_SERVER['SERVER_NAME'] = 'foo.example.org';
-        $_SERVER['REQUEST_URI'] = '/foo/bar/baz/index.php/xyz?a=b';
-        $_SERVER['REQUEST_METHOD'] = "GET";
-        $_SERVER['PATH_INFO'] = "/xyz";
-        $_SERVER['SCRIPT_NAME'] = '/foo/bar/baz/index.php';
-        $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/foo/bar/baz/index.php/', $h->getBaseDir());
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/index.php',
+            'PHP_AUTH_USER' => 'foo',
+            'PHP_AUTH_PW' => 'bar'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('www.example.org', $i->getServerName());
+        $this->assertEquals('80', $i->getServerPort());
+        $this->assertEquals('/foo', $i->getRequestUri());
+        $this->assertEquals('GET', $i->getRequestMethod());
+        $this->assertEquals('/index.php', $i->getScriptName());
+        $this->assertEquals('foo', $i->getPhpAuthUser());
+        $this->assertEquals('bar', $i->getPhpAuthPw());
     }
 
-    public function testBaseDirRewrite()
+    public function testGetRequestPathInfo()
     {
-        $_SERVER['SERVER_PORT'] = 80;
-        $_SERVER['SERVER_NAME'] = 'foo.example.org';
-        $_SERVER['REQUEST_URI'] = '/xyz?a=b';
-        $_SERVER['REQUEST_METHOD'] = "GET";
-        $_SERVER['PATH_INFO'] = "/xyz";
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/', $h->getBaseDir());
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/index.php',
+            'PATH_INFO' => '/foo',
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('www.example.org', $i->getServerName());
+        $this->assertEquals('80', $i->getServerPort());
+        $this->assertEquals('/foo', $i->getRequestUri());
+        $this->assertEquals('GET', $i->getRequestMethod());
+        $this->assertEquals('/index.php', $i->getScriptName());
+        $this->assertEquals('/foo', $i->getPathInfo());
     }
 
-    public function testBaseDirRewriteThreeLevels()
+    public function testIsNotHttps()
     {
-        $_SERVER['SERVER_PORT'] = 80;
-        $_SERVER['SERVER_NAME'] = 'foo.example.org';
-        $_SERVER['REQUEST_URI'] = '/foo/bar/baz/xyz?a=b';
-        $_SERVER['REQUEST_METHOD'] = "GET";
-        $_SERVER['PATH_INFO'] = "/xyz";
-        $_SERVER['SCRIPT_NAME'] = '/foo/bar/baz/index.php';
-        $h = Request::fromIncomingRequest(new IncomingRequest());
-        $this->assertEquals('/foo/bar/baz/', $h->getBaseDir());
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/index.php',
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('www.example.org', $i->getServerName());
+        $this->assertEquals('80', $i->getServerPort());
+        $this->assertEquals('/foo', $i->getRequestUri());
+        $this->assertEquals('GET', $i->getRequestMethod());
+        $this->assertEquals('/index.php', $i->getScriptName());
+        $this->assertFalse($i->isHttps());
+    }
+
+    public function testIsHttps()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 443,
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/index.php',
+            'HTTPS' => 'on'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('www.example.org', $i->getServerName());
+        $this->assertEquals('443', $i->getServerPort());
+        $this->assertEquals('/foo', $i->getRequestUri());
+        $this->assertEquals('GET', $i->getRequestMethod());
+        $this->assertEquals('/index.php', $i->getScriptName());
+        $this->assertTrue($i->isHttps());
+    }
+
+    public function testHeaders()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/index.php',
+            'HTTP_USER_AGENT' => 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0',
+            'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals(
+            array(
+                'USER_AGENT' => 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0',
+                'ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            ),
+            $i->getHeaders()
+        );
+    }
+
+    public function testRoot()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 8080,
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/index.php'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('/', $i->getRoot());
+    }
+
+    public function testPathRoot()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 8080,
+            'REQUEST_URI' => '/bar/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/bar/index.php'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('/bar/', $i->getRoot());
+    }
+
+    public function testMustIncludePort()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/bar/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/bar/index.php'
+        );
+        $i = new IncomingRequest();
+        $this->assertFalse($i->mustIncludePort());
+    }
+
+    public function testMustIncludePortHttps()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/bar/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/bar/index.php',
+            'HTTPS' => 'on'
+        );
+        $i = new IncomingRequest();
+        $this->assertTrue($i->mustIncludePort());
+    }
+
+    public function testMustNotIncludePortHttps()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 443,
+            'REQUEST_URI' => '/bar/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/bar/index.php',
+            'HTTPS' => 'on'
+        );
+        $i = new IncomingRequest();
+        $this->assertFalse($i->mustIncludePort());
+    }
+
+    public function testProxyHttps()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/bar/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/bar/index.php',
+            'HTTP_X_FORWARDED_PROTO' => 'https'
+        );
+        $i = new IncomingRequest();
+        $this->assertTrue($i->isHttps());
+    }
+
+    public function testAbsoluteUri()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'REQUEST_URI' => '/bar/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/bar/index.php',
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('http://www.example.org/bar/foo', $i->getAbsoluteUri());
+    }
+
+    public function testAbsoluteUriHttpsProxyAltPort()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 8080,
+            'REQUEST_URI' => '/bar/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/bar/index.php',
+            'HTTP_X_FORWARDED_PROTO' => 'https'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('https://www.example.org:8080/bar/foo', $i->getAbsoluteUri());
+    }
+
+    public function testApacheHeaders()
+    {
+        if (!function_exists('apache_request_headers')) {
+            function apache_request_headers()
+            {
+                return array('FOO' => 'Bar');
+            }
+        }
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 8080,
+            'REQUEST_URI' => '/bar/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/bar/index.php',
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals(array('FOO' => 'Bar'), $i->getHeaders());
     }
 }

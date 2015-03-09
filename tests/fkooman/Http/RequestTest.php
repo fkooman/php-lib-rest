@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Copyright 2014 François Kooman <fkooman@tuxed.net>
+* Copyright 2015 François Kooman <fkooman@tuxed.net>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,58 +18,59 @@
 
 namespace fkooman\Http;
 
-class RequestTest extends \PHPUnit_Framework_TestCase
+use PHPUnit_Framework_TestCase;
+
+class RequestTest extends PHPUnit_Framework_TestCase
 {
     public function testRequest()
     {
-        $h = new Request("http://www.example.com/request", "POST");
-        $h->setPostParameters(array("id" => 5, "action" => "help"));
-        $this->assertEquals("http://www.example.com/request", $h->getRequestUri()->getUri());
-        $this->assertEquals("POST", $h->getRequestMethod());
-        $this->assertEquals("id=5&action=help", $h->getContent());
-        $this->assertEquals("application/x-www-form-urlencoded", $h->getHeader("Content-type"));
-        $this->assertEquals(array("id" => 5, "action" => "help"), $h->getPostParameters());
+        $h = new Request('http://www.example.com/request', 'POST');
+        $h->setHeaders(array('Content-Type' => 'application/x-www-form-urlencoded'));
+        $h->setPostParameters(array('id' => 5, 'action' => 'help'));
+        $this->assertEquals('http://www.example.com/request', $h->getRequestUri()->getUri());
+        $this->assertEquals('POST', $h->getRequestMethod());
+        $this->assertEquals(array('id' => 5, 'action' => 'help'), $h->getPostParameters());
+        $this->assertEquals('application/x-www-form-urlencoded', $h->getHeader('Content-type'));
+        $this->assertEquals(array('id' => 5, 'action' => 'help'), $h->getPostParameters());
     }
 
     public function testQueryParameters()
     {
-        $h = new Request("http://www.example.com/request?action=foo&method=bar", "GET");
-        $this->assertEquals(array("action" => "foo", "method" => "bar"), $h->getQueryParameters());
+        $h = new Request('http://www.example.com/request?action=foo&method=bar', 'GET');
+        $this->assertEquals(array('action' => 'foo', 'method' => 'bar'), $h->getQueryParameters());
     }
 
     public function testQueryParametersWithoutParameters()
     {
-        $h = new Request("http://www.example.com/request", "GET");
+        $h = new Request('http://www.example.com/request', 'GET');
         $this->assertEquals(array(), $h->getQueryParameters());
     }
 
     public function testUriParametersWithPost()
     {
-        $h = new Request("http://www.example.com/request?action=foo&method=bar", "POST");
-        $h->setPostParameters(array("id" => 5, "action" => "help"));
-        $this->assertEquals(array("action" => "foo", "method" => "bar"), $h->getQueryParameters());
-        $this->assertEquals(array("id" => 5, "action" => "help"), $h->getPostParameters());
-        $this->assertEquals(5, $h->getPostParameter("id"));
-        $this->assertEquals("help", $h->getPostParameter("action"));
+        $h = new Request('http://www.example.com/request?action=foo&method=bar', 'POST');
+        $h->setHeaders(array('Content-Type' => 'application/x-www-form-urlencoded'));
+        $h->setPostParameters(array('id' => '5', 'action' => 'help'));
+        $this->assertEquals(array('action' => 'foo', 'method' => 'bar'), $h->getQueryParameters());
+        $this->assertEquals(array('id' => '5', 'action' => 'help'), $h->getPostParameters());
+        $this->assertEquals('5', $h->getPostParameter('id'));
+        $this->assertEquals('help', $h->getPostParameter('action'));
     }
 
     public function testSetHeaders()
     {
-        $h = new Request("http://www.example.com/request", "POST");
-        $h->setHeader("A", "B");
-        $h->setHeader("foo", "bar");
-        $this->assertEquals("B", $h->getHeader("A"));
-        $this->assertEquals("bar", $h->getHeader("foo"));
-        $this->assertEquals(array("A" => "B", "FOO" => "bar"), $h->getHeaders(false));
-        $this->assertEquals(array("A: B", "FOO: bar"), $h->getHeaders(true));
+        $h = new Request('http://www.example.com/request', 'POST');
+        $h->setHeaders(array('A' => 'B', 'foo' => 'bar'));
+        $this->assertEquals('B', $h->getHeader('A'));
+        $this->assertEquals('bar', $h->getHeader('foo'));
+        $this->assertEquals(array('A' => 'B', 'FOO' => 'bar'), $h->getHeaders());
     }
 
     public function testSetGetHeadersCaseInsensitive()
     {
-        $h = new Request("http://www.example.com/request", "POST");
-        $h->setHeader("Content-type", "application/json");
-        $h->setHeader("Content-Type", "text/html"); // this overwrites the previous one
-        $this->assertEquals("text/html", $h->getHeader("CONTENT-TYPE"));
+        $h = new Request('http://www.example.com/request', 'POST');
+        $h->setHeaders(array('Content-type' => 'application/json', 'Content-Type' => 'text/html'));
+        $this->assertEquals('text/html', $h->getHeader('CONTENT-TYPE'));
     }
 
     /**
@@ -78,7 +79,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testTryGetPostParametersOnGetRequest()
     {
-        $h = new Request("http://www.example.com/request", "GET");
+        $h = new Request('http://www.example.com/request', 'GET');
         $h->getPostParameters();
     }
 
@@ -88,8 +89,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testTrySetPostParametersOnGetRequest()
     {
-        $h = new Request("http://www.example.com/request", "GET");
-        $h->setPostParameters(array("action" => "test"));
+        $h = new Request('http://www.example.com/request', 'GET');
+        $h->setPostParameters(array('action' => 'test'));
     }
 
     /**
@@ -98,7 +99,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidUri()
     {
-        $h = new Request("foo");
+        $h = new Request('foo');
     }
 
     /**
@@ -107,63 +108,54 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnsupportedRequestMethod()
     {
-        $h = new Request("http://www.example.com/request", "FOO");
+        $h = new Request('http://www.example.com/request', 'FOO');
     }
 
     public function testNonExistingHeader()
     {
-        $h = new Request("http://www.example.com/request");
-        $this->assertNull($h->getHeader("Authorization"));
+        $h = new Request('http://www.example.com/request');
+        $this->assertNull($h->getHeader('Authorization'));
     }
 
     public function testForHeaderDoesNotExist()
     {
-        $h = new Request("http://www.example.com/request");
-        $this->assertNull($h->getHeader("Authorization"));
+        $h = new Request('http://www.example.com/request');
+        $this->assertNull($h->getHeader('Authorization'));
     }
 
     public function testForHeaderDoesExist()
     {
-        $h = new Request("http://www.example.com/request");
-        $h->setHeader("Authorization", "Bla");
-        $this->assertNotNull($h->getHeader("Authorization"));
+        $h = new Request('http://www.example.com/request');
+        $h->setHeaders(array('Authorization' => 'Bla'));
+        $this->assertNotNull($h->getHeader('Authorization'));
     }
 
     public function testForNoQueryValue()
     {
-        $h = new Request("http://www.example.com/request?foo=&bar=&foobar=xyz");
-        $this->assertNull($h->getQueryParameter("foo"));
-        $this->assertNull($h->getQueryParameter("bar"));
-        $this->assertEquals("xyz", $h->getQueryParameter("foobar"));
+        $h = new Request('http://www.example.com/request?foo=&bar=&foobar=xyz');
+        $this->assertNull($h->getQueryParameter('foo'));
+        $this->assertNull($h->getQueryParameter('bar'));
+        $this->assertEquals('xyz', $h->getQueryParameter('foobar'));
     }
 
     public function testAuthentication()
     {
-        $h = new Request("http://www.example.org", "GET");
-        $h->setBasicAuthUser("foo");
-        $h->setBasicAuthPass("bar");
-        $this->assertEquals("foo", $h->getBasicAuthUser());
-        $this->assertEquals("bar", $h->getBasicAuthPass());
+        $h = new Request('http://www.example.org', 'GET');
+        $h->setBasicAuthUser('foo');
+        $h->setBasicAuthPass('bar');
+        $this->assertEquals('foo', $h->getBasicAuthUser());
+        $this->assertEquals('bar', $h->getBasicAuthPass());
     }
 
-    public function testHttpScheme()
-    {
-        $h = new Request("http://www.example.org", "GET");
-        $this->assertFalse($h->isHttps());
-    }
+#    public function testHttpScheme()
+#    {
+#        $h = new Request('http://www.example.org', 'GET');
+#        $this->assertFalse($h->isHttps());
+#    }
 
-    public function testHttpsScheme()
-    {
-        $h = new Request("https://www.example.org", "GET");
-        $this->assertTrue($h->isHttps());
-    }
-
-    public function testAppRoot()
-    {
-        $request = new Request('https://www.example.org/foo/index.php/bar?foo=bar', 'GET');
-        $request->setBaseDir('/foo/');
-        $request->setPathInfo('/bar');
-
-        $this->assertEquals('https://www.example.org/foo/', $request->getAppRoot());
-    }
+#    public function testHttpsScheme()
+#    {
+#        $h = new Request('https://www.example.org', 'GET');
+#        $this->assertTrue($h->isHttps());
+#    }
 }

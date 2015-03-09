@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Copyright 2014 François Kooman <fkooman@tuxed.net>
+* Copyright 2015 François Kooman <fkooman@tuxed.net>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,18 +18,44 @@
 
 namespace fkooman\Http;
 
-use InvalidArgumentException;
+use RuntimeException;
 
 class IncomingRequest
 {
     public function __construct()
     {
-        $required_keys = array("SERVER_NAME", "SERVER_PORT", "REQUEST_URI", "REQUEST_METHOD", "SCRIPT_NAME");
-        foreach ($required_keys as $r) {
+        $requiredKeys = array(
+            'SERVER_NAME',
+            'SERVER_PORT',
+            'REQUEST_URI',
+            'REQUEST_METHOD',
+            'SCRIPT_NAME'
+        );
+        foreach ($requiredKeys as $r) {
             if (!array_key_exists($r, $_SERVER) || empty($_SERVER[$r])) {
-                throw new InvalidArgumentException("missing (one or more) required environment variables");
+                throw new RuntimeException(
+                    sprintf(
+                        'missing environment variable "%s"',
+                        $r
+                    )
+                );
             }
         }
+    }
+
+    public function getServerName()
+    {
+        return $_SERVER['SERVER_NAME'];
+    }
+
+    public function getServerPort()
+    {
+        return $_SERVER['SERVER_PORT'];
+    }
+
+    public function getRequestUri()
+    {
+        return $_SERVER['REQUEST_URI'];
     }
 
     public function getRequestMethod()
@@ -44,73 +70,80 @@ class IncomingRequest
 
     public function getPathInfo()
     {
-        return array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : null;
-    }
-
-    public function getBaseDir()
-    {
-        $scriptName = $this->getScriptName();
-        $requestUri = $_SERVER['REQUEST_URI'];
-
-        // strip everything after the last '/', but only if SCRIPT_NAME is not
-        // the start of REQUEST_URI mentioned in the REQUEST_URI
-        if (0 === strpos($requestUri, $scriptName)) {
-            return $scriptName . '/';
-        }
-        $lastSlashPosition = strrpos($scriptName, '/');
-
-        return substr($scriptName, 0, $lastSlashPosition + 1);
-    }
-
-    public function getRequestUri()
-    {
-        // scheme
-        $proxy = false;
-        if (array_key_exists("HTTPS", $_SERVER) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-            $scheme = "https";
-        } elseif (array_key_exists("HTTP_X_FORWARDED_PROTO", $_SERVER) && "https" === $_SERVER["HTTP_X_FORWARDED_PROTO"]) {
-            // HTTPS to HTTP proxy is present
-            $scheme = "https";
-            $proxy = true;
-        } else {
-            $scheme = "http";
-        }
-
-        // server name
-        if (filter_var($_SERVER['SERVER_NAME'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) {
-            $name = $_SERVER['SERVER_NAME'];
-        } else {
-            $name = '['.$_SERVER['SERVER_NAME'].']';
-        }
-
-        // server port
-        if (("80" === $_SERVER['SERVER_PORT'] && ("http" === $scheme || $proxy)) || ("443" === $_SERVER['SERVER_PORT'] && "https" === $scheme)) {
-            $port = "";
-        } else {
-            $port = ":".$_SERVER['SERVER_PORT'];
-        }
-
-        return $scheme."://".$name.$port.$_SERVER['REQUEST_URI'];
-    }
-
-    public function getContent()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== "POST" && $_SERVER['REQUEST_METHOD'] !== "PUT") {
-            return null;
-        }
-        if (array_key_exists("CONTENT_LENGTH", $_SERVER) && $_SERVER['CONTENT_LENGTH'] > 0) {
-            return $this->getRawContent();
+        if (array_key_exists('PATH_INFO', $_SERVER)) {
+            return $_SERVER['PATH_INFO'];
         }
 
         return null;
     }
 
-    public function getRawContent()
+    public function isHttps()
     {
-        return file_get_contents("php://input");
+        if (array_key_exists('HTTPS', $_SERVER)) {
+            if ('' !== $_SERVER['HTTPS'] && 'off' !== $_SERVER['HTTPS']) {
+                return true;
+            }
+        }
+
+        if (array_key_exists('HTTP_X_FORWARDED_PROTO', $_SERVER)) {
+            if ('https' === $_SERVER['HTTP_X_FORWARDED_PROTO']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public function getBasicAuthUser()
+    public function getScheme()
+    {
+        return $this->isHttps() ? 'https://' : 'http://';
+    }
+
+    public function mustIncludePort()
+    {
+        if ($this->isHttps() && 443 == $this->getServerPort()) {
+            return false;
+        }
+        if (!$this->isHttps() && 80 == $this->getServerPort()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getAbsoluteUri()
+    {
+        if ($this->mustIncludePort()) {
+            $fullRequestUri = sprintf(
+                '%s%s:%s%s',
+                $this->getScheme(),
+                $this->getServerName(),
+                $this->getServerPort(),
+                $this->getRequestUri()
+            );
+        } else {
+            $fullRequestUri = sprintf(
+                '%s%s%s',
+                $this->getScheme(),
+                $this->getServerName(),
+                $this->getRequestUri()
+            );
+        }
+
+        return $fullRequestUri;
+    }
+
+    public function getPost()
+    {
+        return $_POST;
+    }
+
+    public function getBody()
+    {
+        return @file_get_contents('php://input');
+    }
+
+    public function getPhpAuthUser()
     {
         if (array_key_exists('PHP_AUTH_USER', $_SERVER)) {
             return $_SERVER['PHP_AUTH_USER'];
@@ -119,7 +152,7 @@ class IncomingRequest
         return null;
     }
 
-    public function getBasicAuthPass()
+    public function getPhpAuthPw()
     {
         if (array_key_exists('PHP_AUTH_PW', $_SERVER)) {
             return $_SERVER['PHP_AUTH_PW'];
@@ -128,24 +161,42 @@ class IncomingRequest
         return null;
     }
 
-    public function getRequestHeaders()
+    public function getRoot()
+    {
+        $scriptName = $this->getScriptName();
+
+        return substr($scriptName, 0, strrpos($scriptName, '/') + 1);
+    }
+
+    public function getHeaders()
     {
         $requestHeaders = array();
 
-        // normalize headers from $_SERVER
         foreach ($_SERVER as $k => $v) {
-            $key = Request::normalizeHeaderKey($k);
-            $requestHeaders[$key] = $v;
+            if (0 === strpos($k, 'HTTP_') || 0 === strpos($k, 'HTTP-')) {
+                $k = strtoupper(
+                    str_replace(
+                        '-',
+                        '_',
+                        substr($k, 5)
+                    )
+                );
+                $requestHeaders[$k] = $v;
+            }
         }
 
-        // also normalize Apache headers (if available), but do not override
-        // headers from $_SERVER
-        if (function_exists("apache_request_headers")) {
+        if (function_exists('apache_request_headers')) {
             $apacheHeaders = apache_request_headers();
             foreach ($apacheHeaders as $k => $v) {
-                $key = Request::normalizeHeaderKey($k);
-                if (!array_key_exists($key, $requestHeaders)) {
-                    $requestHeaders[$key] = $v;
+                $k = strtoupper(
+                    str_replace(
+                        '-',
+                        '_',
+                        $k
+                    )
+                );
+                if (!array_key_exists($k, $requestHeaders)) {
+                    $requestHeaders[$k] = $v;
                 }
             }
         }

@@ -143,7 +143,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     {
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/bar/foo.txt");
-        $request->setHeader('Accept', 'text/html,foo/bar');
+        $request->setHeaders(array('Accept' => 'text/html,foo/bar'));
 
         $service = new Service();
         $service->match("GET", "/foo/:xyz", null);
@@ -191,6 +191,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     public function testMatchRestNoReplacement()
     {
         $request = new Request("http://www.example.org/api.php", "POST");
+        $request->setHeaders(array('Content-Type' => 'application/x-www-form-urlencoded'));
         $request->setPathInfo("/foo/bar/baz");
 
         $service = new Service();
@@ -208,6 +209,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     public function testMatchRestWrongMethod()
     {
         $request = new Request("http://www.example.org/api.php", "POST");
+        $request->setHeaders(array('Content-Type' => 'application/x-www-form-urlencoded'));
         $request->setPathInfo("/");
         $service = new Service();
         $service->match(
@@ -726,6 +728,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $request = new Request("http://example.org", "POST");
         $request->setPathInfo("/foo/bar/baz");
+        $request->setHeaders(array('Content-Type' => 'application/x-www-form-urlencoded'));
         $request->setPostParameters(array("_METHOD" => "DELETE"));
         $response = $service->run($request);
         $this->assertEquals("hello, delete!", $response->getContent());

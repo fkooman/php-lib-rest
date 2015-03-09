@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Copyright 2014 François Kooman <fkooman@tuxed.net>
+* Copyright 2015 François Kooman <fkooman@tuxed.net>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,238 +23,248 @@ use RuntimeException;
 
 class Request
 {
-    protected $uri;
-    protected $method;
-    protected $headers;
-    protected $content;
-    protected $baseDir;
-    protected $pathInfo;
-    protected $basicAuthUser;
-    protected $basicAuthPass;
+    /** @var fkooman\Http\Uri */
+    protected $requestUri;
 
-    public function __construct($requestUri, $requestMethod = "GET")
+    /** @var string */
+    protected $requestMethod;
+
+    /** @var array */
+    protected $postParameters;
+
+    /** @var array */
+    protected $requestHeaders;
+
+    /** @var string */
+    protected $requestContent;
+
+    /** @var string */
+    protected $requestRoot;
+
+    /** @var string */
+    protected $requestPathInfo;
+
+    /** @var string */
+    protected $requestBasicAuthUser;
+
+    /** @var string */
+    protected $requestBasicAuthPass;
+
+    public function __construct($requestUri, $requestMethod = 'GET')
     {
-        $this->setRequestUri(new Uri($requestUri));
+        $this->setRequestUri(
+            new Uri(
+                $requestUri
+            )
+        );
         $this->setRequestMethod($requestMethod);
-        $this->headers = array();
-        $this->content = null;
-        $this->baseDir = null;
-        $this->pathInfo = null;
-        $this->basicAuthUser = null;
-        $this->basicAuthPass = null;
+        $this->requestHeaders = array();
+        $this->requestContent = null;
+        $this->requestRoot = null;
+        $this->requestPathInfo = null;
+        $this->requestBasicAuthUser = null;
+        $this->requestBasicAuthPass = null;
     }
 
     public static function fromIncomingRequest(IncomingRequest $i)
     {
-        $request = new static($i->getRequestUri(), $i->getRequestMethod());
-        $request->setHeaders($i->getRequestHeaders());
-        $request->setContent($i->getContent());
-        $request->setBaseDir($i->getBaseDir());
+        $request = new static($i->getAbsoluteUri(), $i->getRequestMethod());
+        $request->setHeaders($i->getHeaders());
+        $request->setPostParameters($i->getPost());
+        $request->setContent($i->getBody());
+        $request->setRoot($i->getRoot());
         $request->setPathInfo($i->getPathInfo());
-        $request->setBasicAuthUser($i->getBasicAuthUser());
-        $request->setBasicAuthPass($i->getBasicAuthPass());
+        $request->setBasicAuthUser($i->getPhpAuthUser());
+        $request->setBasicAuthPass($i->getPhpAuthPw());
 
         return $request;
     }
 
-    public function setRequestUri(Uri $u)
+    public function setRequestUri(Uri $requestUri)
     {
-        $this->uri = $u;
+        $this->requestUri = $requestUri;
     }
 
     public function getRequestUri()
     {
-        return $this->uri;
+        return $this->requestUri;
     }
 
-    public function setRequestMethod($method)
+    public function setRequestMethod($requestMethod)
     {
-        if (!in_array($method, array("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"))) {
-            throw new InvalidArgumentException("invalid or unsupported request method");
+        $validRequestMethods = array(
+            'GET',
+            'POST',
+            'PUT',
+            'DELETE',
+            'HEAD',
+            'OPTIONS',
+            'PATCH'
+        );
+
+        if (!in_array($requestMethod, $validRequestMethods)) {
+            throw new InvalidArgumentException('invalid or unsupported request method');
         }
-        $this->method = $method;
+        $this->requestMethod = $requestMethod;
     }
 
     public function getRequestMethod()
     {
-        return $this->method;
-    }
-
-    public function setPostParameters(array $parameters)
-    {
-        if ($this->getRequestMethod() !== "POST") {
-            throw new RuntimeException("request method should be POST");
-        }
-        $this->setHeader("Content-Type", "application/x-www-form-urlencoded");
-        $this->setContent(http_build_query($parameters, null, "&"));
+        return $this->requestMethod;
     }
 
     public function getQueryParameters()
     {
-        if ($this->uri->getQuery() === null) {
+        if (null === $this->requestUri->getQuery()) {
             return array();
         }
-        $parameters = array();
-        parse_str($this->uri->getQuery(), $parameters);
+        $queryParameters = array();
+        parse_str($this->requestUri->getQuery(), $queryParameters);
 
-        return $parameters;
+        return $queryParameters;
     }
 
     public function getQueryParameter($key)
     {
-        $parameters = $this->getQueryParameters();
+        $queryParameters = $this->getQueryParameters();
+        if (array_key_exists($key, $queryParameters)) {
+            if (is_string($queryParameters[$key]) && 0 !== strlen($queryParameters[$key])) {
+                return $queryParameters[$key];
+            }
+        }
 
-        return (array_key_exists($key, $parameters) && 0 !== strlen($parameters[$key])) ? $parameters[$key] : null;
+        return null;
+    }
+
+    public function setPostParameters(array $postParameters)
+    {
+        if ('POST' !== $this->getRequestMethod()) {
+            throw new RuntimeException('request method should be POST');
+        }
+        $this->postParameters = $postParameters;
     }
 
     public function getPostParameter($key)
     {
-        $parameters = $this->getPostParameters();
+        $postParameters = $this->getPostParameters();
+        if (null !== $postParameters) {
+            if (array_key_exists($key, $postParameters)) {
+                if (is_string($postParameters[$key]) && 0 !== strlen($postParameters[$key])) {
+                    return $postParameters[$key];
+                }
+            }
+        }
 
-        return (array_key_exists($key, $parameters) && is_string($key) && 0 !== strlen($key)) ? $parameters[$key] : null;
+        return null;
     }
 
     public function getPostParameters()
     {
-        if ($this->getRequestMethod() !== "POST") {
-            throw new RuntimeException("request method should be POST");
+        if ('POST' !== $this->getRequestMethod()) {
+            throw new RuntimeException('request method should be POST');
         }
-        // FIXME: we should check to see if it was a proper FORM post!
-        $parameters = array();
-        parse_str($this->getContent(), $parameters);
 
-        return $parameters;
+        $supportedContentTypes = array(
+            'application/x-www-form-urlencoded',
+            'multipart/form-data'
+        );
+
+        if (!in_array($this->getContentType(), $supportedContentTypes)) {
+            throw new RuntimeException('invalid content type');
+        }
+    
+        return $this->postParameters;
     }
 
-    public function setHeaders(array $headers)
+    public function setHeaders(array $requestHeaders)
     {
-        foreach ($headers as $k => $v) {
-            $this->setHeader($k, $v);
+        foreach ($requestHeaders as $key => $value) {
+            $key = self::normalizeHeaderKey($key);
+            $this->requestHeaders[$key] = $value;
         }
-    }
-
-    public function setHeader($key, $value)
-    {
-        $k = self::normalizeHeaderKey($key);
-        $this->headers[$k] = $value;
     }
 
     public function getHeader($key)
     {
-        $k = self::normalizeHeaderKey($key);
+        $key = self::normalizeHeaderKey($key);
 
-        return array_key_exists($k, $this->headers) ? $this->headers[$k] : null;
-    }
-
-    public function getHeaders($formatted = false)
-    {
-        if (!$formatted) {
-            return $this->headers;
-        }
-        $hdrs = array();
-        foreach ($this->headers as $k => $v) {
-            array_push($hdrs, $k.": ".$v);
+        if (array_key_exists($key, $this->requestHeaders)) {
+            return $this->requestHeaders[$key];
         }
 
-        return $hdrs;
+        return null;
     }
 
-    public function setContent($content)
+    public function getHeaders()
     {
-        $this->content = $content;
+        return $this->requestHeaders;
+    }
+
+    public function setContent($requestContent)
+    {
+        $this->requestContent = $requestContent;
     }
 
     public function getContent()
     {
-        return $this->content;
-    }
-
-    public function setContentType($contentType)
-    {
-        $this->setHeader("Content-Type", $contentType);
+        return $this->requestContent;
     }
 
     public function getContentType()
     {
-        return $this->getHeader("Content-Type");
+        return $this->getHeader('Content-Type');
     }
 
-    public function setBaseDir($baseDir)
+    public function setRoot($root)
     {
-        $this->baseDir = $baseDir;
+        $this->requestRoot = $root;
     }
 
-    public function getBaseDir()
+    public function getRoot()
     {
-        return $this->baseDir;
+        return $this->requestRoot;
     }
 
-    public function getAppRoot()
+    public function getAbsRoot()
     {
-        return $this->getRequestUri()->getBaseUri() . $this->getBaseDir();
+        $this->getRequestUri()->getBaseUri() . $this->getRoot();
     }
 
     public function setPathInfo($pathInfo)
     {
-        $this->pathInfo = $pathInfo;
+        $this->requestPathInfo = $pathInfo;
     }
 
     public function getPathInfo()
     {
-        return $this->pathInfo;
+        return $this->requestPathInfo;
     }
 
-    public function setBasicAuthUser($u)
+    public function setBasicAuthUser($basicAuthUser)
     {
-        $this->basicAuthUser = $u;
+        $this->requestBasicAuthUser = $basicAuthUser;
     }
 
-    public function setBasicAuthPass($p)
+    public function setBasicAuthPass($basicAuthPass)
     {
-        $this->basicAuthPass = $p;
+        $this->requestBasicAuthPass = $basicAuthPass;
     }
 
     public function getBasicAuthUser()
     {
-        return $this->basicAuthUser;
+        return $this->requestBasicAuthUser;
     }
 
     public function getBasicAuthPass()
     {
-        return $this->basicAuthPass;
+        return $this->requestBasicAuthPass;
     }
 
-    public function isHttps()
+    private static function normalizeHeaderKey($key)
     {
-        return "https" === $this->getRequestUri()->getScheme();
-    }
-
-    public static function normalizeHeaderKey($key)
-    {
-        // strip HTTP_ if needed
         if (0 === strpos($key, 'HTTP_') || 0 === strpos($key, 'HTTP-')) {
             $key = substr($key, 5);
         }
-        // convert to capitals and replace '-' with '_'
         return strtoupper(str_replace('-', '_', $key));
-    }
-
-    public function __toString()
-    {
-        $s  = PHP_EOL;
-        $s .= "*Request*".PHP_EOL;
-        $s .= "Request Method: ".$this->getRequestMethod().PHP_EOL;
-        $s .= "Request URI: ".$this->getRequestUri()->getUri().PHP_EOL;
-        if (null !== $this->getBasicAuthUser()) {
-            $s .= "Basic Authentication: ".$this->getBasicAuthUser().":".$this->getBasicAuthPass();
-        }
-        $s .= "Headers:".PHP_EOL;
-        foreach ($this->getHeaders(true) as $v) {
-            $s .= "\t".$v.PHP_EOL;
-        }
-        $s .= "Content:".PHP_EOL;
-        $s .= $this->getContent();
-
-        return $s;
     }
 }
