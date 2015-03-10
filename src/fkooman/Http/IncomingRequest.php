@@ -174,15 +174,10 @@ class IncomingRequest
 
         foreach ($_SERVER as $k => $v) {
             if (0 === strpos($k, 'HTTP_') || 0 === strpos($k, 'HTTP-')) {
-                $k = strtoupper(
-                    str_replace(
-                        '-',
-                        '_',
-                        substr($k, 5)
-                    )
-                );
-                $requestHeaders[$k] = $v;
+                $k = substr($k, 5);
             }
+            $k = strtoupper(str_replace('-', '_', $k));
+            $requestHeaders[$k] = $v;
         }
 
         if (function_exists('apache_request_headers')) {

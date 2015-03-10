@@ -169,7 +169,12 @@ class IncomingRequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(
             array(
                 'USER_AGENT' => 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0',
-                'ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                'ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'SERVER_NAME' => 'www.example.org',
+                'SERVER_PORT' => 80,
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET',
+                'SCRIPT_NAME' => '/index.php'
             ),
             $i->getHeaders()
         );
@@ -299,6 +304,16 @@ class IncomingRequestTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/bar/index.php',
         );
         $i = new IncomingRequest();
-        $this->assertEquals(array('FOO' => 'Bar'), $i->getHeaders());
+        $this->assertEquals(
+            array(
+                'FOO' => 'Bar',
+                'SERVER_NAME' => 'www.example.org',
+                'SERVER_PORT' => 8080,
+                'REQUEST_URI' => '/bar/foo',
+                'REQUEST_METHOD' => 'GET',
+                'SCRIPT_NAME' => '/bar/index.php'
+            ),
+            $i->getHeaders()
+        );
     }
 }
