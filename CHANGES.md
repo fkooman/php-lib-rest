@@ -1,5 +1,9 @@
 # Release History
 
+## 0.7.1
+- include scriptname in `getRoot()` and `getAbsRoot()` if no URL rewriting is
+  used
+
 ## 0.7.0
 - **BREAKING**: introduce more generic `matchOptions` parameter with a 
   `skipPlugins` key to list plugins to skip for that particular match

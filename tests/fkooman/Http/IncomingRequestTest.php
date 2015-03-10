@@ -206,6 +206,19 @@ class IncomingRequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/bar/', $i->getRoot());
     }
 
+    public function testScriptRoot()
+    {
+        $_SERVER = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 8080,
+            'REQUEST_URI' => '/bar/index.php/foo',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/bar/index.php'
+        );
+        $i = new IncomingRequest();
+        $this->assertEquals('/bar/index.php/', $i->getRoot());
+    }
+
     public function testMustIncludePort()
     {
         $_SERVER = array(

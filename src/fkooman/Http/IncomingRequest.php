@@ -164,8 +164,16 @@ class IncomingRequest
     public function getRoot()
     {
         $scriptName = $this->getScriptName();
+        $requestUri = $this->getRequestUri();
 
-        return substr($scriptName, 0, strrpos($scriptName, '/') + 1);
+        // strip everything after the last '/', but only if SCRIPT_NAME is not
+        // the start of REQUEST_URI mentioned in the REQUEST_URI
+        if (0 === strpos($requestUri, $scriptName)) {
+            return $scriptName . '/';
+        }
+        $lastSlashPosition = strrpos($scriptName, '/');
+        
+        return substr($scriptName, 0, $lastSlashPosition + 1);
     }
 
     public function getHeaders()
