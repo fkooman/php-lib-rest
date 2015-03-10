@@ -34,7 +34,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service->get(
             "/foo/bar/baz.txt",
             function () {
-                $response = new Response(200, "plain/text");
+                $response = new Response(200, "text/plain");
                 $response->setContent("Hello World");
 
                 return $response;
@@ -57,7 +57,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service->get(
             "/foo/bar/baz.txt",
             function (StdClass $x) {
-                $response = new Response(200, "plain/text");
+                $response = new Response(200, "text/plain");
                 $response->setContent($x->foo);
 
                 return $response;
@@ -66,7 +66,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service->get(
             "/foo/bar/bazzz.txt",
             function (StdClass $x) {
-                $response = new Response(200, "plain/text");
+                $response = new Response(200, "text/plain");
                 $response->setContent($x->foo);
 
                 return $response;
@@ -84,10 +84,6 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("bar", $response->getContent());
     }
 
-    /**
-     * @expectedException BadFunctionCallException
-     * @expectedExceptionMessage parameter expected by callback not available
-     */
     public function testOnMatchPluginSkip()
     {
         $service = new Service();
@@ -98,16 +94,19 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $stub->method('execute')
              ->willReturn((object) array("foo" => "bar"));
         $service->registerOnMatchPlugin($stub);
+
         $service->get(
             "/foo/bar/foobar.txt",
             function (StdClass $x) {
             }
         );
+
+        // because the plugin is skipped, the StdClass should not be available!
         $service->get(
             "/foo/bar/baz.txt",
             function (StdClass $x) {
-                $response = new Response(200, "plain/text");
-                $response->setContent("Hello World");
+                $response = new Response(200, "text/plain");
+                $response->setContent($x->foo);
 
                 return $response;
             },
@@ -116,7 +115,9 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
-        $service->run($request);
+        $response = $service->run($request);
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals(array('error' => 'parameter expected by callback not available'), $response->getContent());
     }
 
     public function testNonMethodMatch()

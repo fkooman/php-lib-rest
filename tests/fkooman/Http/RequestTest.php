@@ -73,20 +73,12 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('text/html', $h->getHeader('CONTENT-TYPE'));
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage request method should be POST
-     */
     public function testTryGetPostParametersOnGetRequest()
     {
         $h = new Request('http://www.example.com/request', 'GET');
-        $h->getPostParameters();
+        $this->assertNull($h->getPostParameters());
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage request method should be POST
-     */
     public function testTrySetPostParametersOnGetRequest()
     {
         $h = new Request('http://www.example.com/request', 'GET');

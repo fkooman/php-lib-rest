@@ -70,7 +70,9 @@ class Request
     {
         $request = new static($i->getAbsoluteUri(), $i->getRequestMethod());
         $request->setHeaders($i->getHeaders());
-        $request->setPostParameters($i->getPost());
+        if ('POST' === $i->getRequestMethod()) {
+            $request->setPostParameters($i->getPost());
+        }
         $request->setContent($i->getBody());
         $request->setRoot($i->getRoot());
         $request->setPathInfo($i->getPathInfo());
@@ -138,9 +140,6 @@ class Request
 
     public function setPostParameters(array $postParameters)
     {
-        if ('POST' !== $this->getRequestMethod()) {
-            throw new RuntimeException('request method should be POST');
-        }
         $this->postParameters = $postParameters;
     }
 
@@ -160,19 +159,6 @@ class Request
 
     public function getPostParameters()
     {
-        if ('POST' !== $this->getRequestMethod()) {
-            throw new RuntimeException('request method should be POST');
-        }
-
-        $supportedContentTypes = array(
-            'application/x-www-form-urlencoded',
-            'multipart/form-data'
-        );
-
-        if (!in_array($this->getContentType(), $supportedContentTypes)) {
-            throw new RuntimeException('invalid content type');
-        }
-    
         return $this->postParameters;
     }
 

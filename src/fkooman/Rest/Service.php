@@ -30,6 +30,7 @@ use InvalidArgumentException;
 use RuntimeException;
 use LogicException;
 use BadFunctionCallException;
+use Exception;
 
 class Service
 {
