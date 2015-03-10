@@ -140,101 +140,88 @@ class Service
      */
     public function run(Request $request = null)
     {
-        try {
-            if (null === $request) {
-                $request = Request::fromIncomingRequest(
-                    new IncomingRequest()
-                );
+        if (null === $request) {
+            $request = Request::fromIncomingRequest(
+                new IncomingRequest()
+            );
+        }
+        
+        // support PUT and DELETE method override when _METHOD is set in a form
+        // POST
+        if ("POST" === $request->getRequestMethod()) {
+            if ("PUT" === $request->getPostParameter("_METHOD")) {
+                $request->setRequestMethod("PUT");
             }
-            
-            // support PUT and DELETE method override when _METHOD is set in a form
-            // POST
-            if ("POST" === $request->getRequestMethod()) {
-                if ("PUT" === $request->getPostParameter("_METHOD")) {
-                    $request->setRequestMethod("PUT");
+            if ("DELETE" === $request->getPostParameter("_METHOD")) {
+                $request->setRequestMethod("DELETE");
+            }
+        }
+
+        // if there is a query parameter _index take the value, urlencode it and
+        // add it to the end of the path info. This is to support e.g. URLs as
+        // part of the path info. PHP or Apache decodes the PATH INFO, it is not
+        // possible to disable this, so we lose the URL...
+        if (null !== $request->getQueryParameter('_index')) {
+            $request->setPathInfo($request->getPathInfo().urlencode($request->getQueryParameter('_index')));
+        }
+
+        $paramsAvailableForCallback = array();
+        // make Request always available
+        $paramsAvailableForCallback[get_class($request)] = $request;
+        $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
+
+        // dafaultRoute
+        if (null === $request->getPathInfo()) {
+            if (null !== $this->defaultRoute) {
+                $requestUri = $request->getRequestUri()->getUri();
+                // if the requestUri already ends in a '/' we should strip it
+                // as to avoid getting '//'
+                if (strlen($requestUri)-1 === strrpos($requestUri, '/')) {
+                    $requestUri = substr($requestUri, 0, -1);
                 }
-                if ("DELETE" === $request->getPostParameter("_METHOD")) {
-                    $request->setRequestMethod("DELETE");
-                }
+                $response = new Response(302);
+                $response->setHeader("Location", sprintf('%s%s', $requestUri, $this->defaultRoute));
+
+                return $response;
             }
+            $request->setPathInfo('/');
+        }
 
-            // if there is a query parameter _index take the value, urlencode it and
-            // add it to the end of the path info. This is to support e.g. URLs as
-            // part of the path info. PHP or Apache decodes the PATH INFO, it is not
-            // possible to disable this, so we lose the URL...
-            if (null !== $request->getQueryParameter('_index')) {
-                $request->setPathInfo($request->getPathInfo().urlencode($request->getQueryParameter('_index')));
-            }
+        foreach ($this->match as $m) {
+            $response = $this->matchRest(
+                $request,
+                $m['requestMethod'],
+                $m['requestPattern'],
+                $m['callback'],
+                $paramsAvailableForCallback,
+                $m['skipPlugins']
+            );
 
-            $paramsAvailableForCallback = array();
-            // make Request always available
-            $paramsAvailableForCallback[get_class($request)] = $request;
-            $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
-
-            // dafaultRoute
-            if (null === $request->getPathInfo()) {
-                if (null !== $this->defaultRoute) {
-                    $requestUri = $request->getRequestUri()->getUri();
-                    // if the requestUri already ends in a '/' we should strip it
-                    // as to avoid getting '//'
-                    if (strlen($requestUri)-1 === strrpos($requestUri, '/')) {
-                        $requestUri = substr($requestUri, 0, -1);
-                    }
-                    $response = new Response(302);
-                    $response->setHeader("Location", sprintf('%s%s', $requestUri, $this->defaultRoute));
-
+            // false indicates not a match
+            if (false !== $response) {
+                if ($response instanceof Response) {
                     return $response;
                 }
-                $request->setPathInfo('/');
-            }
-
-            foreach ($this->match as $m) {
-                $response = $this->matchRest(
-                    $request,
-                    $m['requestMethod'],
-                    $m['requestPattern'],
-                    $m['callback'],
-                    $paramsAvailableForCallback,
-                    $m['skipPlugins']
-                );
-
-                // false indicates not a match
-                if (false !== $response) {
-                    if ($response instanceof Response) {
-                        return $response;
-                    }
-                    if (!is_string($response)) {
-                        throw new RuntimeException("unsupported callback return value");
-                    }
-                    $responseObj = new Response();
-                    $responseObj->setContent($response);
-
-                    return $responseObj;
+                if (!is_string($response)) {
+                    throw new RuntimeException("unsupported callback return value");
                 }
-            }
+                $responseObj = new Response();
+                $responseObj->setContent($response);
 
-            // handle non matching patterns
-            if (in_array($request->getRequestMethod(), $this->supportedMethods)) {
-                throw new NotFoundException('url not found');
+                return $responseObj;
             }
-
-            throw new MethodNotAllowedException(
-                'unsupported method',
-                sprintf('only %s allowed', implode(',', $this->supportedMethods)),
-                $this->supportedMethods
-            );
-        } catch (HttpException $e) {
-            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
-                return $e->getHtmlResponse();
-            }
-            return $e->getJsonResponse();
-        } catch (Exception $e) {
-            $e = new InternalServerErrorException($e->getMessage());
-            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
-                return $e->getHtmlResponse();
-            }
-            return $e->getJsonResponse();
         }
+
+        // handle non matching patterns
+        if (in_array($request->getRequestMethod(), $this->supportedMethods)) {
+            throw new NotFoundException('url not found');
+        }
+
+        throw new MethodNotAllowedException(
+            'unsupported method',
+            sprintf('only %s allowed', implode(',', $this->supportedMethods)),
+            $this->supportedMethods
+        );
     }
 
     private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback, array $skipPlugins)
@@ -344,5 +331,23 @@ class Service
         }
 
         return call_user_func_array($callback, array_values($cbParams));
+    }
+
+    public static function handleException(Exception $e)
+    {
+        $request = Request::fromIncomingRequest(new IncomingRequest());
+
+        if ($e instanceof HttpException) {
+            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
+                return $e->getHtmlResponse();
+            }
+            return $e->getJsonResponse();
+        } else {
+            $e = new InternalServerErrorException($e->getMessage());
+            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
+                return $e->getHtmlResponse();
+            }
+            return $e->getJsonResponse();
+        }
     }
 }

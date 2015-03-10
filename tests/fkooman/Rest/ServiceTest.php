@@ -84,6 +84,10 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("bar", $response->getContent());
     }
 
+    /**
+     * @expectedException BadFunctionCallException
+     * @expectedExceptionMessage parameter expected by callback not available
+     */
     public function testOnMatchPluginSkip()
     {
         $service = new Service();
@@ -115,11 +119,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
         $request = new Request("http://www.example.org/foo", "GET");
         $request->setPathInfo("/foo/bar/baz.txt");
-        $response = $service->run($request);
-        $this->assertEquals(500, $response->getStatusCode());
-        $this->assertEquals(array('error' => 'parameter expected by callback not available'), $response->getContent());
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\MethodNotAllowedException
+     * @expectedExceptionMessage unsupported method
+     */
     public function testNonMethodMatch()
     {
         $request = new Request("http://www.example.org/foo", "GET");
@@ -128,18 +134,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service = new Service();
         $service->post("/foo/bar/baz.txt", null);
         $service->delete("/foo/bar/baz.txt", null);
-        $response = $service->run($request);
-        $this->assertEquals(405, $response->getStatusCode());
-        $this->assertEquals(
-            array(
-                'error' => 'unsupported method',
-                'error_description' => 'only POST,DELETE allowed'
-            ),
-            $response->getContent()
-        );
-        $this->assertEquals('POST,DELETE', $response->getHeader('Allow'));
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testNonPatternMatch()
     {
         $request = new Request("http://www.example.org/foo", "GET");
@@ -148,9 +149,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
         $service = new Service();
         $service->match("GET", "/foo/:xyz", null);
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEquals('<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>404 Not Found</title></head><body><h1>Not Found</h1><p>url not found</p></body></html>', $response->getContent());
+        $service->run($request);
     }
 
     public function testNonResponseReturn()
@@ -207,6 +206,10 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("match", $response->getContent());
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\MethodNotAllowedException
+     * @expectedExceptionMessage unsupported method
+     */
     public function testMatchRestWrongMethod()
     {
         $request = new Request("http://www.example.org/api.php", "POST");
@@ -218,10 +221,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/:one/:two/:three",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(405, $response->getStatusCode());
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestNoMatch()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -232,10 +238,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/:one/:two/:three",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestMatchWildcardToShort()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -246,8 +255,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/:one/:two/:three+",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
     public function testMatchRestMatchWildcard()
@@ -284,6 +292,10 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('["foo","bar\/baz"]', $response->getContent());
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestWrongWildcard()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -294,8 +306,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/:abc+/foobaz",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
     public function testEndingSlashWildcard()
@@ -330,6 +341,10 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('["foo","bar\/baz","foobar"]', $response->getContent());
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestNoAbsPath()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -340,10 +355,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "foo",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestEmptyPath()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -354,10 +372,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestNoPatternPath()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -368,10 +389,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "x",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestNoMatchWithoutReplacement()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -382,10 +406,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/bar",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestNoMatchWithoutReplacementLong()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -396,10 +423,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/foo/bar/foo/bar/bar",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestTooShortRequest()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -410,10 +440,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/foo/bar/:foo/bar/bar",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testMatchRestEmptyResource()
     {
         $request = new Request("http://www.example.org/api.php", "GET");
@@ -431,8 +464,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/foo/:bar",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
     public function testMatchRestVootGroups()
@@ -518,6 +550,10 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('["admin","money","a\/b\/c"]', $response->getContent());
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testWildcardShouldNotMatchDir()
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "GET");
@@ -528,8 +564,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/:user/:module/:path+",
             null
         );
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
     public function testWildcardShouldMatchDir()
@@ -756,6 +791,10 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('default_route_works', $response->getContent());
     }
 
+    /**
+     * @expectedException fkooman\Http\Exception\NotFoundException
+     * @expectedExceptionMessage url not found
+     */
     public function testNoPathInfo()
     {
         $service = new Service();
@@ -766,8 +805,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $request = new Request("http://www.example.org/index.php", "GET");
-        $response = $service->run($request);
-        $this->assertEquals(404, $response->getStatusCode());
+        $service->run($request);
     }
 
     public function testUrlEncodedIndex()

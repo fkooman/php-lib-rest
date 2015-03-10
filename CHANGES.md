@@ -2,13 +2,12 @@
 
 ## 0.7.0
 - bring back `FormResponse`
-- **BREAKING**: `getAppRoot()` now returns the absolute path to the app, 
+- **BREAKING**: `Request::getAbsRoot()` returns the absolute path to the app, 
   no longer the base directory. Use `getBaseDir()` for the absolute base
   dir
 - **BREAKING**: remove all internal exceptions and use SPL exceptions, 
-  except for HTTP exceptions
-- **BREAKING**: move error handling back to `Service` class, see example for
-  updated code
+  except for the HTTP exceptions that correspond to HTTP error codes
+- **BREAKING**: write a better error handler that 
 - return the correct content type in error cases depending on `Allow` header 
   sent by client
 - **BREAKING**: remove `registerBeforeMatchingPlugin` method in `Service`

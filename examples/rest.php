@@ -21,40 +21,45 @@ require_once dirname(__DIR__).'/vendor/autoload.php';
 use fkooman\Http\JsonResponse;
 use fkooman\Rest\Service;
 use fkooman\Http\Exception\BadRequestException;
+use Exception;
 
-$service = new Service();
+try {
+    $service = new Service();
 
-$service->get(
-    '/hello/:str',
-    function ($str) {
-        $response = new JsonResponse();
-        $response->setContent(
-            array(
-                'type' => 'GET',
-                'response' => sprintf('hello %s', $str),
-            )
-        );
+    $service->get(
+        '/hello/:str',
+        function ($str) {
+            $response = new JsonResponse();
+            $response->setContent(
+                array(
+                    'type' => 'GET',
+                    'response' => sprintf('hello %s', $str),
+                )
+            );
 
-        return $response;
-    }
-);
-
-$service->post(
-    '/hello/:str',
-    function ($str) {
-        if ('foo' === $str) {
-            throw new BadRequestException('you cannot say "foo!"');
+            return $response;
         }
-        $response = new JsonResponse();
-        $response->setContent(
-            array(
-                'type' => 'POST',
-                'response' => sprintf('hello %s', $str),
-            )
-        );
+    );
 
-        return $response;
-    }
-);
+    $service->post(
+        '/hello/:str',
+        function ($str) {
+            if ('foo' === $str) {
+                throw new BadRequestException('you cannot say "foo!"');
+            }
+            $response = new JsonResponse();
+            $response->setContent(
+                array(
+                    'type' => 'POST',
+                    'response' => sprintf('hello %s', $str),
+                )
+            );
 
-$service->run()->sendResponse();
+            return $response;
+        }
+    );
+
+    $service->run()->sendResponse();
+} catch (Exception $e) {
+    Service::handleException($e)->sendResponse();
+}
