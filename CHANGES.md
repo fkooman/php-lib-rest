@@ -1,6 +1,8 @@
 # Release History
 
 ## 0.7.0
+- **BREAKING**: introduce more generic `matchOptions` parameter with a 
+  `skipPlugins` key to list plugins to skip for that particular match
 - bring back `FormResponse`
 - **BREAKING**: `Request::getAbsRoot()` returns the absolute path to the app, 
   no longer the base directory. Use `getBaseDir()` for the absolute base

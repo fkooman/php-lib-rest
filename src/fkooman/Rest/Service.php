@@ -71,34 +71,34 @@ class Service
         $this->defaultRoute = $defaultRoute;
     }
 
-    public function get($requestPattern, $callback, array $skipPlugin = array())
+    public function get($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("GET", $requestPattern, $callback, $skipPlugin);
+        $this->match("GET", $requestPattern, $callback, $matchOptions);
     }
 
-    public function put($requestPattern, $callback, array $skipPlugin = array())
+    public function put($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("PUT", $requestPattern, $callback, $skipPlugin);
+        $this->match("PUT", $requestPattern, $callback, $matchOptions);
     }
 
-    public function post($requestPattern, $callback, array $skipPlugin = array())
+    public function post($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("POST", $requestPattern, $callback, $skipPlugin);
+        $this->match("POST", $requestPattern, $callback, $matchOptions);
     }
 
-    public function delete($requestPattern, $callback, array $skipPlugin = array())
+    public function delete($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("DELETE", $requestPattern, $callback, $skipPlugin);
+        $this->match("DELETE", $requestPattern, $callback, $matchOptions);
     }
 
-    public function options($requestPattern, $callback, array $skipPlugin = array())
+    public function options($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("OPTIONS", $requestPattern, $callback, $skipPlugin);
+        $this->match("OPTIONS", $requestPattern, $callback, $matchOptions);
     }
 
-    public function head($requestPattern, $callback, array $skipPlugin = array())
+    public function head($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("HEAD", $requestPattern, $callback, $skipPlugin);
+        $this->match("HEAD", $requestPattern, $callback, $matchOptions);
     }
 
     /**
@@ -108,10 +108,10 @@ class Service
      * @param string   $requestPattern the pattern to match
      * @param callback $callback       the callback to execute when this pattern
      *                                 matches
-     * @param array    $skipPlugins    the full namespaced names of the plugin classes
-     *                                 to skip
+     * @param array    $matchOptions   the options for this match
+     *
      */
-    public function match($requestMethod, $requestPattern, $callback, array $skipPlugins = array())
+    public function match($requestMethod, $requestPattern, $callback, array $matchOptions = array())
     {
         if (!is_array($requestMethod)) {
             $requestMethod = array($requestMethod);
@@ -121,7 +121,7 @@ class Service
             "requestMethod" => $requestMethod,
             "requestPattern" => $requestPattern,
             "callback" => $callback,
-            "skipPlugins" => $skipPlugins,
+            "matchOptions" => $matchOptions,
         );
         foreach ($requestMethod as $r) {
             if (!in_array($r, $this->supportedMethods)) {
@@ -194,7 +194,7 @@ class Service
                 $m['requestPattern'],
                 $m['callback'],
                 $paramsAvailableForCallback,
-                $m['skipPlugins']
+                $m['matchOptions']
             );
 
             // false indicates not a match
@@ -224,7 +224,7 @@ class Service
         );
     }
 
-    private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback, array $skipPlugins)
+    private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback, array $matchOptions)
     {
         if (!in_array($request->getRequestMethod(), $requestMethod)) {
             return false;
@@ -232,7 +232,7 @@ class Service
 
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern || "*" === $requestPattern) {
-            return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $skipPlugins);
+            return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
         }
         // both the pattern and request path should start with a "/"
         if (0 !== strpos($requestPattern, "/")) {
@@ -250,7 +250,7 @@ class Service
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
             if ($request->getPathInfo() === $requestPattern) {
-                return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $skipPlugins);
+                return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
             }
 
             return false;
@@ -282,15 +282,19 @@ class Service
             }
         }
         // request path matches pattern!
-        return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $skipPlugins);
+        return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
     }
 
-    private function executeCallback(Request $request, $callback, array $paramsAvailableForCallback, array $skipPlugins)
+    private function executeCallback(Request $request, $callback, array $paramsAvailableForCallback, array $matchOptions)
     {
         // run the onMatchPlugins
         foreach ($this->onMatchPlugins as $plugin) {
-            if (in_array(get_class($plugin), $skipPlugins)) {
-                continue;
+            if (array_key_exists('skipPlugins', $matchOptions)) {
+                if (is_array($matchOptions['skipPlugins'])) {
+                    if (in_array(get_class($plugin), $matchOptions['skipPlugins'])) {
+                        continue;
+                    }
+                }
             }
             $response = $plugin->execute($request);
             if ($response instanceof Response) {

@@ -114,7 +114,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
                 return $response;
             },
-            array('FooPlugin')
+            array('skipPlugins' => array('FooPlugin'))
         );
 
         $request = new Request("http://www.example.org/foo", "GET");
