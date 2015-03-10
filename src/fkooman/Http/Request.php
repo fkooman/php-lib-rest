@@ -213,7 +213,7 @@ class Request
 
     public function getAbsRoot()
     {
-        $this->getRequestUri()->getBaseUri() . $this->getRoot();
+        return $this->getRequestUri()->getBaseUri() . $this->getRoot();
     }
 
     public function setPathInfo($pathInfo)
