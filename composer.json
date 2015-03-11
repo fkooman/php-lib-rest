@@ -23,6 +23,7 @@
         "fkooman/rest-plugin-basic": "Basic Authentication plugin",
         "fkooman/rest-plugin-bearer": "Bearer (OAuth) Authentication plugin",
         "fkooman/rest-plugin-indieauth": "IndieAuth Authentication plugin",
-        "fkooman/rest-plugin-mellon": "Mellon (SAML) Authentication plugin"
+        "fkooman/rest-plugin-mellon": "Mellon (SAML) Authentication plugin",
+        "fkooman/rest-plugin-simplesaml": "simpleSAMLphp (SAML) Authentication plugin"
     }
 }
