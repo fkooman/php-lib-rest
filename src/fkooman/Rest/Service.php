@@ -341,17 +341,17 @@ class Service
     {
         $request = Request::fromIncomingRequest(new IncomingRequest());
 
-        if ($e instanceof HttpException) {
-            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
-                return $e->getHtmlResponse();
-            }
-            return $e->getJsonResponse();
-        } else {
+        if (!($e instanceof HttpException)) {
             $e = new InternalServerErrorException($e->getMessage());
-            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
-                return $e->getHtmlResponse();
-            }
-            return $e->getJsonResponse();
         }
+        if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
+            return $e->getHtmlResponse();
+        }
+        if (false !== strpos($request->getHeader('Accept'), 'application/x-www-form-urlencoded')) {
+            return $e->getFormResponse();
+        }
+
+        // by default we return JSON
+        return $e->getJsonResponse();
     }
 }

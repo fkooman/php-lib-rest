@@ -18,6 +18,8 @@
 
 namespace fkooman\Http\Exception;
 
+use fkooman\Http\Response;
+
 class MethodNotAllowedException extends HttpException
 {
     /** @var array */
@@ -29,11 +31,31 @@ class MethodNotAllowedException extends HttpException
         parent::__construct($message, $description, 405, $previous);
     }
 
-    protected function getResponse($getJsonResponse)
+    private function addHeader(Response $response)
     {
-        $response = parent::getResponse($getJsonResponse);
-        $response->setHeader('Allow', implode(",", $this->allowedMethods));
+        $response->setHeader(
+            'Allow',
+            implode(
+                ",",
+                $this->allowedMethods
+            )
+        );
 
         return $response;
+    }
+
+    public function getJsonResponse()
+    {
+        return $this->addHeader(parent::getJsonResponse());
+    }
+
+    public function getFormResponse()
+    {
+        return $this->addHeader(parent::getFormResponse());
+    }
+
+    public function getHtmlResponse()
+    {
+        return $this->addHeader(parent::getHtmlResponse());
     }
 }

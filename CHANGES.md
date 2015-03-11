@@ -1,5 +1,9 @@
 # Release History
 
+## 0.7.2
+- also support FormResponse for exceptions
+- cleanup exception handling and extending
+
 ## 0.7.1
 - include scriptname in `getRoot()` and `getAbsRoot()` if no URL rewriting is
   used

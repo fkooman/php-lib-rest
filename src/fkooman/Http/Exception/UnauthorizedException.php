@@ -18,6 +18,8 @@
 
 namespace fkooman\Http\Exception;
 
+use fkooman\Http\Response;
+
 class UnauthorizedException extends HttpException
 {
     /** @var string */
@@ -48,14 +50,28 @@ class UnauthorizedException extends HttpException
         return implode(",", $a);
     }
 
-    protected function getResponse($getJsonResponse)
+    private function addHeader(Response $response)
     {
-        $response = parent::getResponse($getJsonResponse);
         $response->setHeader(
             'WWW-Authenticate',
             sprintf('%s %s', $this->authScheme, $this->authParamsToString())
         );
 
         return $response;
+    }
+
+    public function getJsonResponse()
+    {
+        return $this->addHeader(parent::getJsonResponse());
+    }
+
+    public function getFormResponse()
+    {
+        return $this->addHeader(parent::getFormResponse());
+    }
+
+    public function getHtmlResponse()
+    {
+        return $this->addHeader(parent::getHtmlResponse());
     }
 }

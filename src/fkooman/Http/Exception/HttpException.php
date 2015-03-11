@@ -20,6 +20,7 @@ namespace fkooman\Http\Exception;
 
 use fkooman\Http\Response;
 use fkooman\Http\JsonResponse;
+use fkooman\Http\FormResponse;
 use Exception;
 
 class HttpException extends Exception
@@ -40,7 +41,20 @@ class HttpException extends Exception
 
     public function getJsonResponse()
     {
-        $response = $this->getResponse(true);
+        $response = new JsonResponse($this->getCode());
+        $responseData = array();
+        $responseData['error'] = $this->getMessage();
+        if (null !== $this->getDescription()) {
+            $responseData['error_description'] = $this->getDescription();
+        }
+        $response->setContent($responseData);
+
+        return $response;
+    }
+
+    public function getFormResponse()
+    {
+        $response = new FormResponse($this->getCode());
         $responseData = array();
         $responseData['error'] = $this->getMessage();
         if (null !== $this->getDescription()) {
@@ -53,8 +67,7 @@ class HttpException extends Exception
 
     public function getHtmlResponse()
     {
-        $response = $this->getResponse(false);
-
+        $response = new Response($this->getCode());
         if (null !== $this->getDescription()) {
             $message = sprintf('%s (%s)', $this->getMessage(), $this->getDescription());
         } else {
@@ -71,14 +84,5 @@ class HttpException extends Exception
         $response->setContent($htmlData);
 
         return $response;
-    }
-
-    protected function getResponse($getJsonResponse)
-    {
-        if ($getJsonResponse) {
-            return new JsonResponse($this->getCode());
-        }
-
-        return new Response($this->getCode());
     }
 }
