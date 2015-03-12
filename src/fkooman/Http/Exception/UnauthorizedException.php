@@ -25,7 +25,7 @@ class UnauthorizedException extends HttpException
     /** @var string */
     private $authScheme;
 
-    /** @var string */
+    /** @var array */
     private $authParams;
 
     public function __construct($message, $description, $authScheme = 'Basic', array $authParams = array(), $code = 0, Exception $previous = null)

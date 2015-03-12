@@ -23,7 +23,7 @@ use RuntimeException;
 
 class Request
 {
-    /** @var fkooman\Http\Uri */
+    /** @var Uri */
     protected $requestUri;
 
     /** @var string */
