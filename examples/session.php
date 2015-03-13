@@ -31,16 +31,11 @@ try {
         }
     );
     $service->get(
-        '/count/:key',
+        '/:key',
         function ($key) use ($session) {
-            if ($session->hasKey($key)) {
-                $newValue = $session->getValue($key) + 1;
-            } else {
-                $newValue = 1;
-            }
-            $session->setValue($key, $newValue);
-
-            return 'count: ' . $newValue;
+            $newCount = $session->hasKey($key) ? $session->getValue($key) + 1 : 1;
+            $session->setValue($key, $newCount);
+            return 'count: ' . $newCount;
         }
     );
     $service->run()->sendResponse();

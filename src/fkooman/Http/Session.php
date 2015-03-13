@@ -66,13 +66,13 @@ class Session
 
     public function setValue($key, $value)
     {
-        // start session only when a value is set...
         $this->startSession();
         $_SESSION[$this->ns][$key] = $value;
     }
 
     public function deleteKey($key)
     {
+        $this->startSession();
         if ($this->hasKey($key)) {
             unset($_SESSION[$this->ns][$key]);
         }
@@ -80,9 +80,8 @@ class Session
 
     public function hasKey($key)
     {
-        // check ns exists
+        $this->startSession();
         if (array_key_exists($this->ns, $_SESSION)) {
-            // check key in ns exists
             return array_key_exists($key, $_SESSION[$this->ns]);
         }
 
@@ -91,9 +90,8 @@ class Session
 
     public function getValue($key)
     {
-        // check ns exists
+        $this->startSession();
         if (array_key_exists($this->ns, $_SESSION)) {
-            // check key in ns exists
             if (array_key_exists($key, $_SESSION[$this->ns])) {
                 return $_SESSION[$this->ns][$key];
             }
@@ -104,6 +102,7 @@ class Session
 
     public function destroy()
     {
+        $this->startSession();
         if (array_key_exists($this->ns, $_SESSION)) {
             unset($_SESSION[$this->ns]);
         }
