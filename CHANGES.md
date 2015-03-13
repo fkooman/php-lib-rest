@@ -1,5 +1,9 @@
 # Release History
 
+## 0.7.3
+- only initialize a http session when the first session value is written
+- make it possible to better configure the session
+ 
 ## 0.7.2
 - also support FormResponse for exceptions
 - cleanup exception handling and extending

@@ -23,21 +23,51 @@ class Session
     /** @var string */
     private $ns;
 
-    public function __construct($ns = "foo", $secureCookie = true)
+    public function __construct($ns = 'MySession', $sessionOptions = array())
     {
         $this->ns = $ns;
 
-        if ("" === session_id()) {
-            // no session currently exists, start a new one
-            if ($secureCookie) {
-                session_set_cookie_params(0, "/", "", true, true);
-            }
+        $defaultOptions = array(
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',
+            'secure' => true,
+            'httponly' => true
+        );
+
+        // backwards compatibility for disabling 'secure' cookies, the second
+        // parameter used to be a boolean...
+        if (is_bool($sessionOptions)) {
+            $sessionOptions = array(
+                'secure' => $sessionOptions
+            );
+        }
+        if (is_array($sessionOptions)) {
+            // merge sessionOptions with defaultOptions
+            $sessionOptions = array_merge($defaultOptions, $sessionOptions);
+        }
+        $this->sessionOptions = $sessionOptions;
+    }
+
+    private function startSession()
+    {
+        if ('' === session_id()) {
+            // no session active
+            session_set_cookie_params(
+                $this->sessionOptions['lifetime'],
+                $this->sessionOptions['path'],
+                $this->sessionOptions['domain'],
+                $this->sessionOptions['secure'],
+                $this->sessionOptions['httponly']
+            );
             session_start();
         }
     }
 
     public function setValue($key, $value)
     {
+        // start session only when a value is set...
+        $this->startSession();
         $_SESSION[$this->ns][$key] = $value;
     }
 
