@@ -155,4 +155,14 @@ class Uri
     {
         $this->components['fragment'] = $fragment;
     }
+
+    public static function isValid($inputUri)
+    {
+        try {
+            new Uri($inputUri);
+            return true;
+        } catch (InvalidArgumentException $e) {
+            return false;
+        }
+    }
 }

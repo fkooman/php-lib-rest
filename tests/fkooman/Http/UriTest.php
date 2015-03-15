@@ -188,4 +188,14 @@ class UriTest extends PHPUnit_Framework_TestCase
     {
         new Uri('mailto:foo@example.org');
     }
+
+    public function testIsValidValid()
+    {
+        $this->assertTrue(Uri::isValid('https://www.example.org/'));
+    }
+
+    public function testIsValidNotValid()
+    {
+        $this->assertFalse(Uri::isValid('xyz://www.example.org/'));
+    }
 }

@@ -2,6 +2,7 @@
 
 ## 0.7.4
 - modernize `fkooman\Http\Uri` and add some URL normalizations
+- introduce `fkooman\Http\Uri::isValid`
 
 ## 0.7.3
 - only initialize a http session when it is actually used
