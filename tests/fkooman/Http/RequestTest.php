@@ -87,7 +87,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage the uri is malformed
+     * @expectedExceptionMessage malformed url
      */
     public function testInvalidUri()
     {

@@ -18,162 +18,174 @@
 
 namespace fkooman\Http;
 
-class UriTest extends \PHPUnit_Framework_TestCase
+use PHPUnit_Framework_TestCase;
+
+class UriTest extends PHPUnit_Framework_TestCase
 {
     public function testSetFragment()
     {
-        $h = new Uri("http://www.example.com/request?action=foo");
-        $h->setFragment("bar=foo");
-        $this->assertEquals("http://www.example.com/request?action=foo#bar=foo", $h->getUri());
+        $h = new Uri('http://www.example.com/request?action=foo');
+        $h->setFragment('bar=foo');
+        $this->assertEquals('http://www.example.com/request?action=foo#bar=foo', $h->getUri());
     }
 
     public function testUser()
     {
-        $h = new Uri("http://user@www.example.com/");
-        $h->setFragment("bar=foo");
-        $this->assertEquals("http://user@www.example.com/#bar=foo", $h->getUri());
+        $h = new Uri('http://user@www.example.com/');
+        $h->setFragment('bar=foo');
+        $this->assertEquals('http://user@www.example.com/#bar=foo', $h->getUri());
     }
 
     public function testUserPass()
     {
-        $h = new Uri("http://user:pass@www.example.com/");
-        $h->setFragment("bar=foo");
-        $this->assertEquals("http://user:pass@www.example.com/#bar=foo", $h->getUri());
+        $h = new Uri('http://user:pass@www.example.com/');
+        $h->setFragment('bar=foo');
+        $this->assertEquals('http://user:pass@www.example.com/#bar=foo', $h->getUri());
     }
 
     public function testAppendQuery()
     {
-        $h = new Uri("http://www.example.com/request?action=foo");
-        $h->appendQuery("bar=foo&do=true");
-        $this->assertEquals("http://www.example.com/request?action=foo&bar=foo&do=true", $h->getUri());
+        $h = new Uri('http://www.example.com/request?action=foo');
+        $h->appendQuery('bar=foo&do=true');
+        $this->assertEquals('http://www.example.com/request?action=foo&bar=foo&do=true', $h->getUri());
     }
 
     public function testAppendNullQuery()
     {
-        $h = new Uri("http://www.example.com/request");
-        $h->appendQuery("bar=foo&do=true");
-        $this->assertEquals("http://www.example.com/request?bar=foo&do=true", $h->getUri());
+        $h = new Uri('http://www.example.com/request');
+        $h->appendQuery('bar=foo&do=true');
+        $this->assertEquals('http://www.example.com/request?bar=foo&do=true', $h->getUri());
     }
 
     public function testOtherPort()
     {
-        $h = new Uri("http://www.example.com:443/request");
-        $h->setQuery("x");
-        $this->assertEquals("http://www.example.com:443/request?x", $h->getUri());
+        $h = new Uri('http://www.example.com:443/request');
+        $h->setQuery('x');
+        $this->assertEquals('http://www.example.com:443/request?x', $h->getUri());
     }
 
     public function testWithGetParameters()
     {
-        $h = new Uri("http://www.example.com/request?action=foo&user=admin&password=secret");
-        $this->assertEquals("http", $h->getScheme());
-        $this->assertEquals("www.example.com", $h->getHost());
-        $this->assertEquals("/request", $h->getPath());
-        $this->assertEquals("action=foo&user=admin&password=secret", $h->getQuery());
+        $h = new Uri('http://www.example.com/request?action=foo&user=admin&password=secret');
+        $this->assertEquals('http', $h->getScheme());
+        $this->assertEquals('www.example.com', $h->getHost());
+        $this->assertEquals('/request', $h->getPath());
+        $this->assertEquals('action=foo&user=admin&password=secret', $h->getQuery());
     }
 
     public function testHttpOtherPort()
     {
-        $h = new Uri("http://www.example.com:8080/request");
-        $this->assertEquals("http", $h->getScheme());
-        $this->assertEquals("www.example.com", $h->getHost());
+        $h = new Uri('http://www.example.com:8080/request');
+        $this->assertEquals('http', $h->getScheme());
+        $this->assertEquals('www.example.com', $h->getHost());
         $this->assertEquals(8080, $h->getPort());
-        $this->assertEquals("/request", $h->getPath());
+        $this->assertEquals('/request', $h->getPath());
     }
 
     public function testHttpWithHttpsPort()
     {
-        $h = new Uri("http://www.example.com:443/request");
-        $this->assertEquals("http", $h->getScheme());
-        $this->assertEquals("www.example.com", $h->getHost());
+        $h = new Uri('http://www.example.com:443/request');
+        $this->assertEquals('http', $h->getScheme());
+        $this->assertEquals('www.example.com', $h->getHost());
         $this->assertEquals(443, $h->getPort());
-        $this->assertEquals("/request", $h->getPath());
+        $this->assertEquals('/request', $h->getPath());
     }
 
     public function testHttpsWithHttpPort()
     {
-        $h = new Uri("https://www.example.com:80/request");
-        $this->assertEquals("https", $h->getScheme());
-        $this->assertEquals("www.example.com", $h->getHost());
+        $h = new Uri('https://www.example.com:80/request');
+        $this->assertEquals('https', $h->getScheme());
+        $this->assertEquals('www.example.com', $h->getHost());
         $this->assertEquals(80, $h->getPort());
-        $this->assertEquals("/request", $h->getPath());
+        $this->assertEquals('/request', $h->getPath());
     }
 
     public function testHttpsWithoutPath()
     {
-        $h = new Uri("https://www.example.com/");
-        $this->assertEquals("https", $h->getScheme());
-        $this->assertEquals("www.example.com", $h->getHost());
-        $this->assertEquals("/", $h->getPath());
+        $h = new Uri('https://www.example.com/');
+        $this->assertEquals('https', $h->getScheme());
+        $this->assertEquals('www.example.com', $h->getHost());
+        $this->assertEquals('/', $h->getPath());
     }
 
     public function testHttpsWithOtherPortAndQuery()
     {
-        $h = new Uri("https://www.example.com:8081/request?action=foo");
-        $this->assertEquals("https", $h->getScheme());
-        $this->assertEquals("www.example.com", $h->getHost());
+        $h = new Uri('https://www.example.com:8081/request?action=foo');
+        $this->assertEquals('https', $h->getScheme());
+        $this->assertEquals('www.example.com', $h->getHost());
         $this->assertEquals(8081, $h->getPort());
-        $this->assertEquals("/request", $h->getPath());
+        $this->assertEquals('/request', $h->getPath());
     }
 
     public function testHttpsWithOtherPortNoPathAndQuery()
     {
-        $h = new Uri("https://www.example.com:8081/?action=foo");
-        $this->assertEquals("https", $h->getScheme());
-        $this->assertEquals("www.example.com", $h->getHost());
+        $h = new Uri('https://www.example.com:8081/?action=foo');
+        $this->assertEquals('https', $h->getScheme());
+        $this->assertEquals('www.example.com', $h->getHost());
         $this->assertEquals(8081, $h->getPort());
-        $this->assertEquals("/", $h->getPath());
-        $this->assertEquals("action=foo", $h->getQuery());
-    }
-
-    public function testGetHttpsPort()
-    {
-        $h = new Uri("https://www.example.com/request?action=foo");
-        $this->assertEquals(443, $h->getPort());
-    }
-
-    public function testGetHttpPort()
-    {
-        $h = new Uri("http://www.example.com/request?action=foo");
-        $this->assertEquals(80, $h->getPort());
+        $this->assertEquals('/', $h->getPath());
+        $this->assertEquals('action=foo', $h->getQuery());
     }
 
     public function testGetHttpsUriNormalized()
     {
-        $h = new Uri("https://www.example.com:443/request?action=foo");
+        $h = new Uri('https://www.example.com:443/request?action=foo');
         $this->assertEquals(443, $h->getPort());
-        $this->assertEquals("https://www.example.com/request?action=foo", $h->getUri());
+        $this->assertEquals('https://www.example.com/request?action=foo', $h->getUri());
     }
 
     public function testGetHttpUriNormalized()
     {
-        $h = new Uri("http://www.example.com:80/request?action=foo");
+        $h = new Uri('http://www.example.com:80/request?action=foo');
         $this->assertEquals(80, $h->getPort());
-        $this->assertEquals("http://www.example.com/request?action=foo", $h->getUri());
+        $this->assertEquals('http://www.example.com/request?action=foo', $h->getUri());
     }
 
     public function testGetHttpBaseUri()
     {
-        $h = new Uri("http://www.example.com/request?action=foo");
-        $this->assertEquals("http://www.example.com", $h->getBaseUri());
+        $h = new Uri('http://www.example.com/request?action=foo');
+        $this->assertEquals('http://www.example.com', $h->getBaseUri());
     }
 
     public function testGetHttpsFragmentBaseUri()
     {
-        $h = new Uri("https://www.example.com:443/request?action=foo#frag=foo");
-        $this->assertEquals("https://www.example.com", $h->getBaseUri());
+        $h = new Uri('https://www.example.com:443/request?action=foo#frag=foo');
+        $this->assertEquals('https://www.example.com', $h->getBaseUri());
     }
 
     public function testGetHttpBaseUriDifferentPort()
     {
-        $h = new Uri("http://www.example.com:8080/request?action=foo");
-        $this->assertEquals("http://www.example.com:8080", $h->getBaseUri());
+        $h = new Uri('http://www.example.com:8080/request?action=foo');
+        $this->assertEquals('http://www.example.com:8080', $h->getBaseUri());
     }
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage malformed url
      */
     public function testMalformedUri()
     {
-        $h = new Uri("http://:80");
+        new Uri('http://:80');
+    }
+
+    public function testNormalization()
+    {
+        $h = new Uri('hTtPs://FOO.EXAMPLE.org/xyz');
+        $this->assertEquals('https://foo.example.org/xyz', $h->getUri());
+    }
+
+    public function testNormalizationNoPath()
+    {
+        $h = new Uri('https://tuxed.net');
+        $this->assertEquals('https://tuxed.net/', $h->getUri());
+    }
+    
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage unsupported scheme
+     */
+    public function testUnsupportedScheme()
+    {
+        new Uri('mailto:foo@example.org');
     }
 }

@@ -22,149 +22,137 @@ use InvalidArgumentException;
 
 class Uri
 {
-    private $uriParts;
-
+    /** @var array */
+    private $components;
+   
     public function __construct($inputUri)
     {
-        self::validateUri($inputUri);
-
-        $this->uriParts = parse_url($inputUri);
-
-        if (!array_key_exists("port", $this->uriParts)) {
-            if ("http" === $this->uriParts['scheme']) {
-                $this->uriParts['port'] = 80;
-            } elseif ("https" === $this->uriParts['scheme']) {
-                $this->uriParts['port'] = 443;
-            } else {
-                throw new InvalidArgumentException("unsupported scheme");
-            }
+        if (false === filter_var($inputUri, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException('malformed url');
         }
+
+        $components = array(
+            'scheme' => null,
+            'host'=> null,
+            'port' => null,
+            'user' => null,
+            'pass' => null,
+            'path' => null,
+            'query' => null,
+            'fragment' => null
+        );
+
+        // normalize the scheme and host
+        $components = array_merge($components, parse_url($inputUri));
+        if (null !== $components['scheme']) {
+            $components['scheme'] = strtolower($components['scheme']);
+            $components['host'] = strtolower($components['host']);
+        }
+    
+        // we only accept http and https schema
+        if ('http' !== $components['scheme'] && 'https' !== $components['scheme']) {
+            throw new InvalidArgumentException('unsupported scheme');
+        }
+
+        // if path is missing add a default path of '/'
+        if (null === $components['path']) {
+            $components['path'] = '/';
+        }
+
+        $this->components = $components;
     }
 
-    private static function validateUri($inputUri)
+    public function getBaseUri()
     {
-        $u = filter_var($inputUri, FILTER_VALIDATE_URL);
-        if (false === $u) {
-            throw new InvalidArgumentException("the uri is malformed");
-        }
-    }
-
-    private function constructBaseUriFromParts()
-    {
-        $uri = "";
-        if (null !== $this->getScheme()) {
-            $uri .= $this->getScheme()."://";
-        }
+        $userPass = '';
         if (null !== $this->getUser()) {
-            $uri .= $this->getUser();
             if (null !== $this->getPass()) {
-                $uri .= ":".$this->getPass();
+                $userPass = sprintf('%s:%s@', $this->getUser(), $this->getPass());
+            } else {
+                $userPass = sprintf('%s@', $this->getUser());
             }
-            $uri .= "@";
         }
-        if (null !== $this->getHost()) {
-            $uri .= $this->getHost();
-        }
+        
+        $port = '';
         if (null !== $this->getPort()) {
-            if ("https" === $this->getScheme() && 443 !== $this->getPort()) {
-                $uri .= ":".$this->getPort();
-            }
-            if ("http" === $this->getScheme() && 80 !== $this->getPort()) {
-                $uri .= ":".$this->getPort();
+            if (('http' === $this->getScheme() && 80 !== $this->getPort()) || ('https' === $this->getScheme() && 443 !== $this->getPort())) {
+                $port = sprintf(':%s', $this->getPort());
             }
         }
 
-        return $uri;
+        return $this->getScheme() . '://' . $userPass . $this->getHost() . $port;
     }
 
-    private function constructUriFromParts()
+    public function getUri()
     {
-        $uri = $this->constructBaseUriFromParts();
-        if (null !== $this->getPath()) {
-            $uri .= $this->getPath();
-        }
+        $query = '';
         if (null !== $this->getQuery()) {
-            $uri .= "?".$this->getQuery();
+            $query = sprintf('?%s', $this->getQuery());
         }
+        $fragment = '';
         if (null !== $this->getFragment()) {
-            $uri .= "#".$this->getFragment();
+            $fragment = sprintf('#%s', $this->getFragment());
         }
 
-        return $uri;
+        return $this->getBaseUri() . $this->getPath() . $query . $fragment;
     }
-
+   
     public function getScheme()
     {
-        return array_key_exists("scheme", $this->uriParts) ? $this->uriParts['scheme'] : null;
+        return $this->components['scheme'];
     }
 
     public function getUser()
     {
-        return array_key_exists("user", $this->uriParts) ? $this->uriParts['user'] : null;
+        return $this->components['user'];
     }
 
     public function getPass()
     {
-        return array_key_exists("pass", $this->uriParts) ? $this->uriParts['pass'] : null;
+        return $this->components['pass'];
     }
 
     public function getHost()
     {
-        return array_key_exists("host", $this->uriParts) ? $this->uriParts['host'] : null;
+        return $this->components['host'];
     }
 
     public function getPort()
     {
-        return array_key_exists("port", $this->uriParts) ? $this->uriParts['port'] : null;
+        return $this->components['port'];
     }
 
     public function getPath()
     {
-        return array_key_exists("path", $this->uriParts) ? $this->uriParts['path'] : null;
+        return $this->components['path'];
     }
 
     public function getQuery()
     {
-        return array_key_exists("query", $this->uriParts) ? $this->uriParts['query'] : null;
+        return $this->components['query'];
     }
 
     public function setQuery($query)
     {
-        $this->uriParts['query'] = $query;
+        $this->components['query'] = $query;
     }
 
     public function appendQuery($query)
     {
-        if ($this->getQuery() === null) {
+        if (null === $this->getQuery()) {
             $this->setQuery($query);
         } else {
-            $this->setQuery($this->getQuery()."&".$query);
+            $this->setQuery(sprintf('%s&%s', $this->getQuery(), $query));
         }
     }
 
     public function getFragment()
     {
-        return array_key_exists("fragment", $this->uriParts) ? $this->uriParts['fragment'] : null;
+        return $this->components['fragment'];
     }
 
     public function setFragment($fragment)
     {
-        $this->uriParts['fragment'] = $fragment;
-    }
-
-    public function getBaseUri()
-    {
-        $baseUri = $this->constructBaseUriFromParts();
-        self::validateUri($baseUri);
-
-        return $baseUri;
-    }
-
-    public function getUri()
-    {
-        $uri = $this->constructUriFromParts();
-        self::validateUri($uri);
-
-        return $uri;
+        $this->components['fragment'] = $fragment;
     }
 }

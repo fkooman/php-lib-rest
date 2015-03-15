@@ -1,5 +1,8 @@
 # Release History
 
+## 0.7.4
+- modernize `fkooman\Http\Uri` and add some URL normalizations
+
 ## 0.7.3
 - only initialize a http session when it is actually used
 - make it possible to better configure the session
