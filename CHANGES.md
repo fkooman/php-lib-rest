@@ -1,5 +1,9 @@
 # Release History
 
+## 0.7.5
+- allow HTML error templates instead of the default template for 
+  `Service::handleException`
+
 ## 0.7.4
 - modernize `fkooman\Http\Uri` and add some URL normalizations
 - introduce `fkooman\Http\Uri::isValid`

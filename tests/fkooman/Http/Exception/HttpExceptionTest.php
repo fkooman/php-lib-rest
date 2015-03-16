@@ -33,6 +33,6 @@ class HttpExceptionTest extends PHPUnit_Framework_TestCase
     public function testHttpExceptionHtmlMessageEscaping()
     {
         $e = new HttpException('xyz&\'', "foo_description", 404);
-        $this->assertEquals('<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>404 Not Found</title></head><body><h1>Not Found</h1><p>xyz&amp;&#039; (foo_description)</p></body></html>', $e->getHtmlResponse()->getContent());
+        $this->assertEquals('<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>404 Not Found</title></head><body><h1>Not Found</h1><h2>xyz&amp;&#039;</h2><p>foo_description</p></body></html>', $e->getHtmlResponse()->getContent());
     }
 }
