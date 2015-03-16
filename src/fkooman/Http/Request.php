@@ -165,14 +165,9 @@ class Request
     public function setHeaders(array $requestHeaders)
     {
         foreach ($requestHeaders as $key => $value) {
-            $this->setHeader($key, $value);
+            $key = self::normalizeHeaderKey($key);
+            $this->requestHeaders[$key] = $value;
         }
-    }
-
-    public function setHeader($key, $value)
-    {
-        $key = self::normalizeHeaderKey($key);
-        $this->requestHeaders[$key] = $value;
     }
 
     public function getHeader($key)

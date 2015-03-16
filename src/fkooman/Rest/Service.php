@@ -337,17 +337,15 @@ class Service
         return call_user_func_array($callback, array_values($cbParams));
     }
 
-    public static function handleException(Exception $e, $htmlTemplate = null, Request $request = null)
+    public static function handleException(Exception $e)
     {
-        if (null === $request) {
-            $request = Request::fromIncomingRequest(new IncomingRequest());
-        }
+        $request = Request::fromIncomingRequest(new IncomingRequest());
 
         if (!($e instanceof HttpException)) {
             $e = new InternalServerErrorException($e->getMessage());
         }
         if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
-            return $e->getHtmlResponse($htmlTemplate);
+            return $e->getHtmlResponse();
         }
         if (false !== strpos($request->getHeader('Accept'), 'application/x-www-form-urlencoded')) {
             return $e->getFormResponse();

@@ -65,28 +65,23 @@ class HttpException extends Exception
         return $response;
     }
 
-    public function getHtmlResponse($htmlTemplate = null)
+    public function getHtmlResponse()
     {
         $response = new Response($this->getCode());
-
-        if (null === $htmlTemplate) {
-            $htmlTemplate = '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>{{CODE}} {{STATUS_REASON}}</title></head><body><h1>{{STATUS_REASON}}</h1><h2>{{MESSAGE}}</h2><p>{{DESCRIPTION}}</p></body></html>';
+        if (null !== $this->getDescription()) {
+            $message = sprintf('%s (%s)', $this->getMessage(), $this->getDescription());
+        } else {
+            $message = $this->getMessage();
         }
 
-        $templateVars = array(
-            '{{CODE}}' => $this->getCode(),
-            '{{STATUS_REASON}}' => $response->getStatusReason(),
-            '{{MESSAGE}}' => htmlspecialchars($this->getMessage(), ENT_QUOTES),
-            '{{DESCRIPTION}}' => htmlspecialchars($this->getDescription(), ENT_QUOTES)
+        $htmlData = sprintf(
+            '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>%s %s</title></head><body><h1>%s</h1><p>%s</p></body></html>',
+            $this->getCode(),
+            $response->getStatusReason(),
+            $response->getStatusReason(),
+            htmlspecialchars($message, ENT_QUOTES)
         );
-
-        $responseData = str_replace(
-            array_keys($templateVars),
-            array_values($templateVars),
-            $htmlTemplate
-        );
-
-        $response->setContent($responseData);
+        $response->setContent($htmlData);
 
         return $response;
     }

@@ -21,7 +21,6 @@ namespace fkooman\Rest;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
 use StdClass;
-use fkooman\Http\Exception\BadRequestException;
 use PHPUnit_Framework_TestCase;
 
 class ServiceTest extends PHPUnit_Framework_TestCase
@@ -822,14 +821,5 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request->setPathInfo('/info/');
         $response = $service->run($request);
         $this->assertEquals('https%3A%2F%2Fwww.example.org%2Ffoo%2Fbar%2Fbaz', $response->getContent());
-    }
-
-    public function testHandleException()
-    {
-        $request = new Request('http://www.example.org/foo');
-        $request->setHeader('Accept', 'text/html');
-        $e = new BadRequestException('invalid token', 'the token expired a while ago');
-        $response = Service::handleException($e, '{{CODE}} {{MESSAGE}} {{DESCRIPTION}}', $request);
-        $this->assertEquals('400 invalid token the token expired a while ago', $response->getContent());
     }
 }
