@@ -770,6 +770,24 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("hello, delete!", $response->getContent());
     }
 
+    public function testDefaultRouteOnRoot()
+    {
+        $service = new Service();
+        $service->setDefaultRoute('/welcome');
+        $service->get(
+            '/welcome',
+            function () {
+                return 'welcome';
+            }
+        );
+        $request = new Request("http://www.example.org/index.php/", "GET");
+        $request->setPathInfo('/');
+        $response = $service->run($request);
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals("http://www.example.org/index.php/welcome", $response->getHeader('Location'));
+    }
+
     public function testDefaultRoute()
     {
         $service = new Service();

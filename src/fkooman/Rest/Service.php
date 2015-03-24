@@ -170,8 +170,8 @@ class Service
         $paramsAvailableForCallback[get_class($request)] = $request;
         $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
 
-        // dafaultRoute
-        if (null === $request->getPathInfo()) {
+        // defaultRoute
+        if (null === $request->getPathInfo() || '/' === $request->getPathInfo()) {
             if (null !== $this->defaultRoute) {
                 $requestUri = $request->getRequestUri()->getUri();
                 // if the requestUri already ends in a '/' we should strip it

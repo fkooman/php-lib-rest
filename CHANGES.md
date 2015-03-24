@@ -1,5 +1,8 @@
 # Release History
 
+## 0.7.5
+- fix defaultRoute when using non-beatified URLs (issue #3)
+
 ## 0.7.4
 - modernize `fkooman\Http\Uri` and add some URL normalizations
 - introduce `fkooman\Http\Uri::isValid`
