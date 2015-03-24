@@ -217,9 +217,15 @@ class Service
             throw new NotFoundException('url not found');
         }
 
+        if (0 !== count($this->supportedMethods)) {
+            $errorDescription = sprintf('only %s allowed', implode(',', $this->supportedMethods));
+        } else {
+            $errorDescription = 'no methods allowed';
+        }
+
         throw new MethodNotAllowedException(
             'unsupported method',
-            sprintf('only %s allowed', implode(',', $this->supportedMethods)),
+            $errorDescription,
             $this->supportedMethods
         );
     }

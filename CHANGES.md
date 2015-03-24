@@ -2,6 +2,8 @@
 
 ## 0.7.5
 - fix defaultRoute when using non-beatified URLs (issue #3)
+- deal with edge case when no REST rules are defined and 
+  `MethodNotAllowedException` (issue #2)
 
 ## 0.7.4
 - modernize `fkooman\Http\Uri` and add some URL normalizations

@@ -33,13 +33,15 @@ class MethodNotAllowedException extends HttpException
 
     private function addHeader(Response $response)
     {
-        $response->setHeader(
-            'Allow',
-            implode(
-                ",",
-                $this->allowedMethods
-            )
-        );
+        if (0 !== count($this->allowedMethods)) {
+            $response->setHeader(
+                'Allow',
+                implode(
+                    ",",
+                    $this->allowedMethods
+                )
+            );
+        }
 
         return $response;
     }

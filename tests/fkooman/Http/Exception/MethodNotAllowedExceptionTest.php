@@ -36,4 +36,19 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
             $response->getContent()
         );
     }
+
+    public function testNoMethodAllowed()
+    {
+        $e = new MethodNotAllowedException('foo', 'no method allowed', array());
+        $response = $e->getJsonResponse();
+        $this->assertEquals(405, $response->getStatusCode());
+        $this->assertNull($response->getHeader("Allow"));
+        $this->assertEquals(
+            array(
+                'error' => 'foo',
+                'error_description' => 'no method allowed',
+            ),
+            $response->getContent()
+        );
+    }
 }
