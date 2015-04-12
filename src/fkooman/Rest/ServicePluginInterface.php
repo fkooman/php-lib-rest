@@ -22,5 +22,5 @@ use fkooman\Http\Request;
 
 interface ServicePluginInterface
 {
-    public function execute(Request $request);
+    public function execute(Request $request, array $routeConfig);
 }

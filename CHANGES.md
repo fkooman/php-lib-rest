@@ -1,7 +1,13 @@
 # Release History
 
+## 0.8.0
+- make it possible to provide route config to plugins to support e.g. optional 
+  authentication (issue #8)
+- support using default values for callback parameters if plugin does not 
+  provide the required object (issue #7)
+
 ## 0.7.5
-- fix defaultRoute when using non-beatified URLs (issue #3)
+- fix defaultRoute when using non-beautified URLs (issue #3)
 - deal with edge case when no REST rules are defined and 
   `MethodNotAllowedException` (issue #2)
 

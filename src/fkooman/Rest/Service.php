@@ -302,12 +302,23 @@ class Service
                     }
                 }
             }
-            $response = $plugin->execute($request);
+
+            // if config is available in matchOptions for this plugin, provide
+            // it
+            $routeConfig = array();
+            if (array_key_exists(get_class($plugin), $matchOptions)) {
+                if (is_array($matchOptions[get_class($plugin)])) {
+                    $routeConfig = $matchOptions[get_class($plugin)];
+                }
+            }
+            $response = $plugin->execute($request, $routeConfig);
+
             if ($response instanceof Response) {
                 return $response;
-            }
-            if (is_object($response)) {
+            } elseif (is_object($response)) {
                 $paramsAvailableForCallback[get_class($response)] = $response;
+            } else {
+                // not an object, ignore the return value...
             }
         }
 
@@ -322,6 +333,9 @@ class Service
                     if (!array_key_exists($p->getClass()->getName(), $paramsAvailableForCallback)) {
                         if (!$p->isDefaultValueAvailable()) {
                             throw new BadFunctionCallException("parameter expected by callback not available");
+                        } else {
+                            // add default value to cbParams
+                            $cbParams[] = $p->getDefaultValue();
                         }
                     } else {
                         $cbParams[] = $paramsAvailableForCallback[$p->getClass()->getName()];
@@ -331,6 +345,9 @@ class Service
                     if (!array_key_exists($p->getName(), $paramsAvailableForCallback)) {
                         if (!$p->isDefaultValueAvailable()) {
                             throw new BadFunctionCallException("parameter expected by callback not available");
+                        } else {
+                            // add default value to cbParams
+                            $cbParams[] = $p->getDefaultValue();
                         }
                     } else {
                         $cbParams[] = $paramsAvailableForCallback[$p->getName()];
