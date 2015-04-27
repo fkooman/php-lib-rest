@@ -43,6 +43,9 @@ class Service
     /** @var array */
     private $onMatchPlugins;
 
+    /** @var array */
+    private $defaultDisablePlugins;
+
     /** @var string */
     private $defaultRoute;
 
@@ -51,16 +54,20 @@ class Service
         $this->match = array();
         $this->supportedMethods = array();
         $this->onMatchPlugins = array();
+        $this->defaultDisablePlugins = array();
         $this->defaultRoute = null;
     }
 
-    public function registerOnMatchPlugin(ServicePluginInterface $servicePlugin)
+    public function registerOnMatchPlugin(ServicePluginInterface $servicePlugin, array $pluginOptions = array())
     {
-        // execute init function
+        // execute init function if it exists
         if (method_exists($servicePlugin, 'init')) {
             $servicePlugin->init($this);
         }
         $this->onMatchPlugins[] = $servicePlugin;
+        if (array_key_exists('defaultDisable', $pluginOptions) && $pluginOptions['defaultDisable']) {
+            $this->defaultDisablePlugins[] = get_class($servicePlugin);
+        }
     }
 
     public function setDefaultRoute($defaultRoute)
@@ -295,6 +302,20 @@ class Service
     {
         // run the onMatchPlugins
         foreach ($this->onMatchPlugins as $plugin) {
+            // is it disabled by default?
+            if (in_array(get_class($plugin), $this->defaultDisablePlugins)) {
+                // check if it is enabled for this route
+                if (!array_key_exists('enablePlugins', $matchOptions)) {
+                    continue;
+                }
+                if (!is_array($matchOptions['enablePlugins'])) {
+                    continue;
+                }
+                if (!in_array(get_class($plugin), $matchOptions['enablePlugins'])) {
+                    continue;
+                }
+            }
+
             if (array_key_exists('skipPlugins', $matchOptions)) {
                 if (is_array($matchOptions['skipPlugins'])) {
                     if (in_array(get_class($plugin), $matchOptions['skipPlugins'])) {

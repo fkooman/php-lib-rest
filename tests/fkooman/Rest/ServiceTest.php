@@ -840,4 +840,61 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $response = $service->run($request);
         $this->assertEquals('https%3A%2F%2Fwww.example.org%2Ffoo%2Fbar%2Fbaz', $response->getContent());
     }
+
+    /**
+     * @expectedException BadFunctionCallException
+     * @expectedExceptionMessage parameter expected by callback not available
+     */
+    public function testDefaultDisablePlugins()
+    {
+        $service = new Service();
+
+        $stub = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')
+                     ->setMockClassName('FooPlugin')
+                     ->getMock();
+        $stub->method('execute')
+             ->willReturn((object) array("foo" => "bar"));
+        $service->registerOnMatchPlugin($stub, array('defaultDisable' => true));
+
+        // because the plugin is skipped by default, the StdClass should not be available!
+        $service->get(
+            "/foo/bar/baz.txt",
+            function (StdClass $x) {
+                return $x->foo;
+            }
+        );
+        $request = new Request("http://www.example.org/foo", "GET");
+        $request->setPathInfo("/foo/bar/baz.txt");
+        $service->run($request);
+    }
+
+    public function testDefaultDisablePluginsEnableForRoute()
+    {
+        $service = new Service();
+
+        $stub = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')
+                     ->setMockClassName('FooPlugin')
+                     ->getMock();
+        $stub->method('execute')
+             ->willReturn((object) array("foo" => "bar"));
+        $service->registerOnMatchPlugin($stub, array('defaultDisable' => true));
+
+        // because the plugin is skipped by default, the StdClass should not be available!
+        $service->get(
+            "/foo/bar/baz.txt",
+            function (StdClass $x) {
+                return $x->foo;
+            },
+            array(
+                'enablePlugins' => array(
+                    'FooPlugin'
+                )
+            )
+        );
+        $request = new Request("http://www.example.org/foo", "GET");
+        $request->setPathInfo("/foo/bar/baz.txt");
+        $response = $service->run($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('bar', $response->getContent());
+    }
 }

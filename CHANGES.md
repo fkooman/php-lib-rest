@@ -2,6 +2,8 @@
 
 ## 0.8.1
 - write all exceptions to `error_log`
+- make it possible to disable plugins by default and enable them on a per 
+  route basis (using `enablePlugins` route config)
 
 ## 0.8.0
 - make it possible to provide route config to plugins to support e.g. optional 
