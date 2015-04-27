@@ -1,5 +1,8 @@
 # Release History
 
+## 0.8.1
+- write all exceptions to `error_log`
+
 ## 0.8.0
 - make it possible to provide route config to plugins to support e.g. optional 
   authentication (issue #8)

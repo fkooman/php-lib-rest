@@ -360,13 +360,26 @@ class Service
         return call_user_func_array($callback, array_values($cbParams));
     }
 
-    public static function handleException(Exception $e)
+    public static function handleException(Exception $e, $onlyLogServerErrors = true)
     {
         $request = Request::fromIncomingRequest(new IncomingRequest());
 
         if (!($e instanceof HttpException)) {
             $e = new InternalServerErrorException($e->getMessage());
         }
+
+        if (!$onlyLogServerErrors || $onlyLogServerErrors && 500 === $e->getCode()) {
+            error_log(
+                sprintf(
+                    'ERROR: "%s", DESCRIPTION: "%s", FILE: "%s", LINE: "%d"',
+                    $e->getMessage(),
+                    $e->getDescription(),
+                    $e->getFile(),
+                    $e->getLine()
+                )
+            );
+        }
+
         if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
             return $e->getHtmlResponse();
         }
