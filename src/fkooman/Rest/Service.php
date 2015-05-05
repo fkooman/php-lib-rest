@@ -313,11 +313,13 @@ class Service
 
     private function executeCallback(Request $request, $callback, array $paramsAvailableForCallback, array $matchOptions)
     {
-        if ($this->referrerCheck) {
-            if (!in_array($request->getRequestMethod(), array('GET', 'HEAD', 'OPTIONS'))) {
-                // only for request methods with side effects with perform CSRF protection
-                if (0 !== strpos($request->getHeader('HTTP_REFERER'), $request->getAbsRoot())) {
-                    throw new BadRequestException('CSRF protection triggered');
+        if (!array_key_exists('disableReferrerCheck', $matchOptions) || !$matchOptions['disableReferrerCheck']) {
+            if ($this->referrerCheck) {
+                if (!in_array($request->getRequestMethod(), array('GET', 'HEAD', 'OPTIONS'))) {
+                    // only for request methods with side effects with perform CSRF protection
+                    if (0 !== strpos($request->getHeader('HTTP_REFERER'), $request->getAbsRoot())) {
+                        throw new BadRequestException('CSRF protection triggered');
+                    }
                 }
             }
         }

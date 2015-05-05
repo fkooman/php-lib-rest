@@ -1,5 +1,8 @@
 # Release History
 
+## 0.8.3
+- allow per route disabling of referrer check, for REST calls
+
 ## 0.8.2
 - implement `setReferrerCheck()` method to enable HTTP Referrer check to 
   avoid CSRF protection for POST/PUT/DELETE request (disabled by default 

@@ -898,4 +898,42 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('bar', $response->getContent());
     }
+
+    /**
+     * @expectedException fkooman\Http\Exception\BadRequestException
+     * @expectedExceptionMessage CSRF protection triggered
+     */
+    public function testReferrerCheck()
+    {
+        $service = new Service();
+        $service->setReferrerCheck(true);
+        $service->post(
+            '/foo',
+            function (Request $request) {
+                return 'foo';
+            }
+        );
+
+        $request = new Request('http://example.org/foo', 'POST');
+        $request->setPathInfo('/foo');
+        $service->run($request);
+    }
+
+    public function testReferrerCheckDisabled()
+    {
+        $service = new Service();
+        $service->setReferrerCheck(true);
+        $service->post(
+            '/foo',
+            function (Request $request) {
+                return 'foo';
+            },
+            array('disableReferrerCheck' => true)
+        );
+
+        $request = new Request('http://example.org/foo', 'POST');
+        $request->setPathInfo('/foo');
+        $response = $service->run($request);
+        $this->assertEquals('foo', $response->getContent());
+    }
 }
