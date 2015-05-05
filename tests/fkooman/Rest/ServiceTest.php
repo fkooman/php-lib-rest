@@ -193,7 +193,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = new Request("http://www.example.org/api.php", "POST");
         $request->setHeaders(array('Content-Type' => 'application/x-www-form-urlencoded'));
         $request->setPathInfo("/foo/bar/baz");
-
+        $request->setHeaders(array('HTTP_REFERER' => 'http://www.example.org/'));
         $service = new Service();
         $service->match(
             "POST",
@@ -604,6 +604,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     public function testMatchAllWithStarParameter()
     {
         $request = new Request("http://localhost/php-remoteStorage/api.php", "DELETE");
+        $request->setHeaders(array('HTTP_REFERER' => 'http://localhost/'));
         $request->setPathInfo("/admin/money/a/b/c/");
         $service = new Service();
         $service->delete(
@@ -764,7 +765,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $request = new Request("http://example.org", "POST");
         $request->setPathInfo("/foo/bar/baz");
-        $request->setHeaders(array('Content-Type' => 'application/x-www-form-urlencoded'));
+        $request->setHeaders(array('HTTP_REFERER' => 'http://example.org/', 'Content-Type' => 'application/x-www-form-urlencoded'));
         $request->setPostParameters(array("_METHOD" => "DELETE"));
         $response = $service->run($request);
         $this->assertEquals("hello, delete!", $response->getContent());

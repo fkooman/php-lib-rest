@@ -25,6 +25,7 @@ use fkooman\Http\IncomingRequest;
 use fkooman\Http\Exception\InternalServerErrorException;
 use fkooman\Http\Exception\HttpException;
 use fkooman\Http\Exception\MethodNotAllowedException;
+use fkooman\Http\Exception\BadRequestException;
 use fkooman\Http\Exception\NotFoundException;
 use InvalidArgumentException;
 use RuntimeException;
@@ -49,6 +50,9 @@ class Service
     /** @var string */
     private $defaultRoute;
 
+    /** @var boolean */
+    private $referrerCheck;
+
     public function __construct()
     {
         $this->match = array();
@@ -56,6 +60,15 @@ class Service
         $this->onMatchPlugins = array();
         $this->defaultDisablePlugins = array();
         $this->defaultRoute = null;
+        $this->referrerCheck = false;
+    }
+
+    public function setReferrerCheck($referrerCheck)
+    {
+        if (!is_bool($referrerCheck)) {
+            throw new InvalidArgumentException('parameter must be boolean');
+        }
+        $this->referrerCheck = $referrerCheck;
     }
 
     public function registerOnMatchPlugin(ServicePluginInterface $servicePlugin, array $pluginOptions = array())
@@ -300,6 +313,15 @@ class Service
 
     private function executeCallback(Request $request, $callback, array $paramsAvailableForCallback, array $matchOptions)
     {
+        if ($this->referrerCheck) {
+            if (!in_array($request->getRequestMethod(), array('GET', 'HEAD', 'OPTIONS'))) {
+                // only for request methods with side effects with perform CSRF protection
+                if (0 !== strpos($request->getHeader('HTTP_REFERER'), $request->getAbsRoot())) {
+                    throw new BadRequestException('CSRF protection triggered');
+                }
+            }
+        }
+
         // run the onMatchPlugins
         foreach ($this->onMatchPlugins as $plugin) {
             // is it disabled by default?
