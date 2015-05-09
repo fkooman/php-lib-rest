@@ -229,7 +229,7 @@ class Service
 
         // handle non matching patterns
         if (in_array($request->getRequestMethod(), $this->supportedMethods)) {
-            throw new NotFoundException('url not found');
+            throw new NotFoundException('url not found', $request->getPathInfo());
         }
 
         if (0 !== count($this->supportedMethods)) {
@@ -239,7 +239,7 @@ class Service
         }
 
         throw new MethodNotAllowedException(
-            'unsupported method',
+            sprintf('unsupported method "%s"', $request->getRequestMethod()),
             $errorDescription,
             $this->supportedMethods
         );

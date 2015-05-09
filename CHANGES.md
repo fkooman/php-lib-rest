@@ -1,5 +1,9 @@
 # Release History
 
+## 0.8.5
+- also log the URL in case it was missing
+- also log the request method that was not supported
+
 ## 0.8.4
 - a HEAD request will return the same as a GET response except the 
   body (issue #9)
