@@ -94,15 +94,6 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $h = new Request('foo');
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage invalid or unsupported request method
-     */
-    public function testUnsupportedRequestMethod()
-    {
-        $h = new Request('http://www.example.com/request', 'FOO');
-    }
-
     public function testNonExistingHeader()
     {
         $h = new Request('http://www.example.com/request');

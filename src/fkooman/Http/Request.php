@@ -18,9 +18,6 @@
 
 namespace fkooman\Http;
 
-use InvalidArgumentException;
-use RuntimeException;
-
 class Request
 {
     /** @var Uri */
@@ -94,19 +91,6 @@ class Request
 
     public function setRequestMethod($requestMethod)
     {
-        $validRequestMethods = array(
-            'GET',
-            'POST',
-            'PUT',
-            'DELETE',
-            'HEAD',
-            'OPTIONS',
-            'PATCH'
-        );
-
-        if (!in_array($requestMethod, $validRequestMethods)) {
-            throw new InvalidArgumentException('invalid or unsupported request method');
-        }
         $this->requestMethod = $requestMethod;
     }
 

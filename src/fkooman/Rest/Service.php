@@ -93,7 +93,7 @@ class Service
 
     public function get($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("GET", $requestPattern, $callback, $matchOptions);
+        $this->match(array('GET', 'HEAD'), $requestPattern, $callback, $matchOptions);
     }
 
     public function put($requestPattern, $callback, array $matchOptions = array())
@@ -114,11 +114,6 @@ class Service
     public function options($requestPattern, $callback, array $matchOptions = array())
     {
         $this->match("OPTIONS", $requestPattern, $callback, $matchOptions);
-    }
-
-    public function head($requestPattern, $callback, array $matchOptions = array())
-    {
-        $this->match("HEAD", $requestPattern, $callback, $matchOptions);
     }
 
     /**

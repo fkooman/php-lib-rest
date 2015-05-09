@@ -1,5 +1,9 @@
 # Release History
 
+## 0.8.4
+- a HEAD request will return the same as a GET response except the 
+  body (issue #9)
+
 ## 0.8.3
 - allow per route disabling of referrer check, for REST calls
 
