@@ -21,6 +21,7 @@ namespace fkooman\Rest;
 use ReflectionFunction;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
+use fkooman\Http\RedirectResponse;
 use fkooman\Http\IncomingRequest;
 use fkooman\Http\Exception\InternalServerErrorException;
 use fkooman\Http\Exception\HttpException;
@@ -185,21 +186,25 @@ class Service
         $paramsAvailableForCallback[get_class($request)] = $request;
         $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
 
-        // defaultRoute
-        if (null === $request->getPathInfo() || '/' === $request->getPathInfo()) {
-            if (null !== $this->defaultRoute) {
-                $requestUri = $request->getRequestUri()->getUri();
-                // if the requestUri already ends in a '/' we should strip it
-                // as to avoid getting '//'
-                if (strlen($requestUri)-1 === strrpos($requestUri, '/')) {
-                    $requestUri = substr($requestUri, 0, -1);
-                }
-                $response = new Response(302);
-                $response->setHeader("Location", sprintf('%s%s', $requestUri, $this->defaultRoute));
+        // handle the default route
+        $pathInfo = $request->getPathInfo();
+        if (null === $pathInfo) {
+            // redirect to '/'
+            return new RedirectResponse(
+                $request->getAbsRoot(),
+                302
+            );
+        }
 
-                return $response;
+        // handle root
+        if ('/' === $pathInfo) {
+            if (null !== $this->defaultRoute && '/' !== $this->defaultRoute) {
+                // redirect to default route
+                return new RedirectResponse(
+                    $request->getAbsRoot() . substr($this->defaultRoute, 1),
+                    302
+                );
             }
-            $request->setPathInfo('/');
         }
 
         foreach ($this->match as $m) {

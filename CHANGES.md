@@ -1,5 +1,8 @@
 # Release History
 
+## 0.8.6
+- redo default route handling
+
 ## 0.8.5
 - also log the URL in case it was missing
 - also log the request method that was not supported

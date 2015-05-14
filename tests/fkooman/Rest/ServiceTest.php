@@ -755,22 +755,28 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("hello, delete!", $response->getContent());
     }
 
-    public function testDefaultRouteOnRoot()
+    public function testDefaultRouteNoPathInfo()
     {
         $service = new Service();
-        $service->setDefaultRoute('/welcome');
+        $service->setDefaultRoute('/');
         $service->get(
-            '/welcome',
+            '/',
             function () {
-                return 'welcome';
+                return 'index';
             }
         );
+        $request = new Request("http://www.example.org/index.php", "GET");
+        $request->setRoot('/index.php/');
+        $response = $service->run($request);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals("http://www.example.org/index.php/", $response->getHeader('Location'));
+
         $request = new Request("http://www.example.org/index.php/", "GET");
+        $request->setRoot('/index.php/');
         $request->setPathInfo('/');
         $response = $service->run($request);
-
-        $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals("http://www.example.org/index.php/welcome", $response->getHeader('Location'));
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('index', $response->getContent());
     }
 
     public function testDefaultRoute()
@@ -784,31 +790,40 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $request = new Request("http://www.example.org/index.php", "GET");
+        $request->setRoot('/index.php/');
+        $response = $service->run($request);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals("http://www.example.org/index.php/", $response->getHeader('Location'));
+
+        $request = new Request("http://www.example.org/index.php", "GET");
+        $request->setRoot('/index.php/');
+        $request->setPathInfo('/');
         $response = $service->run($request);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals("http://www.example.org/index.php/manage/", $response->getHeader('Location'));
+
         $request = new Request("http://www.example.org/index.php", "GET");
+        $request->setRoot('/index.php/');
         $request->setPathInfo('/manage/');
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('default_route_works', $response->getContent());
     }
 
-    /**
-     * @expectedException fkooman\Http\Exception\NotFoundException
-     * @expectedExceptionMessage url not found
-     */
     public function testNoPathInfo()
     {
         $service = new Service();
         $service->get(
             '/foo',
             function () {
-                return "foo";
+                return 'foo';
             }
         );
         $request = new Request("http://www.example.org/index.php", "GET");
-        $service->run($request);
+        $request->setRoot('/index.php/');
+        $response = $service->run($request);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('http://www.example.org/index.php/', $response->getHeader('Location'));
     }
 
     public function testUrlEncodedIndex()
