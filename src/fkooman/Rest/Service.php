@@ -54,6 +54,9 @@ class Service
     /** @var boolean */
     private $referrerCheck;
 
+    /** @var boolean */
+    private $pathInfoRedirect;   // do not redirect to '/' or default route if set to false
+    
     public function __construct()
     {
         $this->match = array();
@@ -62,6 +65,7 @@ class Service
         $this->defaultDisablePlugins = array();
         $this->defaultRoute = null;
         $this->referrerCheck = false;
+        $this->pathInfoRedirect = true;
     }
 
     public function setReferrerCheck($referrerCheck)
@@ -70,6 +74,11 @@ class Service
             throw new InvalidArgumentException('parameter must be boolean');
         }
         $this->referrerCheck = $referrerCheck;
+    }
+
+    public function setPathInfoRedirect($pathInfoRedirect)
+    {
+        $this->pathInfoRedirect = (bool) $pathInfoRedirect;
     }
 
     public function registerOnMatchPlugin(ServicePluginInterface $servicePlugin, array $pluginOptions = array())
@@ -187,23 +196,25 @@ class Service
         $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
 
         // handle the default route
-        $pathInfo = $request->getPathInfo();
-        if (null === $pathInfo) {
-            // redirect to '/'
-            return new RedirectResponse(
-                $request->getAbsRoot(),
-                302
-            );
-        }
-
-        // handle root
-        if ('/' === $pathInfo) {
-            if (null !== $this->defaultRoute && '/' !== $this->defaultRoute) {
-                // redirect to default route
+        if ($this->pathInfoRedirect) {
+            $pathInfo = $request->getPathInfo();
+            if (null === $pathInfo) {
+                // redirect to '/'
                 return new RedirectResponse(
-                    $request->getAbsRoot() . substr($this->defaultRoute, 1),
+                    $request->getAbsRoot(),
                     302
                 );
+            }
+
+            // handle root
+            if ('/' === $pathInfo) {
+                if (null !== $this->defaultRoute && '/' !== $this->defaultRoute) {
+                    // redirect to default route
+                    return new RedirectResponse(
+                        $request->getAbsRoot() . substr($this->defaultRoute, 1),
+                        302
+                    );
+                }
             }
         }
 

@@ -1,5 +1,10 @@
 # Release History
 
+## 0.8.7
+- make it possible to disable redirects when no pathinfo is provided,
+  i.e. if you run an app that just uses the script name but does not 
+  do any REST stuff
+
 ## 0.8.6
 - redo default route handling
 
