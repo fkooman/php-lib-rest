@@ -197,17 +197,19 @@ class Service
 
         // handle the default route
         if ($this->pathInfoRedirect) {
-            $pathInfo = $request->getPathInfo();
-            if (null === $pathInfo) {
-                // redirect to '/'
-                return new RedirectResponse(
-                    $request->getAbsRoot(),
-                    302
-                );
+            if (null === $request->getPathInfo()) {
+                // redirect to '/', iff request_uri does not end in /
+                if ('/' !== substr($request->getRequestUri()->getPath(), -1)) {
+                    return new RedirectResponse(
+                        $request->getAbsRoot(),
+                        302
+                    );
+                }
+                $request->setPathInfo('/');
             }
 
             // handle root
-            if ('/' === $pathInfo) {
+            if ('/' === $request->getPathInfo()) {
                 if (null !== $this->defaultRoute && '/' !== $this->defaultRoute) {
                     // redirect to default route
                     return new RedirectResponse(

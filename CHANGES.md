@@ -1,5 +1,8 @@
 # Release History
 
+## 0.8.8
+- more pathinfo fixes
+
 ## 0.8.7
 - make it possible to disable redirects when no pathinfo is provided,
   i.e. if you run an app that just uses the script name but does not 
