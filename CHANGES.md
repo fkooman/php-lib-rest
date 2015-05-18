@@ -1,5 +1,8 @@
 # Release History
 
+## 0.8.9
+- add new `Url` class, deprecates `Uri` in the near future
+
 ## 0.8.8
 - more pathinfo fixes
 
