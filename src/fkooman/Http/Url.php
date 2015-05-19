@@ -144,7 +144,7 @@ class Url
         return dirname($this->srv['SCRIPT_NAME']);
     }
 
-    public function getRootUri()
+    public function getRootUrl()
     {
         $s = $this->getScheme();
         $h = $this->getHost();
