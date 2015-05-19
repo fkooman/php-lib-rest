@@ -125,8 +125,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $r = new Request($srv);
         $this->assertEquals('http://www.example.org/index.php', $r->getUrl()->getRootUrl());
         $this->assertEquals('GET', $r->getMethod());
-        $r->setMethod('POST');        
+        $r->setMethod('POST');
         $this->assertEquals('POST', $r->getMethod());
     }
-
 }

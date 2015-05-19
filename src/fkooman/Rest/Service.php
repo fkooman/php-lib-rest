@@ -269,58 +269,12 @@ class Service
             return false;
         }
 
-        // if no pattern is defined, all paths are valid
-        if (null === $requestPattern || "*" === $requestPattern) {
-            return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
-        }
-        // both the pattern and request path should start with a "/"
-        if (0 !== strpos($requestPattern, "/")) {
+        $matcherParams = PatternMatcher::isMatch($request->getUrl()->getPathInfo(), $requestPattern);
+        if (false === $matcherParams) {
             return false;
         }
+        $paramsAvailableForCallback = array_merge($paramsAvailableForCallback, $matcherParams);
 
-        // handle optional parameters
-        $requestPattern = str_replace(')', ')?', $requestPattern);
-
-        // check for variables in the requestPattern
-        $pma = preg_match_all('#:([\w]+)\+?#', $requestPattern, $matches);
-        if (false === $pma) {
-            throw new LogicException("regex for variable search failed");
-        }
-        if (0 === $pma) {
-            // no variables in the pattern, pattern and request must be identical
-            if ($request->getUrl()->getPathInfo() === $requestPattern) {
-                return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
-            }
-
-            return false;
-        }
-        // replace all the variables with a regex so the actual value in the request
-        // can be captured
-        foreach ($matches[0] as $m) {
-            // determine pattern based on whether variable is wildcard or not
-            $mm = str_replace(array(":", "+"), "", $m);
-            $pattern = (strpos($m, "+") === strlen($m) -1) ? '(?P<'.$mm.'>(.+?[^/]))' : '(?P<'.$mm.'>([^/]+))';
-            $requestPattern = str_replace($m, $pattern, $requestPattern);
-        }
-
-        $parameters = array();
-        $pm = preg_match("#^".$requestPattern."$#", $request->getUrl()->getPathInfo(), $parameters);
-        if (false === $pm) {
-            throw new LogicException("regex for path matching failed");
-        }
-        if (0 === $pm) {
-            // request path does not match pattern
-            return false;
-        }
-
-        foreach ($parameters as $k => $v) {
-            // find the name of the parameter in the callback and set it to
-            // the value
-            if (is_string($k)) {
-                $paramsAvailableForCallback[$k] = $v;
-            }
-        }
-        // request path matches pattern!
         return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
     }
 

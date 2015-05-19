@@ -206,36 +206,6 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testMatchRest()
-    {
-        $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz", "GET");
-        $service = new Service();
-        $service->match(
-            "GET",
-            "/:one/:two/:three",
-            function ($one, $two, $three) {
-                return json_encode(array($one, $two, $three));
-            }
-        );
-        $response = $service->run($request);
-        $this->assertEquals('["foo","bar","baz"]', $response->getContent());
-    }
-
-    public function testMatchRestNoReplacement()
-    {
-        $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz", "POST");
-        $service = new Service();
-        $service->match(
-            "POST",
-            "/foo/bar/baz",
-            function () {
-                return "match";
-            }
-        );
-        $response = $service->run($request);
-        $this->assertEquals("match", $response->getContent());
-    }
-
     /**
      * @expectedException fkooman\Http\Exception\MethodNotAllowedException
      * @expectedExceptionMessage unsupported method
@@ -247,38 +217,6 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service->match(
             "GET",
             "/:one/:two/:three",
-            null
-        );
-        $service->run($request);
-    }
-
-    /**
-     * @expectedException fkooman\Http\Exception\NotFoundException
-     * @expectedExceptionMessage url not found
-     */
-    public function testMatchRestNoMatch()
-    {
-        $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz/foobar", "GET");
-        $service = new Service();
-        $service->match(
-            "GET",
-            "/:one/:two/:three",
-            null
-        );
-        $service->run($request);
-    }
-
-    /**
-     * @expectedException fkooman\Http\Exception\NotFoundException
-     * @expectedExceptionMessage url not found
-     */
-    public function testMatchRestMatchWildcardToShort()
-    {
-        $request = $this->requestFromUrl("http://www.example.org/foo/bar/", "GET");
-        $service = new Service();
-        $service->match(
-            "GET",
-            "/:one/:two/:three+",
             null
         );
         $service->run($request);
