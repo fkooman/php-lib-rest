@@ -173,12 +173,12 @@ class Service
         
         // support PUT and DELETE method override when _METHOD is set in a form
         // POST
-        if ("POST" === $request->getRequestMethod()) {
+        if ("POST" === $request->getMethod()) {
             if ("PUT" === $request->getPostParameter("_METHOD")) {
-                $request->setRequestMethod("PUT");
+                $request->setMethod("PUT");
             }
             if ("DELETE" === $request->getPostParameter("_METHOD")) {
-                $request->setRequestMethod("DELETE");
+                $request->setMethod("DELETE");
             }
         }
 
@@ -186,22 +186,22 @@ class Service
         // add it to the end of the path info. This is to support e.g. URLs as
         // part of the path info. PHP or Apache decodes the PATH INFO, it is not
         // possible to disable this, so we lose the URL...
-        if (null !== $request->getQueryParameter('_index')) {
-            $request->setPathInfo($request->getPathInfo().urlencode($request->getQueryParameter('_index')));
+        if (null !== $request->getUrl()->getQueryParameter('_index')) {
+            $request->setPathInfo($request->getUrl()->getPathInfo().urlencode($request->getQueryParameter('_index')));
         }
 
         $paramsAvailableForCallback = array();
         // make Request always available
         $paramsAvailableForCallback[get_class($request)] = $request;
-        $paramsAvailableForCallback['matchAll'] = $request->getPathInfo();
+        $paramsAvailableForCallback['matchAll'] = $request->getUrl()->getPathInfo();
 
         // handle the default route
         if ($this->pathInfoRedirect) {
-            if (null === $request->getPathInfo()) {
+            if (null === $request->getUrl()->getPathInfo()) {
                 // redirect to '/', iff request_uri does not end in /
                 if ('/' !== substr($request->getRequestUri()->getPath(), -1)) {
                     return new RedirectResponse(
-                        $request->getAbsRoot(),
+                        $request->getUrl()->getRootUrl(),
                         302
                     );
                 }
@@ -209,11 +209,11 @@ class Service
             }
 
             // handle root
-            if ('/' === $request->getPathInfo()) {
+            if ('/' === $request->getUrl()->getPathInfo()) {
                 if (null !== $this->defaultRoute && '/' !== $this->defaultRoute) {
                     // redirect to default route
                     return new RedirectResponse(
-                        $request->getAbsRoot() . substr($this->defaultRoute, 1),
+                        $request->getUrl()->getRootUrl() . substr($this->defaultRoute, 1),
                         302
                     );
                 }
@@ -246,8 +246,8 @@ class Service
         }
 
         // handle non matching patterns
-        if (in_array($request->getRequestMethod(), $this->supportedMethods)) {
-            throw new NotFoundException('url not found', $request->getPathInfo());
+        if (in_array($request->getMethod(), $this->supportedMethods)) {
+            throw new NotFoundException('url not found', $request->getUrl()->getPathInfo());
         }
 
         if (0 !== count($this->supportedMethods)) {
@@ -257,7 +257,7 @@ class Service
         }
 
         throw new MethodNotAllowedException(
-            sprintf('unsupported method "%s"', $request->getRequestMethod()),
+            sprintf('unsupported method "%s"', $request->getMethod()),
             $errorDescription,
             $this->supportedMethods
         );
@@ -265,7 +265,7 @@ class Service
 
     private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback, array $matchOptions)
     {
-        if (!in_array($request->getRequestMethod(), $requestMethod)) {
+        if (!in_array($request->getMethod(), $requestMethod)) {
             return false;
         }
 
@@ -288,7 +288,7 @@ class Service
         }
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
-            if ($request->getPathInfo() === $requestPattern) {
+            if ($request->getUrl()->getPathInfo() === $requestPattern) {
                 return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
             }
 
@@ -304,7 +304,7 @@ class Service
         }
 
         $parameters = array();
-        $pm = preg_match("#^".$requestPattern."$#", $request->getPathInfo(), $parameters);
+        $pm = preg_match("#^".$requestPattern."$#", $request->getUrl()->getPathInfo(), $parameters);
         if (false === $pm) {
             throw new LogicException("regex for path matching failed");
         }
@@ -328,9 +328,9 @@ class Service
     {
         if (!array_key_exists('disableReferrerCheck', $matchOptions) || !$matchOptions['disableReferrerCheck']) {
             if ($this->referrerCheck) {
-                if (!in_array($request->getRequestMethod(), array('GET', 'HEAD', 'OPTIONS'))) {
+                if (!in_array($request->getMethod(), array('GET', 'HEAD', 'OPTIONS'))) {
                     // only for request methods with side effects with perform CSRF protection
-                    if (0 !== strpos($request->getHeader('HTTP_REFERER'), $request->getAbsRoot())) {
+                    if (0 !== strpos($request->getHeader('HTTP_REFERER'), $request->getUrl()->getRootUrl())) {
                         throw new BadRequestException('CSRF protection triggered');
                     }
                 }

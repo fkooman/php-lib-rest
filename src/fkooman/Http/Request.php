@@ -18,223 +18,106 @@
 
 namespace fkooman\Http;
 
+use RuntimeException;
+
 class Request
 {
-    /** @var Uri */
-    protected $requestUri;
-
-    /** @var string */
-    protected $requestMethod;
+    /** @var array */
+    private $srv;
 
     /** @var array */
-    protected $postParameters;
+    private $post;
 
-    /** @var array */
-    protected $requestHeaders;
+    /** @var fkooman\Http\Url */
+    private $url;
 
-    /** @var string */
-    protected $requestContent;
-
-    /** @var string */
-    protected $requestRoot;
-
-    /** @var string */
-    protected $requestPathInfo;
-
-    /** @var string */
-    protected $requestBasicAuthUser;
-
-    /** @var string */
-    protected $requestBasicAuthPass;
-
-    public function __construct($requestUri, $requestMethod = 'GET')
+    public function __construct(array $srv = null, array $post = null)
     {
-        $this->setRequestUri(
-            new Uri(
-                $requestUri
-            )
-        );
-        $this->setRequestMethod($requestMethod);
-        $this->requestHeaders = array();
-        $this->requestContent = null;
-        $this->requestRoot = null;
-        $this->requestPathInfo = null;
-        $this->requestBasicAuthUser = null;
-        $this->requestBasicAuthPass = null;
-    }
-
-    public static function fromIncomingRequest(IncomingRequest $i)
-    {
-        $request = new static($i->getAbsoluteUri(), $i->getRequestMethod());
-        $request->setHeaders($i->getHeaders());
-        if ('POST' === $i->getRequestMethod()) {
-            $request->setPostParameters($i->getPost());
+        if (null === $srv) {
+            $srv = $_SERVER;
         }
-        $request->setContent($i->getBody());
-        $request->setRoot($i->getRoot());
-        $request->setPathInfo($i->getPathInfo());
-        $request->setBasicAuthUser($i->getPhpAuthUser());
-        $request->setBasicAuthPass($i->getPhpAuthPw());
-
-        return $request;
-    }
-
-    public function setRequestUri(Uri $requestUri)
-    {
-        $this->requestUri = $requestUri;
-    }
-
-    public function getRequestUri()
-    {
-        return $this->requestUri;
-    }
-
-    public function setRequestMethod($requestMethod)
-    {
-        $this->requestMethod = $requestMethod;
-    }
-
-    public function getRequestMethod()
-    {
-        return $this->requestMethod;
-    }
-
-    public function getQueryParameters()
-    {
-        if (null === $this->requestUri->getQuery()) {
-            return array();
+        if (null === $post) {
+            $post = $_POST;
         }
-        $queryParameters = array();
-        parse_str($this->requestUri->getQuery(), $queryParameters);
 
-        return $queryParameters;
-    }
-
-    public function getQueryParameter($key)
-    {
-        $queryParameters = $this->getQueryParameters();
-        if (array_key_exists($key, $queryParameters)) {
-            if (is_string($queryParameters[$key]) && 0 !== strlen($queryParameters[$key])) {
-                return $queryParameters[$key];
+        $requiredKeys = array('REQUEST_METHOD');
+        foreach ($requiredKeys as $key) {
+            if (!array_key_exists($key, $srv)) {
+                throw new RuntimeException(sprintf('missing key "%s"', $key));
             }
         }
-
-        return null;
+        $this->srv = $srv;
+        $this->post = $post;
+        $this->url = new Url($srv);
     }
-
-    public function setPostParameters(array $postParameters)
+    
+    public function getUrl()
     {
-        $this->postParameters = $postParameters;
+        return $this->url;
     }
 
     public function getPostParameter($key)
     {
-        $postParameters = $this->getPostParameters();
-        if (null !== $postParameters) {
-            if (array_key_exists($key, $postParameters)) {
-                if (is_string($postParameters[$key]) && 0 !== strlen($postParameters[$key])) {
-                    return $postParameters[$key];
-                }
+        if (array_key_exists($key, $this->post)) {
+            return $this->post[$key];
+        }
+        return null;
+    }
+
+    public function setMethod($method)
+    {
+        $this->srv['REQUEST_METHOD'] = $method;
+    }
+
+    public function getMethod()
+    {
+        return $this->srv['REQUEST_METHOD'] ;
+    }
+
+    public function getHeader($k)
+    {
+        $headers = $this->getHeaders();
+        if (0 === strpos($k, 'HTTP_') || 0 === strpos($k, 'HTTP-')) {
+            $k = substr($k, 5);
+        }
+        $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_','-'), ' ', $k))));
+        if (array_key_exists($k, $headers)) {
+            return $headers[$k];
+        }
+        return null;
+    }
+
+    private function getHeaders()
+    {
+        // works only reliable on PHP >= 5.4
+        if (function_exists('getallheaders')) {
+            return getallheaders();
+        }
+
+        // *** FALLBACK for PHP <= 5.4 on FastCGI ***
+        // Source: https://php.net/manual/en/function.getallheaders.php#104307
+        // Get all headers prefixed with HTTP{_-} and also Content-Type and
+        // Content-Length from $_SERVER if available
+
+        $headers = array();
+        foreach ($this->srv as $k => $v) {
+            if (0 === strpos($k, 'HTTP_') || 0 === strpos($k, 'HTTP-')) {
+                $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_','-'), ' ', substr($k, 5)))));
+                $headers[$k] = $v;
+                continue;
+            }
+            if ('CONTENT_TYPE' === $k) {
+                $headers['Content-Type'] = $v;
+            }
+            if ('CONTENT_LENGTH' === $k) {
+                $headers['Content-Length'] = $v;
             }
         }
-
-        return null;
+        return $headers;
     }
 
-    public function getPostParameters()
+    public function getBody()
     {
-        return $this->postParameters;
-    }
-
-    public function setHeaders(array $requestHeaders)
-    {
-        foreach ($requestHeaders as $key => $value) {
-            $key = self::normalizeHeaderKey($key);
-            $this->requestHeaders[$key] = $value;
-        }
-    }
-
-    public function getHeader($key)
-    {
-        $key = self::normalizeHeaderKey($key);
-
-        if (array_key_exists($key, $this->requestHeaders)) {
-            return $this->requestHeaders[$key];
-        }
-
-        return null;
-    }
-
-    public function getHeaders()
-    {
-        return $this->requestHeaders;
-    }
-
-    public function setContent($requestContent)
-    {
-        $this->requestContent = $requestContent;
-    }
-
-    public function getContent()
-    {
-        return $this->requestContent;
-    }
-
-    public function getContentType()
-    {
-        return $this->getHeader('Content-Type');
-    }
-
-    public function setRoot($root)
-    {
-        $this->requestRoot = $root;
-    }
-
-    public function getRoot()
-    {
-        return $this->requestRoot;
-    }
-
-    public function getAbsRoot()
-    {
-        return $this->getRequestUri()->getBaseUri() . $this->getRoot();
-    }
-
-    public function setPathInfo($pathInfo)
-    {
-        $this->requestPathInfo = $pathInfo;
-    }
-
-    public function getPathInfo()
-    {
-        return $this->requestPathInfo;
-    }
-
-    public function setBasicAuthUser($basicAuthUser)
-    {
-        $this->requestBasicAuthUser = $basicAuthUser;
-    }
-
-    public function setBasicAuthPass($basicAuthPass)
-    {
-        $this->requestBasicAuthPass = $basicAuthPass;
-    }
-
-    public function getBasicAuthUser()
-    {
-        return $this->requestBasicAuthUser;
-    }
-
-    public function getBasicAuthPass()
-    {
-        return $this->requestBasicAuthPass;
-    }
-
-    private static function normalizeHeaderKey($key)
-    {
-        if (0 === strpos($key, 'HTTP_') || 0 === strpos($key, 'HTTP-')) {
-            $key = substr($key, 5);
-        }
-        return strtoupper(str_replace('-', '_', $key));
+        return @file_get_contents('php://input');
     }
 }
