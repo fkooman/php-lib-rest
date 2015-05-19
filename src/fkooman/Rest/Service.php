@@ -22,7 +22,6 @@ use ReflectionFunction;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
 use fkooman\Http\RedirectResponse;
-use fkooman\Http\IncomingRequest;
 use fkooman\Http\Exception\InternalServerErrorException;
 use fkooman\Http\Exception\HttpException;
 use fkooman\Http\Exception\MethodNotAllowedException;
@@ -166,9 +165,7 @@ class Service
     public function run(Request $request = null)
     {
         if (null === $request) {
-            $request = Request::fromIncomingRequest(
-                new IncomingRequest()
-            );
+            $request = new Request($_SERVER);
         }
         
         // support PUT and DELETE method override when _METHOD is set in a form
@@ -374,7 +371,7 @@ class Service
 
     public static function handleException(Exception $e, $onlyLogServerErrors = true)
     {
-        $request = Request::fromIncomingRequest(new IncomingRequest());
+        $request = new Request($_SERVER);
 
         if (!($e instanceof HttpException)) {
             $e = new InternalServerErrorException($e->getMessage());
