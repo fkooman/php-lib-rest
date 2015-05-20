@@ -182,7 +182,6 @@ class Service
         $paramsAvailableForCallback = array();
         // make Request always available
         $paramsAvailableForCallback[get_class($request)] = $request;
-        $paramsAvailableForCallback['matchAll'] = $request->getUrl()->getPathInfo();
 
         // handle the default route
         if ($this->pathInfoRedirect) {

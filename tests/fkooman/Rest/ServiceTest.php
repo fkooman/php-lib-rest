@@ -276,8 +276,8 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service = new Service();
         $service->get(
             '/:userId/public/:moduleName/:path+/',
-            function ($userId, $moduleName, $path, $matchAll) {
-                return $matchAll;
+            function (Request $request, $userId, $moduleName, $path) {
+                return $request->getUrl()->getPathInfo();
             }
         );
         $response = $service->run($request);
@@ -536,8 +536,8 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service->match(
             "GET",
             "*",
-            function ($matchAll) {
-                return $matchAll;
+            function (Request $request) {
+                return $request->getUrl()->getPathInfo();
             }
         );
         $response = $service->run($request);
@@ -551,8 +551,8 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service = new Service();
         $service->delete(
             "*",
-            function ($matchAll) {
-                return $matchAll;
+            function (Request $request) {
+                return $request->getUrl()->getPathInfo();
             }
         );
         $response = $service->run($request);
@@ -570,8 +570,8 @@ class ServiceTest extends PHPUnit_Framework_TestCase
                 "HEAD",
             ),
             "*",
-            function ($matchAll) use ($request) {
-                return "HEAD" === $request->getMethod() ? "" : $matchAll;
+            function (Request $request) {
+                return "HEAD" === $request->getMethod() ? "" : $request->getUrl()->getPathInfo();
             }
         );
         $response = $service->run($request);
@@ -589,8 +589,8 @@ class ServiceTest extends PHPUnit_Framework_TestCase
                 "HEAD",
             ),
             "*",
-            function ($matchAll) use ($request) {
-                return "HEAD" === $request->getMethod() ? "" : $matchAll;
+            function (Request $request) {
+                return "HEAD" === $request->getMethod() ? "" : $request->getUrl()->getPathInfo();
             }
         );
         $response = $service->run($request);
@@ -618,7 +618,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service = new Service();
         $service->get(
             "*",
-            function ($matchAll) {
+            function () {
                 return "foobar";
             }
         );
@@ -648,8 +648,8 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $service = new Service();
         $service->get(
             "*",
-            function ($matchAll, Request $request) {
-                return $matchAll.$request->getMethod();
+            function (Request $request) {
+                return $request->getUrl()->getPathInfo() . $request->getMethod();
             }
         );
         $request = $this->requestFromUrl("http://example.org/xxx/yyy/baz", "GET");
