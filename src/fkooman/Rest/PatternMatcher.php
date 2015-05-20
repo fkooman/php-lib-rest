@@ -28,13 +28,19 @@ class PatternMatcher
      * @param pathInfo string the PATH_INFO from the request
      * @param requestPattern the pattern to match against
      *
-     * @returns array containing the matched parameters
+     * E: isMatch('/foo/bar',     '/foo/:id')     ==> array('id' => 'bar')
+     *    isMatch('/foo',         '/bar')         ==> false
+     *    isMatch('/foo/bar/baz', '/foo/bar/baz') ==> array()
+     *    isMatch('/foo/bar/',    '*'             ==> array()
+     *
+     * @returns false|array array containing the values matching the variables
+     *                      if there are any variables, empty array for an
+     *                      exact match, false if there is no match
      */
     public static function isMatch($pathInfo, $requestPattern)
     {
         // if no pattern is defined, all paths are valid
         if (null === $requestPattern || '*' === $requestPattern) {
-            // FIXME return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
             return array();
         }
         // both the pattern and request path should start with a '/'
@@ -53,7 +59,6 @@ class PatternMatcher
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
             if ($pathInfo === $requestPattern) {
-                // FIXME: return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
                 return array();
             }
 
