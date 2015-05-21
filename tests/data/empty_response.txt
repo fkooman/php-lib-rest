@@ -1,9 +1,0 @@
-HTTP/1.1 200 OK
-Date: Sun, 28 Apr 2013 13:04:11 GMT
-Server: Apache/2.2.22 (Unix) DAV/2 PHP/5.3.15 with Suhosin-Patch mod_ssl/2.2.22 OpenSSL/0.9.8r
-Last-Modified: Sun, 28 Apr 2013 13:03:43 GMT
-ETag: "1a2fec-0-4db6b65d0a9c0"
-Accept-Ranges: bytes
-Content-Length: 0
-Content-Type: text/html
-

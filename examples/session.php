@@ -38,7 +38,7 @@ try {
             return 'count: ' . $newCount;
         }
     );
-    $service->run()->sendResponse();
+    $service->run()->send();
 } catch (Exception $e) {
-    Service::handleException($e)->sendResponse();
+    Service::handleException($e)->send();
 }

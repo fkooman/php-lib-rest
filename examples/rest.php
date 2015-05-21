@@ -29,7 +29,7 @@ try {
         '/hello/:str',
         function ($str) {
             $response = new JsonResponse();
-            $response->setContent(
+            $response->setBody(
                 array(
                     'type' => 'GET',
                     'response' => sprintf('hello %s', $str),
@@ -47,7 +47,7 @@ try {
                 throw new BadRequestException('you cannot say "foo!"');
             }
             $response = new JsonResponse();
-            $response->setContent(
+            $response->setBody(
                 array(
                     'type' => 'POST',
                     'response' => sprintf('hello %s', $str),
@@ -58,7 +58,7 @@ try {
         }
     );
 
-    $service->run()->sendResponse();
+    $service->run()->send();
 } catch (Exception $e) {
-    Service::handleException($e)->sendResponse();
+    Service::handleException($e)->send();
 }

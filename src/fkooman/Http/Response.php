@@ -158,7 +158,7 @@ class Response
         return $this->headers;
     }
 
-    public function sendResponse()
+    public function send()
     {
         header(sprintf('HTTP/1.1 %s %s', $this->getStatusCode(), $this->getStatusReason()));
         foreach ($this->getHeaders() as $k => $v) {

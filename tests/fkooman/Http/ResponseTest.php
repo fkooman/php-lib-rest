@@ -24,10 +24,93 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 {
     public function testResponse()
     {
-        $h = new Response();
-        $this->assertEquals(200, $h->getStatusCode());
-        $this->assertEquals('text/html', $h->getHeader('Content-Type'));
-        $this->assertEquals('', $h->getBody());
-        $this->assertNull($h->getHeader('Foo'));
+        $r = new Response();
+        $this->assertEquals(200, $r->getStatusCode());
+        $this->assertEquals('text/html', $r->getHeader('Content-Type'));
+        $this->assertEquals('', $r->getBody());
+        $this->assertNull($r->getHeader('Foo'));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage invalid status code
+     */
+    public function testInvalidCode()
+    {
+        $h = new Response(999);
+    }
+
+    public function testSetBody()
+    {
+        $r = new Response();
+        $r->setBody('<em>Foo</em>');
+        $this->assertEquals('<em>Foo</em>', $r->getBody());
+    }
+
+    public function testGetStatusCodeAndReason()
+    {
+        $r = new Response(404);
+        $this->assertEquals(404, $r->getStatusCode());
+        $this->assertEquals('Not Found', $r->getStatusReason());
+    }
+
+    public function testSetGetHeader()
+    {
+        $r = new Response();
+        $r->setHeader('Foo', 'Bar');
+        $this->assertEquals('Bar', $r->getHeader('Foo'));
+    }
+
+    public function testGetHeaders()
+    {
+        $r = new Response();
+        $r->setHeader('Foo', 'Bar');
+        $this->assertEquals(
+            array(
+                'Foo' => 'Bar',
+                'Content-Type' => 'text/html'
+            ),
+            $r->getHeaders()
+        );
+    }
+
+    public function testSetHeaders()
+    {
+        $r = new Response();
+        $r->setHeaders(
+            array(
+                'Foo' => 'Bar',
+                'Bar' => 'Baz'
+            )
+        );
+        $this->assertEquals(
+            array(
+                'Foo' => 'Bar',
+                'Bar' => 'Baz',
+                'Content-Type' => 'text/html'
+            ),
+            $r->getHeaders()
+        );
+    }
+
+    public function testUpdateExistingHeader()
+    {
+        $r = new Response();
+        $r->setHeader('CONTENT-TYPE', 'application/json');
+        $this->assertEquals(
+            array(
+                'Content-Type' => 'application/json'
+            ),
+            $r->getHeaders()
+        );
+    }
+
+    public function testSendResponse()
+    {
+        $r = new Response();
+        $r->setBody('body');
+        $r->send();
+        $this->expectOutputString('body');
+        $this->assertEquals(array('Content-type: text/html;charset=UTF-8'), xdebug_get_headers());
     }
 }
