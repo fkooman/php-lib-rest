@@ -107,22 +107,22 @@ class Service
 
     public function put($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("PUT", $requestPattern, $callback, $matchOptions);
+        $this->match(array("PUT"), $requestPattern, $callback, $matchOptions);
     }
 
     public function post($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("POST", $requestPattern, $callback, $matchOptions);
+        $this->match(array("POST"), $requestPattern, $callback, $matchOptions);
     }
 
     public function delete($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("DELETE", $requestPattern, $callback, $matchOptions);
+        $this->match(array("DELETE"), $requestPattern, $callback, $matchOptions);
     }
 
     public function options($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match("OPTIONS", $requestPattern, $callback, $matchOptions);
+        $this->match(array("OPTIONS"), $requestPattern, $callback, $matchOptions);
     }
 
     /**
@@ -135,18 +135,10 @@ class Service
      * @param array    $matchOptions   the options for this match
      *
      */
-    public function match($requestMethod, $requestPattern, $callback, array $matchOptions = array())
+    public function match(array $requestMethod, $requestPattern, $callback, array $matchOptions = array())
     {
-        if (!is_array($requestMethod)) {
-            $requestMethod = array($requestMethod);
-        }
+        $this->match[] = new Match($requestMethod, $requestPattern, $callback, $matchOptions);
 
-        $this->match[] = array(
-            "requestMethod" => $requestMethod,
-            "requestPattern" => $requestPattern,
-            "callback" => $callback,
-            "matchOptions" => $matchOptions,
-        );
         foreach ($requestMethod as $r) {
             if (!in_array($r, $this->supportedMethods)) {
                 $this->supportedMethods[] = $r;
@@ -179,10 +171,6 @@ class Service
             }
         }
 
-        $paramsAvailableForCallback = array();
-        // make Request always available
-        $paramsAvailableForCallback[get_class($request)] = $request;
-
         // handle the default route
         if ($this->pathInfoRedirect) {
             if (null === $request->getUrl()->getPathInfo()) {
@@ -211,11 +199,7 @@ class Service
         foreach ($this->match as $m) {
             $response = $this->matchRest(
                 $request,
-                $m['requestMethod'],
-                $m['requestPattern'],
-                $m['callback'],
-                $paramsAvailableForCallback,
-                $m['matchOptions']
+                $m
             );
 
             // false indicates not a match
@@ -251,24 +235,22 @@ class Service
         );
     }
 
-    private function matchRest(Request $request, array $requestMethod, $requestPattern, $callback, array $paramsAvailableForCallback, array $matchOptions)
+    private function matchRest(Request $request, Match $match)
     {
-        if (!in_array($request->getMethod(), $requestMethod)) {
+        if (false === $matcherParameters = $match->isMatch($request->getMethod(), $request->getUrl()->getPathInfo())) {
             return false;
         }
 
-        $matcherParams = PatternMatcher::isMatch($request->getUrl()->getPathInfo(), $requestPattern);
-        if (false === $matcherParams) {
-            return false;
-        }
-        $paramsAvailableForCallback = array_merge($paramsAvailableForCallback, $matcherParams);
+        // add fkooman\Http\Request
+        $matcherParameters[get_class($request)] = $request;
 
-        return $this->executeCallback($request, $callback, $paramsAvailableForCallback, $matchOptions);
+        return $this->executeCallback($request, $match, $matcherParameters);
     }
 
-    private function executeCallback(Request $request, $callback, array $paramsAvailableForCallback, array $matchOptions)
+    private function executeCallback(Request $request, Match $m, array $p)
     {
-        if (!array_key_exists('disableReferrerCheck', $matchOptions) || !$matchOptions['disableReferrerCheck']) {
+        $o = $m->getOptions();
+        if (!$m->getDisableReferrerCheck()) {
             if ($this->referrerCheck) {
                 if (!in_array($request->getMethod(), array('GET', 'HEAD', 'OPTIONS'))) {
                     // only for request methods with side effects with perform CSRF protection
@@ -283,81 +265,34 @@ class Service
         foreach ($this->onMatchPlugins as $plugin) {
             // is it disabled by default?
             if (in_array(get_class($plugin), $this->defaultDisablePlugins)) {
-                // check if it is enabled for this route
-                if (!array_key_exists('enablePlugins', $matchOptions)) {
-                    continue;
-                }
-                if (!is_array($matchOptions['enablePlugins'])) {
-                    continue;
-                }
-                if (!in_array(get_class($plugin), $matchOptions['enablePlugins'])) {
+                if (!$m->getPluginEnabled(get_class($plugin))) {
                     continue;
                 }
             }
 
-            if (array_key_exists('skipPlugins', $matchOptions)) {
-                if (is_array($matchOptions['skipPlugins'])) {
-                    if (in_array(get_class($plugin), $matchOptions['skipPlugins'])) {
+            // is it maybe skipped?
+            // FIXME: move to match
+            if (array_key_exists('skipPlugins', $o)) {
+                if (is_array($o['skipPlugins'])) {
+                    if (in_array(get_class($plugin), $o['skipPlugins'])) {
                         continue;
                     }
                 }
             }
 
-            // if config is available in matchOptions for this plugin, provide
-            // it
-            $routeConfig = array();
-            if (array_key_exists(get_class($plugin), $matchOptions)) {
-                if (is_array($matchOptions[get_class($plugin)])) {
-                    $routeConfig = $matchOptions[get_class($plugin)];
-                }
-            }
+            $routeConfig = $m->getRoutePluginConfig(get_class($plugin));
             $response = $plugin->execute($request, $routeConfig);
 
             if ($response instanceof Response) {
                 return $response;
             } elseif (is_object($response)) {
-                $paramsAvailableForCallback[get_class($response)] = $response;
+                $p[get_class($response)] = $response;
             } else {
                 // not an object, ignore the return value...
             }
         }
 
-        // determine the parameters in the callback and match them with the
-        // available parameters
-        $cbParams = array();
-        if (null !== $callback) {
-            $reflectionFunction = new ReflectionFunction($callback);
-            foreach ($reflectionFunction->getParameters() as $p) {
-                if (null !== $p->getClass()) {
-                    // object
-                    if (!array_key_exists($p->getClass()->getName(), $paramsAvailableForCallback)) {
-                        if (!$p->isDefaultValueAvailable()) {
-                            throw new BadFunctionCallException("parameter expected by callback not available");
-                        } else {
-                            // add default value to cbParams
-                            $cbParams[] = $p->getDefaultValue();
-                        }
-                    } else {
-                        $cbParams[] = $paramsAvailableForCallback[$p->getClass()->getName()];
-                    }
-                } else {
-                    // internal type
-                    if (!array_key_exists($p->getName(), $paramsAvailableForCallback)) {
-                        if (!$p->isDefaultValueAvailable()) {
-                            throw new BadFunctionCallException("parameter expected by callback not available");
-                        } else {
-                            // add default value to cbParams
-                            $cbParams[] = $p->getDefaultValue();
-                        }
-                    } else {
-                        $cbParams[] = $paramsAvailableForCallback[$p->getName()];
-                    }
-                }
-                // FIXME: are there other types we should consider?
-            }
-        }
-
-        return call_user_func_array($callback, array_values($cbParams));
+        return $m->executeCallback($p);
     }
 
     public static function handleException(Exception $e, $onlyLogServerErrors = true)

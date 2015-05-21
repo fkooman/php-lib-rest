@@ -185,7 +185,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     {
         $request = $this->requestFromUrl("http://www.example.org/bar/foo.txt", "GET");
         $service = new Service();
-        $service->match("GET", "/foo/:xyz", null);
+        $service->match(array("GET"), "/foo/:xyz", null);
         $service->run($request);
     }
 
@@ -194,7 +194,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz.txt", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/foo/bar/baz.txt",
             function () {
                 return "Hello World";
@@ -215,7 +215,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/", "POST");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/:one/:two/:three",
             null
         );
@@ -227,7 +227,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz/foobar", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/:one/:two/:three+",
             function ($one, $two, $three) {
                 return json_encode(array($one, $two, $three));
@@ -243,7 +243,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz/foobar", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/:one/:two+/foobar",
             function ($one, $two) {
                 return json_encode(array($one, $two));
@@ -263,7 +263,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz/foobar", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/:abc+/foobaz",
             null
         );
@@ -289,7 +289,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz/foobar", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/:one/:two+/:three",
             function ($one, $two, $three) {
                 return json_encode(array($one, $two, $three));
@@ -309,7 +309,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "foo",
             null
         );
@@ -325,7 +325,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "",
             null
         );
@@ -341,7 +341,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "x",
             null
         );
@@ -357,7 +357,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/bar",
             null
         );
@@ -373,7 +373,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo/bar/foo/bar/baz", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/foo/bar/foo/bar/bar",
             null
         );
@@ -389,7 +389,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/foo/bar/:foo/bar/bar",
             null
         );
@@ -424,7 +424,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://localhost/groups/@me", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/groups/@me",
             function () {
                 return "match";
@@ -440,7 +440,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://localhost/people/@me/urn:groups:demo:member", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/people/@me/:groupId",
             function ($groupId) {
                 return $groupId;
@@ -486,7 +486,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://localhost/admin/public/money/a/b/c/", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/:user/public/:module(/:path+)/",
             function ($user, $module, $path = null) {
                 return json_encode(array($user, $module, $path));
@@ -506,7 +506,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://localhost/admin/money/a/b/c/", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/:user/:module/:path+",
             null
         );
@@ -518,7 +518,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://localhost/admin/money/a/b/c/", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "/:user/:module/:path+/",
             function ($user, $module, $path) {
                 return json_encode(array($user, $module, $path));
@@ -534,7 +534,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://localhost/admin/money/a/b/c/", "GET");
         $service = new Service();
         $service->match(
-            "GET",
+            array("GET"),
             "*",
             function (Request $request) {
                 return $request->getUrl()->getPathInfo();
