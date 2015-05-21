@@ -33,7 +33,7 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
                 'error' => 'foo',
                 'error_description' => 'foo_description',
             ),
-            $response->getContent()
+            $response->getBody()
         );
     }
 
@@ -48,7 +48,7 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
                 'error' => 'foo',
                 'error_description' => 'no method allowed',
             ),
-            $response->getContent()
+            $response->getBody()
         );
     }
 }

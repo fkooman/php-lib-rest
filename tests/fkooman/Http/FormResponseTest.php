@@ -25,9 +25,9 @@ class FormResponseTest extends PHPUnit_Framework_TestCase
     public function testResponse()
     {
         $h = new FormResponse(200);
-        $h->setContent(array('foo' => 'bar'));
+        $h->setBody(array('foo' => 'bar'));
         $this->assertEquals(200, $h->getStatusCode());
-        $this->assertEquals('application/x-www-form-urlencoded', $h->getContentType());
-        $this->assertEquals(array('foo' => 'bar'), $h->getContent());
+        $this->assertEquals('application/x-www-form-urlencoded', $h->getHeader('Content-Type'));
+        $this->assertEquals(array('foo' => 'bar'), $h->getBody());
     }
 }

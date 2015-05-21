@@ -33,7 +33,7 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
                 'error' => 'invalid credentials',
                 'error_description' => 'invalid username or password',
             ),
-            $response->getContent()
+            $response->getBody()
         );
     }
 
@@ -60,7 +60,7 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
                 'error' => 'invalid_token',
                 'error_description' => 'token is invalid or expired',
             ),
-            $response->getContent()
+            $response->getBody()
         );
     }
 }

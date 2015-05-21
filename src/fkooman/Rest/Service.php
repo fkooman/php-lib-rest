@@ -227,7 +227,7 @@ class Service
                     throw new RuntimeException("unsupported callback return value");
                 }
                 $responseObj = new Response();
-                $responseObj->setContent($response);
+                $responseObj->setBody($response);
 
                 return $responseObj;
             }

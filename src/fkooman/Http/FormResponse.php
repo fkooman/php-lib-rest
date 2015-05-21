@@ -25,17 +25,17 @@ class FormResponse extends Response
         parent::__construct($statusCode, 'application/x-www-form-urlencoded');
     }
 
-    public function setContent($content)
+    public function setBody($body)
     {
-        parent::setContent(
-            http_build_query($content)
+        parent::setBody(
+            http_build_query($body)
         );
     }
 
-    public function getContent()
+    public function getBody()
     {
-        $content = parent::getContent();
-        parse_str($content, $parsedFormString);
+        $body = parent::getBody();
+        parse_str($body, $parsedFormString);
 
         return $parsedFormString;
     }

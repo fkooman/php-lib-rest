@@ -27,13 +27,13 @@ class JsonResponse extends Response
         parent::__construct($statusCode, 'application/json');
     }
 
-    public function setContent($content)
+    public function setBody($body)
     {
-        parent::setContent(Json::encode($content));
+        parent::setBody(Json::encode($body));
     }
 
-    public function getContent()
+    public function getBody()
     {
-        return Json::decode(parent::getContent());
+        return Json::decode(parent::getBody());
     }
 }

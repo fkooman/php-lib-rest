@@ -47,7 +47,7 @@ class HttpException extends Exception
         if (null !== $this->getDescription()) {
             $responseData['error_description'] = $this->getDescription();
         }
-        $response->setContent($responseData);
+        $response->setBody($responseData);
 
         return $response;
     }
@@ -60,7 +60,7 @@ class HttpException extends Exception
         if (null !== $this->getDescription()) {
             $responseData['error_description'] = $this->getDescription();
         }
-        $response->setContent($responseData);
+        $response->setBody($responseData);
 
         return $response;
     }
@@ -81,7 +81,7 @@ class HttpException extends Exception
             $response->getStatusReason(),
             htmlspecialchars($message, ENT_QUOTES)
         );
-        $response->setContent($htmlData);
+        $response->setBody($htmlData);
 
         return $response;
     }

@@ -30,20 +30,20 @@ class BadRequestExceptionTest extends PHPUnit_Framework_TestCase
         $jsonResponse = $e->getJsonResponse();
         $this->assertEquals(400, $jsonResponse->getStatusCode());
         $this->assertEquals("Bad Request", $jsonResponse->getStatusReason());
-        $this->assertEquals('application/json', $jsonResponse->getContentType());
+        $this->assertEquals('application/json', $jsonResponse->getHeader('Content-Type'));
         $this->assertEquals(
             array(
                 'error' => 'foo',
             ),
-            $jsonResponse->getContent()
+            $jsonResponse->getBody()
         );
 
         $htmlResponse = $e->getHtmlResponse();
         $this->assertEquals(400, $htmlResponse->getStatusCode());
-        $this->assertEquals('text/html', $htmlResponse->getContentType());
+        $this->assertEquals('text/html', $htmlResponse->getHeader('Content-Type'));
         $this->assertEquals(
             '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>foo</p></body></html>',
-            $htmlResponse->getContent()
+            $htmlResponse->getBody()
         );
     }
 }

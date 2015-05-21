@@ -23,6 +23,6 @@ class RedirectResponse extends Response
     public function __construct($redirectUri, $statusCode = 301)
     {
         parent::__construct($statusCode);
-        $this->setHeader("Location", $redirectUri);
+        $this->setHeader('Location', $redirectUri);
     }
 }

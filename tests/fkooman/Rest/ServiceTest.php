@@ -78,13 +78,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/foo/bar/baz.txt",
             function () {
                 $response = new Response(200, "text/plain");
-                $response->setContent("Hello World");
+                $response->setBody("Hello World");
 
                 return $response;
             }
         );
         $response = $service->run($request);
-        $this->assertEquals("Hello World", $response->getContent());
+        $this->assertEquals("Hello World", $response->getBody());
         $this->assertEquals(200, $response->getStatusCode());
     }
 
@@ -101,7 +101,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/foo/bar/baz.txt",
             function (StdClass $x) {
                 $response = new Response(200, "text/plain");
-                $response->setContent($x->foo);
+                $response->setBody($x->foo);
 
                 return $response;
             }
@@ -110,7 +110,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/foo/bar/bazzz.txt",
             function (StdClass $x) {
                 $response = new Response(200, "text/plain");
-                $response->setContent($x->foo);
+                $response->setBody($x->foo);
 
                 return $response;
             }
@@ -118,12 +118,12 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz.txt", "GET");
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("bar", $response->getContent());
+        $this->assertEquals("bar", $response->getBody());
 
         $request = $this->requestFromUrl("http://www.example.org/foo/bar/bazzz.txt", "GET");
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("bar", $response->getContent());
+        $this->assertEquals("bar", $response->getBody());
     }
 
     /**
@@ -152,7 +152,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             "/foo/bar/baz.txt",
             function (StdClass $x) {
                 $response = new Response(200, "text/plain");
-                $response->setContent($x->foo);
+                $response->setBody($x->foo);
 
                 return $response;
             },
@@ -201,8 +201,8 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $service->run($request);
-        $this->assertEquals("text/html", $response->getContentType());
-        $this->assertEquals("Hello World", $response->getContent());
+        $this->assertEquals("text/html", $response->getHeader('Content-Type'));
+        $this->assertEquals("Hello World", $response->getBody());
         $this->assertEquals(200, $response->getStatusCode());
     }
 
@@ -235,7 +235,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('["foo","bar","baz\/foobar"]', $response->getContent());
+        $this->assertEquals('["foo","bar","baz\/foobar"]', $response->getBody());
     }
 
     public function testMatchRestMatchWildcardSomewhere()
@@ -251,7 +251,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('["foo","bar\/baz"]', $response->getContent());
+        $this->assertEquals('["foo","bar\/baz"]', $response->getBody());
     }
 
     /**
@@ -281,7 +281,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $service->run($request);
-        $this->assertEquals('/admin/public/calendar/42/16/', $response->getContent());
+        $this->assertEquals('/admin/public/calendar/42/16/', $response->getBody());
     }
 
     public function testMatchRestMatchWildcardInMiddle()
@@ -297,7 +297,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('["foo","bar\/baz","foobar"]', $response->getContent());
+        $this->assertEquals('["foo","bar\/baz","foobar"]', $response->getBody());
     }
 
     /**
@@ -432,7 +432,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("match", $response->getContent());
+        $this->assertEquals("match", $response->getBody());
     }
 
     public function testMatchRestVootPeople()
@@ -448,7 +448,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("urn:groups:demo:member", $response->getContent());
+        $this->assertEquals("urn:groups:demo:member", $response->getBody());
     }
 
     public function testMatchRestAllPaths()
@@ -463,7 +463,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("match", $response->getContent());
+        $this->assertEquals("match", $response->getBody());
     }
 
     public function testOptionalMatch()
@@ -478,7 +478,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('["admin","money",null]', $response->getContent());
+        $this->assertEquals('["admin","money",null]', $response->getBody());
     }
 
     public function testOtherOptionalMatch()
@@ -494,7 +494,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('["admin","money","a\/b\/c"]', $response->getContent());
+        $this->assertEquals('["admin","money","a\/b\/c"]', $response->getBody());
     }
 
     /**
@@ -526,7 +526,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('["admin","money","a\/b\/c"]', $response->getContent());
+        $this->assertEquals('["admin","money","a\/b\/c"]', $response->getBody());
     }
 
     public function testMatchAllWithParameter()
@@ -542,7 +542,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('/admin/money/a/b/c/', $response->getContent());
+        $this->assertEquals('/admin/money/a/b/c/', $response->getBody());
     }
 
     public function testMatchAllWithStarParameter()
@@ -557,7 +557,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('/admin/money/a/b/c/', $response->getContent());
+        $this->assertEquals('/admin/money/a/b/c/', $response->getBody());
     }
 
     public function testMultipleMethodMatchGet()
@@ -576,7 +576,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('/admin/money/a/b/c/', $response->getContent());
+        $this->assertEquals('/admin/money/a/b/c/', $response->getBody());
     }
 
     public function testMultipleMethodMatchHead()
@@ -595,7 +595,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("", $response->getContent());
+        $this->assertEquals("", $response->getBody());
     }
 
     public function testCallbackRequestParameter()
@@ -625,7 +625,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://example.org/foo/bar/baz", "GET");
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("foobar", $response->getContent());
+        $this->assertEquals("foobar", $response->getBody());
     }
 
     public function testMatchRequestParameterOrder()
@@ -640,7 +640,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://example.org/xxx/yyy/baz", "GET");
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("xxxyyyGET", $response->getContent());
+        $this->assertEquals("xxxyyyGET", $response->getBody());
     }
 
     public function testMatchRequestParameterMatchAll()
@@ -655,7 +655,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://example.org/xxx/yyy/baz", "GET");
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("/xxx/yyy/bazGET", $response->getContent());
+        $this->assertEquals("/xxx/yyy/bazGET", $response->getBody());
     }
 
     public function testMatchRequestParameterMatchExactNoVariablesRequest()
@@ -670,7 +670,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://example.org/foo/bar/baz", "GET");
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("GET", $response->getContent());
+        $this->assertEquals("GET", $response->getBody());
     }
 
     public function testFormMethodOverrideDelete()
@@ -693,7 +693,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
         $request = $this->requestFromUrl("http://example.org/foo/bar/baz", "POST", $headers, $post);
         $response = $service->run($request);
-        $this->assertEquals("hello, delete!", $response->getContent());
+        $this->assertEquals("hello, delete!", $response->getBody());
     }
 
 #    public function testDefaultRouteNoPathInfo()
@@ -717,7 +717,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 #        $request->setPathInfo('/');
 #        $response = $service->run($request);
 #        $this->assertEquals(200, $response->getStatusCode());
-#        $this->assertEquals('index', $response->getContent());
+#        $this->assertEquals('index', $response->getBody());
 #    }
 
 #    public function testDefaultRoute()
@@ -748,7 +748,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 #        $request->setPathInfo('/manage/');
 #        $response = $service->run($request);
 #        $this->assertEquals(200, $response->getStatusCode());
-#        $this->assertEquals('default_route_works', $response->getContent());
+#        $this->assertEquals('default_route_works', $response->getBody());
 #    }
 
 #    public function testNoPathInfo()
@@ -779,7 +779,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 #        $request = $this->requestFromUrl('http://www.example.org/info/?_index=https://www.example.org/foo/bar/baz');
 #        $request->setPathInfo('/info/');
 #        $response = $service->run($request);
-#        $this->assertEquals('https%3A%2F%2Fwww.example.org%2Ffoo%2Fbar%2Fbaz', $response->getContent());
+#        $this->assertEquals('https%3A%2F%2Fwww.example.org%2Ffoo%2Fbar%2Fbaz', $response->getBody());
 #    }
 
     /**
@@ -834,7 +834,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFromUrl("http://www.example.org/foo/bar/baz.txt", "GET");
         $response = $service->run($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('bar', $response->getContent());
+        $this->assertEquals('bar', $response->getBody());
     }
 
     /**
@@ -870,6 +870,6 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
         $request = $this->requestFromUrl('http://example.org/foo', 'POST');
         $response = $service->run($request);
-        $this->assertEquals('foo', $response->getContent());
+        $this->assertEquals('foo', $response->getBody());
     }
 }

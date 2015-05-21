@@ -18,53 +18,16 @@
 
 namespace fkooman\Http;
 
-class ResponseTest extends \PHPUnit_Framework_TestCase
+use PHPUnit_Framework_TestCase;
+
+class ResponseTest extends PHPUnit_Framework_TestCase
 {
-    private $filePath;
-
-    public function setUp()
-    {
-        $this->filePath = dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR."data";
-    }
-
     public function testResponse()
     {
         $h = new Response();
         $this->assertEquals(200, $h->getStatusCode());
-        $this->assertEquals("text/html", $h->getContentType());
-        $this->assertEquals("", $h->getContent());
-        $this->assertNull($h->getHeader("Foo"));
-    }
-
-    public function testResponseFromFile()
-    {
-        $h = Response::fromFile($this->filePath.DIRECTORY_SEPARATOR."simple.txt");
-        $this->assertEquals(200, $h->getStatusCode());
-        $this->assertEquals("text/plain", $h->getContentType());
-        $this->assertEquals("Hello World", $h->getContent());
-        $this->assertEquals(11, $h->getHeader("Content-Length"));
-    }
-
-    public function testResponseBearerFromFile()
-    {
-        $h = Response::fromFile($this->filePath.DIRECTORY_SEPARATOR."bearer.txt");
-        $this->assertEquals(401, $h->getStatusCode());
-        $this->assertEquals("application/json", $h->getContentType());
-        $this->assertEquals(
-            'Bearer realm="VOOT Proxy",error="invalid_token",error_description="the token is not active"',
-            $h->getHeader("WWW-AuThEnTiCaTe")
-        );
-        $this->assertEquals(
-            '{"error":"invalid_token","error_description":"the token is not active"}',
-            $h->getContent()
-        );
-    }
-
-    public function testResponseEmptyResponseFromFile()
-    {
-        $h = Response::fromFile($this->filePath.DIRECTORY_SEPARATOR."empty_response.txt");
-        $this->assertEquals(200, $h->getStatusCode());
-        $this->assertEquals("text/html", $h->getContentType());
-        $this->assertEquals("", $h->getContent());
+        $this->assertEquals('text/html', $h->getHeader('Content-Type'));
+        $this->assertEquals('', $h->getBody());
+        $this->assertNull($h->getHeader('Foo'));
     }
 }
