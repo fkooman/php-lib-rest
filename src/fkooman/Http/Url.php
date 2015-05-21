@@ -141,7 +141,19 @@ class Url
             return $this->srv['SCRIPT_NAME'];
         }
         // rewriting in the web server enabled
-        return dirname($this->srv['SCRIPT_NAME']);
+        $rootPath = dirname($this->srv['SCRIPT_NAME']);
+        return '/' !== $rootPath ? $rootPath : '';
+    }
+    
+    /**
+     * Get the folder of getRoot(). This is useful for referencing resources
+     * like CSS and JS files independent on whether URL rewriting and/or
+     * PATH_INFO is used.
+     */
+    public function getRootPath()
+    {
+        $rootPath = dirname($this->srv['SCRIPT_NAME']);
+        return '/' !== $rootPath ? $rootPath : '';
     }
 
     public function getRootUrl()
