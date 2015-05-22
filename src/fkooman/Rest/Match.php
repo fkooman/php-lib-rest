@@ -20,11 +20,13 @@ namespace fkooman\Rest;
 
 use ReflectionFunction;
 use BadFunctionCallException;
+use ReflectionParameter;
 
 class Match
 {
     public function __construct(array $methods, $pattern, $callback, array $options = array())
     {
+        // FIXME: validate input, pattern must be string, callback must be callable etc.
         $this->methods = $methods;
         $this->pattern = $pattern;
         $this->callback = $callback;
@@ -48,11 +50,6 @@ class Match
         return PatternMatcher::isMatch($pathInfo, $this->getPattern());
     }
 
-#    public function getMethods()
-#    {
-#        return $this->methods;
-#    }
-
     /**
      * FIXME: try to make obsolete!
      */
@@ -60,11 +57,6 @@ class Match
     {
         return $this->pattern;
     }
-
-#    public function getCallback()
-#    {
-#        return $this->callback;
-#    }
 
     public function getOptions()
     {
@@ -101,40 +93,60 @@ class Match
         return array();
     }
 
-    public function executeCallback(array $p)
+    public function executeCallback(array $availableParameters)
     {
-        $cbParams = array();
-        if (null !== $this->callback) {
-            $reflectionFunction = new ReflectionFunction($this->callback);
-            foreach ($reflectionFunction->getParameters() as $pp) {
-                if (null !== $pp->getClass()) {
-                    // object
-                    if (!array_key_exists($pp->getClass()->getName(), $p)) {
-                        if (!$pp->isDefaultValueAvailable()) {
-                            throw new BadFunctionCallException("parameter expected by callback not available");
-                        } else {
-                            // add default value to cbParams
-                            $cbParams[] = $pp->getDefaultValue();
-                        }
-                    } else {
-                        $cbParams[] = $p[$pp->getClass()->getName()];
-                    }
-                } else {
-                    // internal type
-                    if (!array_key_exists($pp->getName(), $p)) {
-                        if (!$pp->isDefaultValueAvailable()) {
-                            throw new BadFunctionCallException("parameter expected by callback not available");
-                        } else {
-                            // add default value to cbParams
-                            $cbParams[] = $pp->getDefaultValue();
-                        }
-                    } else {
-                        $cbParams[] = $p[$pp->getName()];
-                    }
-                }
-                // FIXME: are there other types we should consider?
-            }
+        // FIXME: we assume that callback is callable!
+        $callbackParameters = array();
+        $reflectionFunction = new ReflectionFunction($this->callback);
+        foreach ($reflectionFunction->getParameters() as $parameter) {
+            $callbackParameters[] = $this->findAvailableParameterValue(
+                $parameter,
+                $availableParameters
+            );
         }
-        return call_user_func_array($this->callback, array_values($cbParams));
+        return call_user_func_array(
+            $this->callback,
+            array_values($callbackParameters)
+        );
+    }
+
+    /**
+     * Find the parameter required by the callback.
+     *
+     * @param ReflectionParameter p a parameter belonging to the callback
+     * @param array availableParameters
+     *      contains a list of parameters available to the callback, where the
+     *      key contains either the type hinted name of the class, or the
+     *      name of the parameter if the parameter is no class, e.g.:
+     *          array('foo' => 5, 'stdClass' => new StdClass())
+     *
+     * @return the value of the parameter from $availableParameters, or an
+     *         (optional) provided default value by the callback
+     */
+    private function findAvailableParameterValue(ReflectionParameter $p, array $availableParameters)
+    {
+        // determine the name, in case of a class this is the type hint, in
+        // case of a non-class parameter it is the actual name
+        $isClass = null !== $p->getClass();
+        if ($isClass) {
+            $parameterName = $p->getClass()->getName();
+        } else {
+            $parameterName = $p->getName();
+        }
+
+        if (array_key_exists($parameterName, $availableParameters)) {
+            // we found the parameter!
+            return $availableParameters[$parameterName];
+        }
+        if ($p->isDefaultValueAvailable()) {
+            // we have a default value!
+            return $p->getDefaultValue();
+        }
+        throw new BadFunctionCallException(
+            sprintf(
+                'parameter "%s" expected by callback not available',
+                $parameterName
+            )
+        );
     }
 }

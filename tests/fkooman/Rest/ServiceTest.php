@@ -128,7 +128,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException BadFunctionCallException
-     * @expectedExceptionMessage parameter expected by callback not available
+     * @expectedExceptionMessage parameter "stdClass" expected by callback not available
      */
     public function testOnMatchPluginSkip()
     {
@@ -784,7 +784,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException BadFunctionCallException
-     * @expectedExceptionMessage parameter expected by callback not available
+     * @expectedExceptionMessage parameter "stdClass" expected by callback not available
      */
     public function testDefaultDisablePlugins()
     {
