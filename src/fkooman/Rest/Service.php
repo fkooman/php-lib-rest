@@ -32,6 +32,7 @@ use RuntimeException;
 use LogicException;
 use BadFunctionCallException;
 use Exception;
+use ErrorException;
 
 class Service
 {
@@ -65,6 +66,20 @@ class Service
         $this->defaultRoute = null;
         $this->referrerCheck = false;
         $this->pathInfoRedirect = true;
+
+        // enable ErrorException
+        set_error_handler(
+            function ($severity, $message, $file, $line) {
+                if (!(error_reporting() & $severity)) {
+                    // This error code is not included in error_reporting
+                    return;
+                }
+                throw new ErrorException($message, 0, $severity, $file, $line);
+            }
+        );
+
+#        // register global Exception handler
+#        set_exception_handler('fkooman\Rest\Service::handleException');
     }
 
     public function setReferrerCheck($referrerCheck)
