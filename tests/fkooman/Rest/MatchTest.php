@@ -23,16 +23,10 @@ use StdClass;
 
 class MatchTest extends PHPUnit_Framework_TestCase
 {
-    public function testMatchHasMethod()
-    {
-        $m = new Match(array('GET'), '/foo/bar', function () {});
-        $this->assertTrue($m->hasMethod('GET'));
-        $this->assertFalse($m->hasMethod('POST'));
-    }
-
     public function testIsMatch()
     {
-        $m = new Match(array('GET'), '/foo/bar', function () {});
+        $m = new Match(array('GET'), '/foo/bar', function () {
+        });
         $this->assertEquals(array(), $m->isMatch('GET', '/foo/bar'));
         $this->assertFalse($m->isMatch('POST', '/foo/bar'));
         $this->assertFalse($m->isMatch('GET', '/foo/baz'));
@@ -44,9 +38,12 @@ class MatchTest extends PHPUnit_Framework_TestCase
             array('GET'),
             '/foo/:id',
             function (
-                StdClass $s,    // object
-                $id,            // native type
-                array $x,       // array,
+                StdClass $s,
+                // object
+                $id,
+                // native type
+                array $x,
+                // array,
                 $foo = 5        // default value
             ) {
                 return 'foo';

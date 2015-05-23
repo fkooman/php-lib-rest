@@ -53,7 +53,7 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(401, $response->getStatusCode());
         $this->assertEquals(
             'Bearer realm="My OAuth Realm",error="invalid_token",error_description="token is invalid or expired"',
-             $response->getHeader("WWW-Authenticate")
+            $response->getHeader("WWW-Authenticate")
         );
         $this->assertEquals(
             array(

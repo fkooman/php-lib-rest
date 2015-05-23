@@ -87,14 +87,9 @@ class Request
         return null;
     }
 
-    private function getHeaders()
+    public function getHeaders()
     {
-        // works only reliable on PHP >= 5.4
-        if (function_exists('getallheaders')) {
-            return getallheaders();
-        }
-
-        // *** FALLBACK for PHP <= 5.4 on FastCGI ***
+        // *** FALLBACK for FastCGI ***
         // Source: https://php.net/manual/en/function.getallheaders.php#104307
         // Get all headers prefixed with HTTP{_-} and also Content-Type and
         // Content-Length from $_SERVER if available

@@ -16,7 +16,10 @@
 * limitations under the License.
 */
 
+namespace fkooman\Http;
+
 use fkooman\Http\Request;
+use PHPUnit_Framework_TestCase;
 
 class RequestTest extends PHPUnit_Framework_TestCase
 {
@@ -90,26 +93,6 @@ class RequestTest extends PHPUnit_Framework_TestCase
         );
         $r = new Request($srv);
         $this->assertEmpty($r->getBody());
-    }
-
-    public function testGetAllHeaders()
-    {
-        if (!function_exists('getallheaders')) {
-            function getallheaders()
-            {
-                return array('Accept' => '*/*');
-            }
-        }
-        $srv = array(
-            'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 80,
-            'QUERY_STRING' => '',
-            'REQUEST_URI' => '/bar/index.php',
-            'SCRIPT_NAME' => '/bar/index.php',
-            'REQUEST_METHOD' => 'GET',
-        );
-        $r = new Request($srv);
-        $this->assertEquals('*/*', $r->getHeader('Accept'));
     }
 
     public function testMethodOverride()

@@ -18,7 +18,6 @@
 
 namespace fkooman\Rest;
 
-use ReflectionFunction;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
 use fkooman\Http\RedirectResponse;
@@ -29,10 +28,9 @@ use fkooman\Http\Exception\BadRequestException;
 use fkooman\Http\Exception\NotFoundException;
 use InvalidArgumentException;
 use RuntimeException;
-use LogicException;
 use BadFunctionCallException;
-use Exception;
 use ErrorException;
+use Exception;
 
 class Service
 {
@@ -103,7 +101,7 @@ class Service
         }
         $this->onMatchPlugins[] = $servicePlugin;
         if (array_key_exists('defaultDisable', $pluginOptions) && $pluginOptions['defaultDisable']) {
-            $this->defaultDisablePlugins[] = get_class($servicePlugin);
+            $this->defaultDisablePlugins[] = basename(get_class($servicePlugin));
         }
     }
 
@@ -262,52 +260,45 @@ class Service
         return $this->executeCallback($request, $match, $matcherParameters);
     }
 
-    private function executeCallback(Request $request, Match $m, array $p)
+    private function executeCallback(Request $request, Match $m, array $matcherParameters)
     {
-        $o = $m->getOptions();
-        if (!$m->getDisableReferrerCheck()) {
-            if ($this->referrerCheck) {
-                if (!in_array($request->getMethod(), array('GET', 'HEAD', 'OPTIONS'))) {
-                    // only for request methods with side effects with perform CSRF protection
-                    if (0 !== strpos($request->getHeader('HTTP_REFERER'), $request->getUrl()->getRootUrl())) {
-                        throw new BadRequestException('CSRF protection triggered');
-                    }
-                }
-            }
-        }
-
         // run the onMatchPlugins
         foreach ($this->onMatchPlugins as $plugin) {
-            // is it disabled by default?
-            if (in_array(get_class($plugin), $this->defaultDisablePlugins)) {
-                if (!$m->getPluginEnabled(get_class($plugin))) {
-                    continue;
-                }
+            $pluginName = basename(get_class($plugin));
+            $disabledByDefault === in_array($pluginName, $this->defaultDisablePlugins);
+
+            $matchPluginConfig = $m->getConfig($pluginName);
+
+            $matchEnabled = false;
+            if (array_key_exists('enabled', $matchPluginConfig)) {
+                $matchEnabled = $matchPluginConfig['enabled'];
             }
 
-            // is it maybe skipped?
-            // FIXME: move to match
-            if (array_key_exists('skipPlugins', $o)) {
-                if (is_array($o['skipPlugins'])) {
-                    if (in_array(get_class($plugin), $o['skipPlugins'])) {
-                        continue;
-                    }
-                }
+            // determine if we need to execute the plugin
+            // if it is disabled by default, but enabled by the plugin
+            $execute = false;
+            if ($disabledByDefault && true === $matchEnabled) {
+                $execute = true;
             }
+            if (!$disabledByDefault && false === $matchEnabled) {
+                $execute = true;
+            }
+    
+            if ($execute) {
+                $matchPluginConfig = $m->getConfig($pluginName);
+                $response = $plugin->execute($request, $matchPluginConfig);
 
-            $routeConfig = $m->getRoutePluginConfig(get_class($plugin));
-            $response = $plugin->execute($request, $routeConfig);
-
-            if ($response instanceof Response) {
-                return $response;
-            } elseif (is_object($response)) {
-                $p[get_class($response)] = $response;
-            } else {
-                // not an object, ignore the return value...
+                if ($response instanceof Response) {
+                    // received Response from plugin, return this immediately
+                    return $response;
+                } elseif (is_object($response)) {
+                    $matcherParameters[get_class($response)] = $response;
+                }
+                // ignore other return values...
             }
         }
 
-        return $m->executeCallback($p);
+        return $m->executeCallback($matcherParameters);
     }
 
     public static function handleException(Exception $e, $onlyLogServerErrors = true)

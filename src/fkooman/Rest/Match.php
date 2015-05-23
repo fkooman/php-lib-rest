@@ -24,73 +24,31 @@ use ReflectionParameter;
 
 class Match
 {
-    public function __construct(array $methods, $pattern, $callback, array $options = array())
+    public function __construct(array $methods, $pattern, $callback, array $config = array())
     {
         // FIXME: validate input, pattern must be string, callback must be callable etc.
         $this->methods = $methods;
         $this->pattern = $pattern;
         $this->callback = $callback;
-        $this->options = $options;
-    }
 
-    /**
-     * FIXME: try to make obsolete
-     */
-    public function hasMethod($method)
-    {
-        return in_array($method, $this->methods);
+        $this->config = $config;
     }
 
     public function isMatch($method, $pathInfo)
     {
-        if (!$this->hasMethod($method)) {
+        if (!in_array($method, $this->methods)) {
             return false;
         }
 
-        return PatternMatcher::isMatch($pathInfo, $this->getPattern());
+        return PatternMatcher::isMatch($pathInfo, $this->pattern);
     }
 
-    /**
-     * FIXME: try to make obsolete!
-     */
-    public function getPattern()
+    public function getConfig($pluginName)
     {
-        return $this->pattern;
-    }
-
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    public function getDisableReferrerCheck()
-    {
-        if (array_key_exists('disableReferrerCheck', $this->getOptions())) {
-            return $this->options['disableReferrerCheck'];
+        if (array_key_exists($pluginName, $this->config)) {
+            return $this->config[$pluginName];
         }
-        return false;
-    }
-
-    public function getPluginEnabled($pluginName)
-    {
-        $o = $this->getOptions();
-        if (array_key_exists('enablePlugins', $o)) {
-            if (is_array($o['enablePlugins'])) {
-                return in_array($pluginName, $o['enablePlugins']);
-            }
-        }
-        return false;
-    }
-
-    public function getRoutePluginConfig($pluginName)
-    {
-        $o = $this->getOptions();
-        if (array_key_exists($pluginName, $o)) {
-            if (is_array($o[$pluginName])) {
-                return $o[$pluginName];
-            }
-        }
-        return array();
+        return null;
     }
 
     public function executeCallback(array $availableParameters)
