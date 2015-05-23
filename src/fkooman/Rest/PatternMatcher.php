@@ -23,15 +23,19 @@ use LogicException;
 class PatternMatcher
 {
     /**
-     * Determines if the provided PATH_INFO matches the defined pattern.
+     * Determines if the provided path matches the provided pattern and returns
+     * matched parameters if specified
      *
-     * @param pathInfo string the PATH_INFO from the request
-     * @param requestPattern the pattern to match against
+     * @param path string typically the PATH_INFO from the request
+     * @param pattern the pattern to match against
      *
      * E: isMatch('/foo/bar',     '/foo/:id')     ==> array('id' => 'bar')
-     *    isMatch('/foo',         '/bar')         ==> false
      *    isMatch('/foo/bar/baz', '/foo/bar/baz') ==> array()
-     *    isMatch('/foo/bar/',    '*'             ==> array()
+     *    isMatch('/foo/bar/',    '*')            ==> array()
+     *    isMatch('/foo',         '/bar')         ==> false
+     *    isMatch('/foo/',        '/foo')         ==> false
+     *    isMatch('/foo/bar/baz', '/foo/:id')     ==> false
+     *    isMatch('/foo/bar/',    '/foo/:id')     ==> false
      *
      * @returns false|array array containing the values matching the variables
      *                      if there are any variables, empty array for an
