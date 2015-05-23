@@ -41,28 +41,28 @@ class PatternMatcher
      *                      if there are any variables, empty array for an
      *                      exact match, false if there is no match
      */
-    public static function isMatch($pathInfo, $requestPattern)
+    public static function isMatch($path, $pattern)
     {
         // if no pattern is defined, all paths are valid
-        if (null === $requestPattern || '*' === $requestPattern) {
+        if (null === $pattern || '*' === $pattern) {
             return array();
         }
         // both the pattern and request path should start with a '/'
-        if (0 !== strpos($requestPattern, '/')) {
+        if (0 !== strpos($pattern, '/')) {
             return false;
         }
 
         // handle optional parameters
-        $requestPattern = str_replace(')', ')?', $requestPattern);
+        $pattern = str_replace(')', ')?', $pattern);
 
         // check for variables in the requestPattern
-        $pma = preg_match_all('#:([\w]+)\+?#', $requestPattern, $matches);
+        $pma = preg_match_all('#:([\w]+)\+?#', $pattern, $matches);
         if (false === $pma) {
             throw new LogicException('regex for variable search failed');
         }
         if (0 === $pma) {
             // no variables in the pattern, pattern and request must be identical
-            if ($pathInfo === $requestPattern) {
+            if ($path === $pattern) {
                 return array();
             }
 
@@ -73,12 +73,12 @@ class PatternMatcher
         foreach ($matches[0] as $m) {
             // determine pattern based on whether variable is wildcard or not
             $mm = str_replace(array(':', '+'), '', $m);
-            $pattern = (strpos($m, '+') === strlen($m) -1) ? '(?P<'.$mm.'>(.+?[^/]))' : '(?P<'.$mm.'>([^/]+))';
-            $requestPattern = str_replace($m, $pattern, $requestPattern);
+            $ptrn = (strpos($m, '+') === strlen($m) -1) ? '(?P<'.$mm.'>(.+?[^/]))' : '(?P<'.$mm.'>([^/]+))';
+            $pattern = str_replace($m, $ptrn, $pattern);
         }
 
         $parameters = array();
-        $pm = preg_match('#^'.$requestPattern.'$#', $pathInfo, $parameters);
+        $pm = preg_match('#^'.$pattern.'$#', $path, $parameters);
         if (false === $pm) {
             throw new LogicException('regex for path matching failed');
         }
