@@ -19,6 +19,7 @@
 namespace fkooman\Rest;
 
 use LogicException;
+use InvalidArgumentException;
 
 class PatternMatcher
 {
@@ -43,59 +44,65 @@ class PatternMatcher
      */
     public static function isMatch($path, $pattern)
     {
-        // if no pattern is defined, all paths are valid
-        if (null === $pattern || '*' === $pattern) {
+        // validate path
+        if (!is_string($path) || 0 >= strlen($path) || 0 !== strpos($path, '/')) {
+            throw new InvalidArgumentException('invalid path');
+        }
+
+        // validate pattern
+        if (!is_string($pattern) || 0 >= strlen($pattern) || (0 !== strpos($pattern, '/') && '*' !== $pattern)) {
+            throw new InvalidArgumentException('invalid pattern');
+        }
+
+        // wildcard match, every path allowed
+        if ('*' === $pattern) {
             return array();
         }
-        // both the pattern and request path should start with a '/'
-        if (0 !== strpos($pattern, '/')) {
+
+        // exact match
+        if ($path === $pattern) {
+            return array();
+        }
+
+        if (false === strpos($pattern, ':')) {
+            // no variables defined in pattern, so it is always false...
             return false;
         }
 
-        // handle optional parameters
-        $pattern = str_replace(')', ')?', $pattern);
-
-        // check for variables in the requestPattern
-        $pma = preg_match_all('#:([\w]+)\+?#', $pattern, $matches);
-        if (false === $pma) {
-            throw new LogicException('regex for variable search failed');
+        // replace all occurences of :var with (?P<var>([^/]+))
+        $pattern = preg_replace('/:([\w]+)/i', '(?P<${1}>([^/]+))', $pattern);
+        if (null === $pattern) {
+            throw new LogicException('regular expression for parameter replacement failed');
         }
-        if (0 === $pma) {
-            // no variables in the pattern, pattern and request must be identical
-            if ($path === $pattern) {
-                return array();
-            }
+        
+        // match the path with this regexp
+        $pm = preg_match(
+            sprintf(
+                '#^%s$#',
+                $pattern
+            ),
+            $path,
+            $parameters
+        );
 
-            return false;
-        }
-        // replace all the variables with a regex so the actual value in the request
-        // can be captured
-        foreach ($matches[0] as $m) {
-            // determine pattern based on whether variable is wildcard or not
-            $mm = str_replace(array(':', '+'), '', $m);
-            $ptrn = (strpos($m, '+') === strlen($m) -1) ? '(?P<'.$mm.'>(.+?[^/]))' : '(?P<'.$mm.'>([^/]+))';
-            $pattern = str_replace($m, $ptrn, $pattern);
-        }
-
-        $parameters = array();
-        $pm = preg_match('#^'.$pattern.'$#', $path, $parameters);
         if (false === $pm) {
-            throw new LogicException('regex for path matching failed');
+            throw new LogicException('regular expression for path matching failed');
         }
+
         if (0 === $pm) {
             // request path does not match pattern
             return false;
         }
 
-        $callbackParams = array();
+        $patternParameters = array();
         foreach ($parameters as $k => $v) {
             // find the name of the parameter in the callback and set it to
             // the value
             if (is_string($k)) {
-                $callbackParams[$k] = $v;
+                $patternParameters[$k] = $v;
             }
         }
 
-        return $callbackParams;
+        return $patternParameters;
     }
 }
