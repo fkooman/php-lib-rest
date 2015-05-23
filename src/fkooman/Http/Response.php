@@ -75,7 +75,7 @@ class Response
         505 => 'HTTP Version Not Supported',
     );
 
-    public function __construct($statusCode = 200, $contentType = 'text/html')
+    public function __construct($statusCode = 200, $contentType = 'text/html;charset=UTF-8')
     {
         $this->setStatusCode($statusCode);
         $this->headers = array(

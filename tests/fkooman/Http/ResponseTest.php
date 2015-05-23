@@ -26,7 +26,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     {
         $r = new Response();
         $this->assertEquals(200, $r->getStatusCode());
-        $this->assertEquals('text/html', $r->getHeader('Content-Type'));
+        $this->assertEquals('text/html;charset=UTF-8', $r->getHeader('Content-Type'));
         $this->assertEquals('', $r->getBody());
         $this->assertNull($r->getHeader('Foo'));
     }
@@ -68,7 +68,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(
             array(
                 'Foo' => 'Bar',
-                'Content-Type' => 'text/html'
+                'Content-Type' => 'text/html;charset=UTF-8'
             ),
             $r->getHeaders()
         );
@@ -87,7 +87,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             array(
                 'Foo' => 'Bar',
                 'Bar' => 'Baz',
-                'Content-Type' => 'text/html'
+                'Content-Type' => 'text/html;charset=UTF-8'
             ),
             $r->getHeaders()
         );
@@ -107,10 +107,19 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testSendResponse()
     {
+        $this->expectOutputString('Hello World!');
+
         $r = new Response();
-        $r->setBody('body');
+        $r->setHeader('Foo', 'Bar');
+        $r->setBody('Hello World!');
         $r->send();
-        $this->expectOutputString('body');
-        $this->assertEquals(array('Content-type: text/html;charset=UTF-8'), xdebug_get_headers());
+
+        $this->assertEquals(
+            array(
+                'Content-Type: text/html;charset=UTF-8',
+                'Foo: Bar'
+            ),
+            xdebug_get_headers()
+        );
     }
 }

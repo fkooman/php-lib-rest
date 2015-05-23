@@ -201,7 +201,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $service->run($request);
-        $this->assertEquals("text/html", $response->getHeader('Content-Type'));
+        $this->assertEquals("text/html;charset=UTF-8", $response->getHeader('Content-Type'));
         $this->assertEquals("Hello World", $response->getBody());
         $this->assertEquals(200, $response->getStatusCode());
     }
