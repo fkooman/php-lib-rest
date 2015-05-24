@@ -35,7 +35,7 @@ use Exception;
 class Service
 {
     /** @var array */
-    private $match;
+    private $routes;
 
     /** @var array */
     private $supportedMethods;
@@ -46,24 +46,12 @@ class Service
     /** @var array */
     private $defaultDisablePlugins;
 
-    /** @var string */
-    private $defaultRoute;
-
-    /** @var boolean */
-    private $referrerCheck;
-
-    /** @var boolean */
-    private $pathInfoRedirect;   // do not redirect to '/' or default route if set to false
-    
     public function __construct()
     {
-        $this->match = array();
+        $this->routes = array();
         $this->supportedMethods = array();
         $this->onMatchPlugins = array();
         $this->defaultDisablePlugins = array();
-        $this->defaultRoute = null;
-        $this->referrerCheck = false;
-        $this->pathInfoRedirect = true;
 
         // enable ErrorException
         set_error_handler(
@@ -80,19 +68,6 @@ class Service
 #        set_exception_handler('fkooman\Rest\Service::handleException');
     }
 
-    public function setReferrerCheck($referrerCheck)
-    {
-        if (!is_bool($referrerCheck)) {
-            throw new InvalidArgumentException('parameter must be boolean');
-        }
-        $this->referrerCheck = $referrerCheck;
-    }
-
-    public function setPathInfoRedirect($pathInfoRedirect)
-    {
-        $this->pathInfoRedirect = (bool) $pathInfoRedirect;
-    }
-
     public function registerOnMatchPlugin(ServicePluginInterface $servicePlugin, array $pluginOptions = array())
     {
         // execute init function if it exists
@@ -105,37 +80,29 @@ class Service
         }
     }
 
-    public function setDefaultRoute($defaultRoute)
-    {
-        if (0 !== strpos($defaultRoute, '/')) {
-            throw new InvalidArgumentException('default route needs to start with a /');
-        }
-        $this->defaultRoute = $defaultRoute;
-    }
-
     public function get($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match(array('GET', 'HEAD'), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array('GET', 'HEAD'), $requestPattern, $callback, $matchOptions);
     }
 
     public function put($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match(array("PUT"), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array("PUT"), $requestPattern, $callback, $matchOptions);
     }
 
     public function post($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match(array("POST"), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array("POST"), $requestPattern, $callback, $matchOptions);
     }
 
     public function delete($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match(array("DELETE"), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array("DELETE"), $requestPattern, $callback, $matchOptions);
     }
 
     public function options($requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match(array("OPTIONS"), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array("OPTIONS"), $requestPattern, $callback, $matchOptions);
     }
 
     /**
@@ -148,9 +115,9 @@ class Service
      * @param array    $matchOptions   the options for this match
      *
      */
-    public function match(array $requestMethod, $requestPattern, $callback, array $matchOptions = array())
+    public function addRoute(array $requestMethod, $requestPattern, $callback, array $matchOptions = array())
     {
-        $this->match[] = new Match($requestMethod, $requestPattern, $callback, $matchOptions);
+        $this->routes[] = new Match($requestMethod, $requestPattern, $callback, $matchOptions);
 
         foreach ($requestMethod as $r) {
             if (!in_array($r, $this->supportedMethods)) {
@@ -184,33 +151,8 @@ class Service
             }
         }
 
-        // handle the default route
-        if ($this->pathInfoRedirect) {
-            if (null === $request->getUrl()->getPathInfo()) {
-                // redirect to '/', iff request_uri does not end in /
-                if ('/' !== substr($request->getRequestUri()->getPath(), -1)) {
-                    return new RedirectResponse(
-                        $request->getUrl()->getRootUrl(),
-                        302
-                    );
-                }
-                $request->setPathInfo('/');
-            }
-
-            // handle root
-            if ('/' === $request->getUrl()->getPathInfo()) {
-                if (null !== $this->defaultRoute && '/' !== $this->defaultRoute) {
-                    // redirect to default route
-                    return new RedirectResponse(
-                        $request->getUrl()->getRootUrl() . substr($this->defaultRoute, 1),
-                        302
-                    );
-                }
-            }
-        }
-
-        foreach ($this->match as $m) {
-            $response = $this->matchRest(
+        foreach ($this->routes as $m) {
+            $response = $this->matchRoute(
                 $request,
                 $m
             );
@@ -248,7 +190,7 @@ class Service
         );
     }
 
-    private function matchRest(Request $request, Match $match)
+    private function matchRoute(Request $request, Match $match)
     {
         if (false === $matcherParameters = $match->isMatch($request->getMethod(), $request->getUrl()->getPathInfo())) {
             return false;
