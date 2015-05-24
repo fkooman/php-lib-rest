@@ -48,7 +48,7 @@ class Match
         if (array_key_exists($pluginName, $this->config)) {
             return $this->config[$pluginName];
         }
-        return null;
+        return array();
     }
 
     public function executeCallback(array $availableParameters)
