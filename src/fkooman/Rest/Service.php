@@ -50,8 +50,9 @@ class Service
     {
         $this->routes = array();
         $this->supportedMethods = array();
-        $this->onMatchPlugins = array();
-        $this->defaultDisablePlugins = array();
+
+        $this->defaultPlugins = array();
+        $this->optionalPlugins = array();
 
         // enable ErrorException
         set_error_handler(
@@ -68,16 +69,22 @@ class Service
 #        set_exception_handler('fkooman\Rest\Service::handleException');
     }
 
-    public function registerOnMatchPlugin(ServicePluginInterface $servicePlugin, array $pluginOptions = array())
+    public function registerDefaultPlugin(ServicePluginInterface $servicePlugin)
     {
         // execute init function if it exists
         if (method_exists($servicePlugin, 'init')) {
             $servicePlugin->init($this);
         }
-        $this->onMatchPlugins[] = $servicePlugin;
-        if (array_key_exists('defaultDisable', $pluginOptions) && $pluginOptions['defaultDisable']) {
-            $this->defaultDisablePlugins[] = basename(get_class($servicePlugin));
+        $this->defaultPlugins[] = $servicePlugin;
+    }
+
+    public function registerOptionalPlugin(ServicePluginInterface $servicePlugin)
+    {
+        // execute init function if it exists
+        if (method_exists($servicePlugin, 'init')) {
+            $servicePlugin->init($this);
         }
+        $this->optionalPlugins[] = $servicePlugin;
     }
 
     public function get($requestPattern, $callback, array $matchOptions = array())
@@ -204,39 +211,38 @@ class Service
 
     private function executeCallback(Request $request, Match $m, array $matcherParameters)
     {
-        // run the onMatchPlugins
-        foreach ($this->onMatchPlugins as $plugin) {
-            $pluginName = basename(get_class($plugin));
-            $disabledByDefault === in_array($pluginName, $this->defaultDisablePlugins);
+        // FIXME: cleanup the calling of the actual plugin, huge code duplication!
 
-            $matchPluginConfig = $m->getConfig($pluginName);
-
-            $matchEnabled = false;
-            if (array_key_exists('enabled', $matchPluginConfig)) {
-                $matchEnabled = $matchPluginConfig['enabled'];
-            }
-
-            // determine if we need to execute the plugin
-            // if it is disabled by default, but enabled by the plugin
-            $execute = false;
-            if ($disabledByDefault && true === $matchEnabled) {
-                $execute = true;
-            }
-            if (!$disabledByDefault && false === $matchEnabled) {
-                $execute = true;
-            }
-    
-            if ($execute) {
-                $matchPluginConfig = $m->getConfig($pluginName);
-                $response = $plugin->execute($request, $matchPluginConfig);
-
+        // run the plugins if not disabled
+        foreach ($this->defaultPlugins as $p) {
+            $pluginName = substr(get_class($p), strrpos(get_class($p), '\\') + 1);
+            $routeConfig = $m->getConfig($pluginName);
+            if (array_key_exists('enabled', $routeConfig) && false === $routeConfig['enabled']) {
+                continue;    // disabled
+            } else {
+                $response = $p->execute($request, $routeConfig);
                 if ($response instanceof Response) {
                     // received Response from plugin, return this immediately
                     return $response;
                 } elseif (is_object($response)) {
                     $matcherParameters[get_class($response)] = $response;
                 }
-                // ignore other return values...
+            }
+        }
+        // run the optional plugins if enabled
+        foreach ($this->optionalPlugins as $p) {
+            $pluginName = substr(get_class($p), strrpos(get_class($p), '\\') + 1);
+            $routeConfig = $m->getConfig($pluginName);
+            if (array_key_exists('enabled', $routeConfig) && true === $routeConfig['enabled']) {
+                $response = $p->execute($request, $routeConfig);
+                if ($response instanceof Response) {
+                    // received Response from plugin, return this immediately
+                    return $response;
+                } elseif (is_object($response)) {
+                    $matcherParameters[get_class($response)] = $response;
+                }
+            } else {
+                continue;
             }
         }
 
