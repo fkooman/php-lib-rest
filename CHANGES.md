@@ -2,6 +2,8 @@
 
 ## 0.8.9
 - add new `Url` class, deprecates `Uri` in the near future
+- fix a SCRIPT_NAME issue with Apache + PHP-FPM where the PATH_INFO is
+  included in the SCRIPT_NAME as well. Affected: CentOS 7.
 
 ## 0.8.8
 - more pathinfo fixes

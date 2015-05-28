@@ -65,7 +65,27 @@ class IncomingRequest
 
     public function getScriptName()
     {
-        return $_SERVER['SCRIPT_NAME'];
+        // fix for PHP <= 5.6? and FPM also includes PATH_INFO in the
+        // SCRIPT_NAME parameter. This is wrong. Ideally you'd just
+        // 'return $_SERVER['SCRIPT_NAME'];' here.
+        //
+        // At least CentOS 7 (all updates as of 20150528) is affected.
+        //
+        // Upstream: https://bugs.php.net/bug.php?id=65641
+        // ownCloud: https://github.com/owncloud/core/issues/7719
+        //
+        $pathInfo = $this->getPathInfo();
+        $scriptName = $_SERVER['SCRIPT_NAME'];
+
+        if (null !== $pathInfo) {
+            // check if SCRIPT_NAME ends with PATH_INFO, if so, remove
+            // PATH_INFO from SCRIPT_NAME and return that instead
+            if (0 === strpos(strrev($scriptName), strrev($pathInfo))) {
+                $scriptName = substr($scriptName, 0, strlen($scriptName) - strlen($pathInfo));
+            }
+        }
+
+        return $scriptName;
     }
 
     public function getPathInfo()
