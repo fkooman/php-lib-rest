@@ -21,11 +21,11 @@ namespace fkooman\Rest;
 use PHPUnit_Framework_TestCase;
 use StdClass;
 
-class MatchTest extends PHPUnit_Framework_TestCase
+class RouteTest extends PHPUnit_Framework_TestCase
 {
     public function testIsMatch()
     {
-        $m = new Match(array('GET'), '/foo/bar', function () {
+        $m = new Route(array('GET'), '/foo/bar', function () {
         });
         $this->assertEquals(array(), $m->isMatch('GET', '/foo/bar'));
         $this->assertFalse($m->isMatch('POST', '/foo/bar'));
@@ -34,7 +34,7 @@ class MatchTest extends PHPUnit_Framework_TestCase
 
     public function testExecuteCallback()
     {
-        $m = new Match(
+        $m = new Route(
             array('GET'),
             '/foo/:id',
             function (
@@ -68,7 +68,7 @@ class MatchTest extends PHPUnit_Framework_TestCase
      */
     public function testMissingParameterForCallback()
     {
-        $m = new Match(
+        $m = new Route(
             array('GET'),
             '/foo',
             function ($foo) {

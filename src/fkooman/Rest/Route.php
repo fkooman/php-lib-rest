@@ -22,7 +22,7 @@ use ReflectionFunction;
 use BadFunctionCallException;
 use ReflectionParameter;
 
-class Match
+class Route
 {
     public function __construct(array $methods, $pattern, $callback, array $config = array())
     {

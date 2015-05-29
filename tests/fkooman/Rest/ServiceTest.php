@@ -20,6 +20,7 @@ namespace fkooman\Rest;
 
 use PHPUnit_Framework_TestCase;
 use fkooman\Http\Request;
+use fkooman\Http\Response;
 use fkooman\Rest\Plugin\ReferrerCheckPlugin;
 
 class ServiceTest extends PHPUnit_Framework_TestCase
@@ -41,7 +42,9 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $s->get(
             '/',
             function (Request $request) {
-                return 'foo';
+                $response = new Response();
+                $response->setBody('foo');
+                return $response;
             }
         );
         $response = $s->run($r);
@@ -67,9 +70,11 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         $s->post(
             '/',
             function (Request $request) {
-                return 'foo';
+                $response = new Response();
+                $response->setBody('foo');
+                return $response;
             },
-            array('ReferrerCheckPlugin' => array('enabled' => false))
+            array('fkooman\Rest\Plugin\ReferrerCheckPlugin' => array('enabled' => false))
         );
         $response = $s->run($r);
         $this->assertEquals(200, $response->getStatusCode());

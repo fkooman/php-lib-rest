@@ -40,19 +40,15 @@ class Service
     /** @var array */
     private $supportedMethods;
 
-    /** @var array */
-    private $onMatchPlugins;
-
-    /** @var array */
-    private $defaultDisablePlugins;
+    /** @var fkooman\Rest\PluginRegistry */
+    private $pluginRegistry;
 
     public function __construct()
     {
         $this->routes = array();
         $this->supportedMethods = array();
 
-        $this->defaultPlugins = array();
-        $this->optionalPlugins = array();
+        $this->pluginRegistry = new PluginRegistry();
 
         // enable ErrorException
         set_error_handler(
@@ -69,78 +65,67 @@ class Service
 #        set_exception_handler('fkooman\Rest\Service::handleException');
     }
 
-    public function registerDefaultPlugin(ServicePluginInterface $servicePlugin)
+    public function registerDefaultPlugin(ServicePluginInterface $plugin)
     {
-        // execute init function if it exists
-        if (method_exists($servicePlugin, 'init')) {
-            $servicePlugin->init($this);
+        if (method_exists($plugin, 'init')) {
+            $plugin->init($this);
         }
-        $this->defaultPlugins[] = $servicePlugin;
+        $this->pluginRegistry->registerDefaultPlugin($plugin);
     }
 
-    public function registerOptionalPlugin(ServicePluginInterface $servicePlugin)
+    public function registerOptionalPlugin(ServicePluginInterface $plugin)
     {
-        // execute init function if it exists
-        if (method_exists($servicePlugin, 'init')) {
-            $servicePlugin->init($this);
+        if (method_exists($plugin, 'init')) {
+            $plugin->init($this);
         }
-        $this->optionalPlugins[] = $servicePlugin;
+        $this->pluginRegistry->registerOptionalPlugin($plugin);
     }
 
-    public function get($requestPattern, $callback, array $matchOptions = array())
+    public function get($requestPattern, $callback, array $routeOptions = array())
     {
-        $this->addRoute(array('GET', 'HEAD'), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array('GET', 'HEAD'), $requestPattern, $callback, $routeOptions);
     }
 
-    public function put($requestPattern, $callback, array $matchOptions = array())
+    public function put($requestPattern, $callback, array $routeOptions = array())
     {
-        $this->addRoute(array("PUT"), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array("PUT"), $requestPattern, $callback, $routeOptions);
     }
 
-    public function post($requestPattern, $callback, array $matchOptions = array())
+    public function post($requestPattern, $callback, array $routeOptions = array())
     {
-        $this->addRoute(array("POST"), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array("POST"), $requestPattern, $callback, $routeOptions);
     }
 
-    public function delete($requestPattern, $callback, array $matchOptions = array())
+    public function delete($requestPattern, $callback, array $routeOptions = array())
     {
-        $this->addRoute(array("DELETE"), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array("DELETE"), $requestPattern, $callback, $routeOptions);
     }
 
-    public function options($requestPattern, $callback, array $matchOptions = array())
+    public function options($requestPattern, $callback, array $routeOptions = array())
     {
-        $this->addRoute(array("OPTIONS"), $requestPattern, $callback, $matchOptions);
+        $this->addRoute(array("OPTIONS"), $requestPattern, $callback, $routeOptions);
     }
 
     /**
-     * Register a method/pattern match.
+     * Register a method/pattern route.
      *
-     * @param string   $requestMethod  the request method, e.g. 'GET', 'POST'
-     * @param string   $requestPattern the pattern to match
-     * @param callback $callback       the callback to execute when this pattern
-     *                                 matches
-     * @param array    $matchOptions   the options for this match
+     * @param array    $methods      the request methods, e.g. 'GET', 'POST'
+     * @param string   $pattern      the pattern to match
+     * @param callback $callback     the callback to execute when this pattern
+     *                               matches
+     * @param array    $routeOptions the options for this route
      *
      */
-    public function addRoute(array $requestMethod, $requestPattern, $callback, array $matchOptions = array())
+    public function addRoute(array $methods, $pattern, $callback, array $routeOptions = array())
     {
-        $this->routes[] = new Match($requestMethod, $requestPattern, $callback, $matchOptions);
-
-        foreach ($requestMethod as $r) {
-            if (!in_array($r, $this->supportedMethods)) {
-                $this->supportedMethods[] = $r;
+        $this->routes[] = new Route($methods, $pattern, $callback, $routeOptions);
+        foreach ($methods as $method) {
+            if (!in_array($method, $this->supportedMethods)) {
+                $this->supportedMethods[] = $method;
             }
         }
     }
 
-    /**
-     * Run the Service.
-     *
-     * @return fkooman\Http\Response the HTTP response object after mathing
-     *                               is done and the appropriate callback was
-     *                               executed. If nothing matches either 404
-     *                               or 405 response is returned.
-     */
     public function run(Request $request = null)
     {
         if (null === $request) {
@@ -158,24 +143,9 @@ class Service
             }
         }
 
-        foreach ($this->routes as $m) {
-            $response = $this->matchRoute(
-                $request,
-                $m
-            );
-
-            // false indicates not a match
-            if (false !== $response) {
-                if ($response instanceof Response) {
-                    return $response;
-                }
-                if (!is_string($response)) {
-                    throw new RuntimeException("unsupported callback return value");
-                }
-                $responseObj = new Response();
-                $responseObj->setBody($response);
-
-                return $responseObj;
+        foreach ($this->routes as $route) {
+            if (false !== $availableRouteCallbackParameters = $route->isMatch($request->getMethod(), $request->getUrl()->getPathInfo())) {
+                return $this->executeCallback($request, $route, $availableRouteCallbackParameters);
             }
         }
 
@@ -197,56 +167,22 @@ class Service
         );
     }
 
-    private function matchRoute(Request $request, Match $match)
+    private function executeCallback(Request $request, Route $route, array $availableRouteCallbackParameters)
     {
-        if (false === $matcherParameters = $match->isMatch($request->getMethod(), $request->getUrl()->getPathInfo())) {
-            return false;
+        $pluginResponse = $this->pluginRegistry->run($request, $route);
+        if ($pluginResponse instanceof Response) {
+            // received Response from plugin, return this immediately
+            return $pluginResponse;
         }
 
-        // add fkooman\Http\Request
-        $matcherParameters[get_class($request)] = $request;
-
-        return $this->executeCallback($request, $match, $matcherParameters);
-    }
-
-    private function executeCallback(Request $request, Match $m, array $matcherParameters)
-    {
-        // FIXME: cleanup the calling of the actual plugin, huge code duplication!
-
-        // run the plugins if not disabled
-        foreach ($this->defaultPlugins as $p) {
-            $pluginName = substr(get_class($p), strrpos(get_class($p), '\\') + 1);
-            $routeConfig = $m->getConfig($pluginName);
-            if (array_key_exists('enabled', $routeConfig) && false === $routeConfig['enabled']) {
-                continue;    // disabled
-            } else {
-                $response = $p->execute($request, $routeConfig);
-                if ($response instanceof Response) {
-                    // received Response from plugin, return this immediately
-                    return $response;
-                } elseif (is_object($response)) {
-                    $matcherParameters[get_class($response)] = $response;
-                }
-            }
-        }
-        // run the optional plugins if enabled
-        foreach ($this->optionalPlugins as $p) {
-            $pluginName = substr(get_class($p), strrpos(get_class($p), '\\') + 1);
-            $routeConfig = $m->getConfig($pluginName);
-            if (array_key_exists('enabled', $routeConfig) && true === $routeConfig['enabled']) {
-                $response = $p->execute($request, $routeConfig);
-                if ($response instanceof Response) {
-                    // received Response from plugin, return this immediately
-                    return $response;
-                } elseif (is_object($response)) {
-                    $matcherParameters[get_class($response)] = $response;
-                }
-            } else {
-                continue;
-            }
+        $availableRouteCallbackParameters = array_merge($availableRouteCallbackParameters, $pluginResponse);
+        $availableRouteCallbackParameters[get_class($request)] = $request;
+        $response = $route->executeCallback($availableRouteCallbackParameters);
+        if (!($response instanceof Response)) {
+            throw new RuntimeException('callback return value must be Response object');
         }
 
-        return $m->executeCallback($matcherParameters);
+        return $response;
     }
 
     public static function handleException(Exception $e, $onlyLogServerErrors = true)
