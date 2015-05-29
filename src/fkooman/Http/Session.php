@@ -79,7 +79,6 @@ class Session
 
     public function getValue($key)
     {
-        var_dump($_SESSION);
         $this->startSession();
         if ($this->hasKey($key)) {
             return $_SESSION[$this->ns][$key];
