@@ -23,7 +23,7 @@ class Session
     /** @var string */
     private $ns;
 
-    public function __construct($ns = 'MySession', $sessionOptions = array())
+    public function __construct($ns = 'MySession', array $sessionOptions = array())
     {
         $this->ns = $ns;
 
@@ -35,18 +35,7 @@ class Session
             'httponly' => true
         );
 
-        // backwards compatibility for disabling 'secure' cookies, the second
-        // parameter used to be a boolean...
-        if (is_bool($sessionOptions)) {
-            $sessionOptions = array(
-                'secure' => $sessionOptions
-            );
-        }
-        if (is_array($sessionOptions)) {
-            // merge sessionOptions with defaultOptions
-            $sessionOptions = array_merge($defaultOptions, $sessionOptions);
-        }
-        $this->sessionOptions = $sessionOptions;
+        $this->sessionOptions = array_merge($defaultOptions, $sessionOptions);
     }
 
     private function startSession()
@@ -90,11 +79,10 @@ class Session
 
     public function getValue($key)
     {
+        var_dump($_SESSION);
         $this->startSession();
-        if (array_key_exists($this->ns, $_SESSION)) {
-            if (array_key_exists($key, $_SESSION[$this->ns])) {
-                return $_SESSION[$this->ns][$key];
-            }
+        if ($this->hasKey($key)) {
+            return $_SESSION[$this->ns][$key];
         }
 
         return null;
