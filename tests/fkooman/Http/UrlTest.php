@@ -210,4 +210,27 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $u = new Url(array());
     }
+
+    public function testScriptNameFix()
+    {
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => 'foo=bar',
+            'PATH_INFO' => '/foo',
+            'REQUEST_URI' => '/bar/index.php/foo?foo=bar',
+            'SCRIPT_NAME' => '/bar/index.php/foo',  // mistakenly includes PATH_INFO
+        );
+
+        $u = new Url($srv);
+        $this->assertEquals('http', $u->getScheme());
+        $this->assertEquals('www.example.org', $u->getHost());
+        $this->assertEquals(80, $u->getPort());
+        $this->assertEquals('/bar/index.php', $u->getRoot());
+        $this->assertEquals('/bar', $u->getRootPath());
+        $this->assertEquals('/foo', $u->getPathInfo());
+        $this->assertEquals('http://www.example.org/bar/index.php', $u->getRootUrl());
+        $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
+        $this->assertEquals('bar', $u->getQueryParameter('foo'));
+    }
 }

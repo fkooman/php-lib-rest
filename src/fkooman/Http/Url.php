@@ -53,6 +53,8 @@ class Url
                 $this->srv[$key] = $srv[$key];
             }
         }
+
+        $this->fixScriptName();
     }
     
     public function getScheme()
@@ -170,5 +172,26 @@ class Url
             $authority = sprintf('%s://%s:%s', $s, $h, $p);
         }
         return $authority . $this->getRoot();
+    }
+
+    /**
+     * PHP-FPM has a bug in combination with Apache where the SCRIPT_NAME
+     * also includes the PATH_INFO. This is fixed in PHP >= 5.6 it seems.
+     * Unfortunately CentOS 7 is affected by this issue.
+     * See: https://bugs.php.net/bug.php?id=65641
+     */
+    private function fixScriptName()
+    {
+        $pathInfo = $this->srv['PATH_INFO'];
+        $scriptName = $this->srv['SCRIPT_NAME'];
+
+        if (null !== $pathInfo) {
+            // check if SCRIPT_NAME ends with PATH_INFO, if so, remove
+            // PATH_INFO from SCRIPT_NAME and return that instead
+            if (0 === strpos(strrev($scriptName), strrev($pathInfo))) {
+                $scriptName = substr($scriptName, 0, strlen($scriptName) - strlen($pathInfo));
+            }
+        }
+        $this->srv['SCRIPT_NAME'] = $scriptName;
     }
 }
