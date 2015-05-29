@@ -18,19 +18,11 @@
 
 namespace fkooman\Rest;
 
+use fkooman\Http\Exception\MethodNotAllowedException;
+use fkooman\Http\Exception\NotFoundException;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
-use fkooman\Http\RedirectResponse;
-use fkooman\Http\Exception\InternalServerErrorException;
-use fkooman\Http\Exception\HttpException;
-use fkooman\Http\Exception\MethodNotAllowedException;
-use fkooman\Http\Exception\BadRequestException;
-use fkooman\Http\Exception\NotFoundException;
-use InvalidArgumentException;
 use RuntimeException;
-use BadFunctionCallException;
-use ErrorException;
-use Exception;
 
 class Service
 {
@@ -47,22 +39,7 @@ class Service
     {
         $this->routes = array();
         $this->supportedMethods = array();
-
         $this->pluginRegistry = new PluginRegistry();
-
-        // enable ErrorException
-        set_error_handler(
-            function ($severity, $message, $file, $line) {
-                if (!(error_reporting() & $severity)) {
-                    // This error code is not included in error_reporting
-                    return;
-                }
-                throw new ErrorException($message, 0, $severity, $file, $line);
-            }
-        );
-
-#        // register global Exception handler
-#        set_exception_handler('fkooman\Rest\Service::handleException');
     }
 
     public function registerDefaultPlugin(ServicePluginInterface $plugin)
@@ -88,22 +65,22 @@ class Service
 
     public function put($requestPattern, $callback, array $routeOptions = array())
     {
-        $this->addRoute(array("PUT"), $requestPattern, $callback, $routeOptions);
+        $this->addRoute(array('PUT'), $requestPattern, $callback, $routeOptions);
     }
 
     public function post($requestPattern, $callback, array $routeOptions = array())
     {
-        $this->addRoute(array("POST"), $requestPattern, $callback, $routeOptions);
+        $this->addRoute(array('POST'), $requestPattern, $callback, $routeOptions);
     }
 
     public function delete($requestPattern, $callback, array $routeOptions = array())
     {
-        $this->addRoute(array("DELETE"), $requestPattern, $callback, $routeOptions);
+        $this->addRoute(array('DELETE'), $requestPattern, $callback, $routeOptions);
     }
 
     public function options($requestPattern, $callback, array $routeOptions = array())
     {
-        $this->addRoute(array("OPTIONS"), $requestPattern, $callback, $routeOptions);
+        $this->addRoute(array('OPTIONS'), $requestPattern, $callback, $routeOptions);
     }
 
     /**
@@ -134,12 +111,12 @@ class Service
         
         // support PUT and DELETE method override when _METHOD is set in a form
         // POST
-        if ("POST" === $request->getMethod()) {
-            if ("PUT" === $request->getPostParameter("_METHOD")) {
-                $request->setMethod("PUT");
+        if ('POST' === $request->getMethod()) {
+            if ('PUT' === $request->getPostParameter('_METHOD')) {
+                $request->setMethod('PUT');
             }
-            if ("DELETE" === $request->getPostParameter("_METHOD")) {
-                $request->setMethod("DELETE");
+            if ('DELETE' === $request->getPostParameter('_METHOD')) {
+                $request->setMethod('DELETE');
             }
         }
 
@@ -183,36 +160,5 @@ class Service
         }
 
         return $response;
-    }
-
-    public static function handleException(Exception $e, $onlyLogServerErrors = true)
-    {
-        $request = new Request($_SERVER);
-
-        if (!($e instanceof HttpException)) {
-            $e = new InternalServerErrorException($e->getMessage());
-        }
-
-        if (!$onlyLogServerErrors || $onlyLogServerErrors && 500 === $e->getCode()) {
-            error_log(
-                sprintf(
-                    'ERROR: "%s", DESCRIPTION: "%s", FILE: "%s", LINE: "%d"',
-                    $e->getMessage(),
-                    $e->getDescription(),
-                    $e->getFile(),
-                    $e->getLine()
-                )
-            );
-        }
-
-        if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
-            return $e->getHtmlResponse();
-        }
-        if (false !== strpos($request->getHeader('Accept'), 'application/x-www-form-urlencoded')) {
-            return $e->getFormResponse();
-        }
-
-        // by default we return JSON
-        return $e->getJsonResponse();
     }
 }
