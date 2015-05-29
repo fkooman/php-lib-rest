@@ -53,9 +53,12 @@ class PluginRegistry
             $routeConfig = $route->getConfig(get_class($plugin));
             $response = $plugin->execute($request, $routeConfig);
             if ($response instanceof Response) {
-                // received Response from plugin, return this immediately
+                // received Response from plugin, e.g. a RedirectResponse,
+                // return this immediately
                 return $response;
             } elseif (is_object($response)) {
+                // if we get an object, just add it to the list of available
+                // parameters for the callback
                 $availableRouteCallbackParameters[get_class($response)] = $response;
             }
         }
