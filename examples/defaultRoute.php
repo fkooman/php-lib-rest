@@ -19,25 +19,24 @@
 require_once dirname(__DIR__).'/vendor/autoload.php';
 
 use fkooman\Rest\Service;
+use fkooman\Rest\ExceptionHandler;
 
-try {
-    $service = new Service();
-    $service->setDefaultRoute('/welcome');
+ExceptionHandler::register();
 
-    $service->get(
-        '/',
-        function () {
-            return 'Root';
-        }
-    );
-    $service->get(
-        '/welcome',
-        function () {
-            return 'Welcome!';
-        }
-    );
+$service = new Service();
+$service->setDefaultRoute('/welcome');
 
-    $service->run()->send();
-} catch (Exception $e) {
-    Service::handleException($e)->send();
-}
+$service->get(
+    '/',
+    function () {
+        return 'Root';
+    }
+);
+$service->get(
+    '/welcome',
+    function () {
+        return 'Welcome!';
+    }
+);
+
+$service->run()->send();

@@ -53,21 +53,21 @@ class Session
         }
     }
 
-    public function setValue($key, $value)
+    public function set($key, $value)
     {
         $this->startSession();
         $_SESSION[$this->ns][$key] = $value;
     }
 
-    public function deleteKey($key)
+    public function delete($key)
     {
         $this->startSession();
-        if ($this->hasKey($key)) {
+        if ($this->has($key)) {
             unset($_SESSION[$this->ns][$key]);
         }
     }
 
-    public function hasKey($key)
+    public function has($key)
     {
         $this->startSession();
         if (array_key_exists($this->ns, $_SESSION)) {
@@ -77,10 +77,10 @@ class Session
         return false;
     }
 
-    public function getValue($key)
+    public function get($key)
     {
         $this->startSession();
-        if ($this->hasKey($key)) {
+        if ($this->has($key)) {
             return $_SESSION[$this->ns][$key];
         }
 

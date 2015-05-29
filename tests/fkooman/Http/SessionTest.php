@@ -26,11 +26,11 @@ class SessionTest extends PHPUnit_Framework_TestCase
     public function testSetGetValue()
     {
         $s = new Session();
-        $s->setValue('foo', 'bar');
-        $this->assertEquals('bar', $s->getValue('foo'));
-        $s->deleteKey('foo');
-        $this->assertNull($s->getValue('foo'));
+        $s->set('foo', 'bar');
+        $this->assertEquals('bar', $s->get('foo'));
+        $s->delete('foo');
+        $this->assertNull($s->get('foo'));
         $s->destroy();
-        $this->assertNull($s->getValue('foo'));
+        $this->assertNull($s->get('foo'));
     }
 }

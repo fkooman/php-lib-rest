@@ -20,25 +20,26 @@ require_once dirname(__DIR__).'/vendor/autoload.php';
 
 use fkooman\Rest\Service;
 use fkooman\Http\Session;
+use fkooman\Rest\ExceptionHandler;
 
-try {
-    $session = new Session('foo');
-    $service = new Service();
-    $service->get(
-        '/',
-        function () {
-            return 'Welcome!';
-        }
-    );
-    $service->get(
-        '/:key',
-        function ($key) use ($session) {
-            $newCount = $session->hasKey($key) ? $session->getValue($key) + 1 : 1;
-            $session->setValue($key, $newCount);
-            return 'count: ' . $newCount;
-        }
-    );
-    $service->run()->send();
-} catch (Exception $e) {
-    Service::handleException($e)->send();
-}
+ExceptionHandler::register();
+
+$session = new Session('foo');
+$service = new Service();
+$service->get(
+    '/',
+    function () {
+        $response = new Response();
+        $response->setBody('Welcome!');
+        return $response;
+    }
+);
+$service->get(
+    '/:key',
+    function ($key) use ($session) {
+        $newCount = $session->has($key) ? $session->get($key) + 1 : 1;
+        $session->set($key, $newCount);
+        return 'count: ' . $newCount;
+    }
+);
+$service->run()->send();
