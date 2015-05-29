@@ -26,7 +26,7 @@ use fkooman\Http\Exception\InternalServerErrorException;
 
 class ExceptionHandler
 {
-    public function __construct()
+    public static function register()
     {
         set_error_handler(
             function ($severity, $message, $file, $line) {
@@ -41,7 +41,7 @@ class ExceptionHandler
         set_exception_handler('fkooman\Rest\ExceptionHandler::handleException');
     }
 
-    public static function handleException(Exception $e, $onlyLogServerErrors = true)
+    public static function handleException(Exception $e)
     {
         $request = new Request($_SERVER);
 
@@ -49,17 +49,15 @@ class ExceptionHandler
             $e = new InternalServerErrorException($e->getMessage());
         }
 
-        if (!$onlyLogServerErrors || $onlyLogServerErrors && 500 === $e->getCode()) {
-            error_log(
-                sprintf(
-                    'ERROR: "%s", DESCRIPTION: "%s", FILE: "%s", LINE: "%d"',
-                    $e->getMessage(),
-                    $e->getDescription(),
-                    $e->getFile(),
-                    $e->getLine()
-                )
-            );
-        }
+        error_log(
+            sprintf(
+                'ERROR: "%s", DESCRIPTION: "%s", FILE: "%s", LINE: "%d"',
+                $e->getMessage(),
+                $e->getDescription(),
+                $e->getFile(),
+                $e->getLine()
+            )
+        );
 
         if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
             return $e->getHtmlResponse();
