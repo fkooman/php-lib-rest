@@ -19,6 +19,16 @@ class PluginRegistry
         $this->optionalPlugins = array();
     }
 
+    public function init(Service $service)
+    {
+        foreach ($this->defaultPlugins as $plugin) {
+            $plugin->init($service);
+        }
+        foreach ($this->optionalPlugins as $plugin) {
+            $plugin->init($service);
+        }
+    }
+
     public function registerDefaultPlugin(ServicePluginInterface $plugin)
     {
         $this->defaultPlugins[] = $plugin;

@@ -38,24 +38,15 @@ class Service
     {
         $this->routes = array();
         $this->supportedMethods = array();
-        $this->pluginRegistry = new PluginRegistry();
+        $this->pluginRegistry = null;
         ExceptionHandler::register();
     }
 
-    public function registerDefaultPlugin(ServicePluginInterface $plugin)
+    public function setPluginRegistry(PluginRegistry $pluginRegistry)
     {
-        if (method_exists($plugin, 'init')) {
-            $plugin->init($this);
-        }
-        $this->pluginRegistry->registerDefaultPlugin($plugin);
-    }
-
-    public function registerOptionalPlugin(ServicePluginInterface $plugin)
-    {
-        if (method_exists($plugin, 'init')) {
-            $plugin->init($this);
-        }
-        $this->pluginRegistry->registerOptionalPlugin($plugin);
+        $this->pluginRegistry = $pluginRegistry;
+        // initialize the plugins
+        $this->pluginRegistry->init($this);
     }
 
     public function get($requestPattern, $callback, array $routeOptions = array())
@@ -145,13 +136,15 @@ class Service
 
     private function executeCallback(Request $request, Route $route, array $availableRouteCallbackParameters)
     {
-        $pluginResponse = $this->pluginRegistry->run($request, $route);
-        if ($pluginResponse instanceof Response) {
-            // received Response from plugin, return this immediately
-            return $pluginResponse;
-        }
+        if (null !== $this->pluginRegistry) {
+            $pluginResponse = $this->pluginRegistry->run($request, $route);
+            if ($pluginResponse instanceof Response) {
+                // received Response from plugin, return this immediately
+                return $pluginResponse;
+            }
 
-        $availableRouteCallbackParameters = array_merge($availableRouteCallbackParameters, $pluginResponse);
+            $availableRouteCallbackParameters = array_merge($availableRouteCallbackParameters, $pluginResponse);
+        }
         $availableRouteCallbackParameters[get_class($request)] = $request;
         $response = $route->executeCallback($availableRouteCallbackParameters);
         if (!($response instanceof Response)) {

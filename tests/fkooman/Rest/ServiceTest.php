@@ -20,7 +20,6 @@ namespace fkooman\Rest;
 use PHPUnit_Framework_TestCase;
 use fkooman\Http\Request;
 use fkooman\Http\Response;
-use fkooman\Rest\Plugin\ReferrerCheckPlugin;
 
 class ServiceTest extends PHPUnit_Framework_TestCase
 {
@@ -46,36 +45,6 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
                 return $response;
             }
-        );
-        $response = $s->run($r);
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('foo', $response->getBody());
-    }
-
-    public function testDefaultPlugin()
-    {
-        $srv = array(
-            'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 80,
-            'QUERY_STRING' => '',
-            'REQUEST_URI' => '/index.php/',
-            'SCRIPT_NAME' => '/index.php',
-            'PATH_INFO' => '/',
-            'REQUEST_METHOD' => 'POST',
-        );
-        $r = new Request($srv);
-
-        $s = new Service();
-        $s->registerDefaultPlugin(new ReferrerCheckPlugin());
-        $s->post(
-            '/',
-            function (Request $request) {
-                $response = new Response();
-                $response->setBody('foo');
-
-                return $response;
-            },
-            array('fkooman\Rest\Plugin\ReferrerCheckPlugin' => array('enabled' => false))
         );
         $response = $s->run($r);
         $this->assertEquals(200, $response->getStatusCode());
