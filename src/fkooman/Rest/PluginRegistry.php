@@ -62,6 +62,7 @@ class PluginRegistry
                 $availableRouteCallbackParameters[get_class($response)] = $response;
             }
         }
+
         return $availableRouteCallbackParameters;
     }
 

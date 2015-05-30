@@ -19,6 +19,9 @@
         "fkooman/json": "~0.6.0",
         "php": ">=5.3.3"
     },
+    "require-dev": {
+        "ext-xdebug": "*"
+    },
     "suggest": {
         "fkooman/rest-plugin-basic": "Basic Authentication plugin",
         "fkooman/rest-plugin-bearer": "Bearer (OAuth) Authentication plugin",

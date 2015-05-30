@@ -1,21 +1,20 @@
 <?php
 
 /**
-* Copyright 2015 François Kooman <fkooman@tuxed.net>
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
+ * Copyright 2015 François Kooman <fkooman@tuxed.net>.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 namespace fkooman\Http;
 
 use RuntimeException;
@@ -32,12 +31,12 @@ class Url
             'SERVER_PORT',
             'REQUEST_URI',
             'SCRIPT_NAME',
-            'QUERY_STRING'  // always set, but '' if no query string present
+            'QUERY_STRING',  // always set, but '' if no query string present
         );
         $optionalKeys = array(
             'PATH_INFO',
             'HTTPS',
-            'HTTP_X_FORWARDED_PROTO'
+            'HTTP_X_FORWARDED_PROTO',
         );
 
         foreach ($requiredKeys as $key) {
@@ -56,7 +55,7 @@ class Url
 
         $this->fixScriptName();
     }
-    
+
     public function getScheme()
     {
         $h = $this->srv['HTTPS'];
@@ -67,6 +66,7 @@ class Url
         if ('https' === $p) {
             return 'https';
         }
+
         return 'http';
     }
 
@@ -104,6 +104,7 @@ class Url
         }
         $qArray = array();
         parse_str($this->getQueryString(), $qArray);
+
         return $qArray;
     }
 
@@ -117,7 +118,8 @@ class Url
         if (array_key_exists($key, $qArray)) {
             return $qArray[$key];
         }
-        return null;
+
+        return;
     }
 
     /**
@@ -144,9 +146,10 @@ class Url
         }
         // rewriting in the web server enabled
         $rootPath = dirname($this->srv['SCRIPT_NAME']);
+
         return '/' !== $rootPath ? $rootPath : '';
     }
-    
+
     /**
      * Get the folder of getRoot(). This is useful for referencing resources
      * like CSS and JS files independent on whether URL rewriting and/or
@@ -155,6 +158,7 @@ class Url
     public function getRootPath()
     {
         $rootPath = dirname($this->srv['SCRIPT_NAME']);
+
         return '/' !== $rootPath ? $rootPath : '';
     }
 
@@ -163,7 +167,7 @@ class Url
         $s = $this->getScheme();
         $h = $this->getHost();
         $p = $this->getPort();
-    
+
         // FIXME: we should also inspect the target port in case of HTTP
         // proxy to see if we need to specify a (different) port
         if ('https' === $s && 443 === $p || 'http' === $s && 80 === $p) {
@@ -171,14 +175,15 @@ class Url
         } else {
             $authority = sprintf('%s://%s:%s', $s, $h, $p);
         }
-        return $authority . $this->getRoot();
+
+        return $authority.$this->getRoot();
     }
 
     /**
      * PHP-FPM has a bug in combination with Apache where the SCRIPT_NAME
      * also includes the PATH_INFO. This is fixed in PHP >= 5.6 it seems.
      * Unfortunately CentOS 7 is affected by this issue.
-     * See: https://bugs.php.net/bug.php?id=65641
+     * See: https://bugs.php.net/bug.php?id=65641.
      */
     private function fixScriptName()
     {

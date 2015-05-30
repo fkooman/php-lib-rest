@@ -1,24 +1,22 @@
 <?php
 
 /**
-* Copyright 2015 François Kooman <fkooman@tuxed.net>
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
+ * Copyright 2015 François Kooman <fkooman@tuxed.net>.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 namespace fkooman\Rest;
 
-use fkooman\Rest\ExceptionHandler;
 use fkooman\Http\Exception\MethodNotAllowedException;
 use fkooman\Http\Exception\NotFoundException;
 use fkooman\Http\Request;
@@ -93,7 +91,6 @@ class Service
      * @param callback $callback     the callback to execute when this pattern
      *                               matches
      * @param array    $routeOptions the options for this route
-     *
      */
     public function addRoute(array $methods, $pattern, $callback, array $routeOptions = array())
     {
@@ -110,7 +107,7 @@ class Service
         if (null === $request) {
             $request = new Request($_SERVER);
         }
-        
+
         // support PUT and DELETE method override when _METHOD is set in a form
         // POST
         if ('POST' === $request->getMethod()) {

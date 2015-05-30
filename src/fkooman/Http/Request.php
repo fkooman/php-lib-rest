@@ -1,21 +1,20 @@
 <?php
 
 /**
-* Copyright 2015 François Kooman <fkooman@tuxed.net>
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
+ * Copyright 2015 François Kooman <fkooman@tuxed.net>.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 namespace fkooman\Http;
 
 use RuntimeException;
@@ -50,7 +49,7 @@ class Request
         $this->post = $post;
         $this->url = new Url($srv);
     }
-    
+
     public function getUrl()
     {
         return $this->url;
@@ -61,7 +60,8 @@ class Request
         if (array_key_exists($key, $this->post)) {
             return $this->post[$key];
         }
-        return null;
+
+        return;
     }
 
     public function setMethod($method)
@@ -71,7 +71,7 @@ class Request
 
     public function getMethod()
     {
-        return $this->srv['REQUEST_METHOD'] ;
+        return $this->srv['REQUEST_METHOD'];
     }
 
     public function getHeader($k)
@@ -80,11 +80,12 @@ class Request
         if (0 === strpos($k, 'HTTP_') || 0 === strpos($k, 'HTTP-')) {
             $k = substr($k, 5);
         }
-        $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_','-'), ' ', $k))));
+        $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $k))));
         if (array_key_exists($k, $headers)) {
             return $headers[$k];
         }
-        return null;
+
+        return;
     }
 
     public function getHeaders()
@@ -97,7 +98,7 @@ class Request
         $headers = array();
         foreach ($this->srv as $k => $v) {
             if (0 === strpos($k, 'HTTP_') || 0 === strpos($k, 'HTTP-')) {
-                $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_','-'), ' ', substr($k, 5)))));
+                $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', substr($k, 5)))));
                 $headers[$k] = $v;
                 continue;
             }
@@ -108,6 +109,7 @@ class Request
                 $headers['Content-Length'] = $v;
             }
         }
+
         return $headers;
     }
 
