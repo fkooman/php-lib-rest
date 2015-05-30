@@ -79,8 +79,8 @@ class Request
         $headers = $this->getHeaders();
         if (0 === strpos($k, 'HTTP_') || 0 === strpos($k, 'HTTP-')) {
             $k = substr($k, 5);
+            $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $k))));
         }
-        $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $k))));
         if (array_key_exists($k, $headers)) {
             return $headers[$k];
         }
@@ -108,6 +108,7 @@ class Request
             if ('CONTENT_LENGTH' === $k) {
                 $headers['Content-Length'] = $v;
             }
+            $headers[$k] = $v;
         }
 
         return $headers;

@@ -109,4 +109,19 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $r->setMethod('POST');
         $this->assertEquals('POST', $r->getMethod());
     }
+
+    public function testNonHttpHeader()
+    {
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => '',
+            'REQUEST_URI' => '/index.php',
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_METHOD' => 'GET',
+            'FOO_BAR_BAZ' => 'foo',
+        );
+        $r = new Request($srv);
+        $this->assertEquals('foo', $r->getHeader('FOO_BAR_BAZ'));
+    }
 }
