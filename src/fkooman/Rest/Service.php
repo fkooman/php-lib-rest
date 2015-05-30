@@ -18,6 +18,7 @@
 
 namespace fkooman\Rest;
 
+use fkooman\Rest\ExceptionHandler;
 use fkooman\Http\Exception\MethodNotAllowedException;
 use fkooman\Http\Exception\NotFoundException;
 use fkooman\Http\Request;
@@ -40,6 +41,7 @@ class Service
         $this->routes = array();
         $this->supportedMethods = array();
         $this->pluginRegistry = new PluginRegistry();
+        ExceptionHandler::register();
     }
 
     public function registerDefaultPlugin(ServicePluginInterface $plugin)

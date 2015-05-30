@@ -19,9 +19,6 @@
 require_once dirname(__DIR__).'/vendor/autoload.php';
 
 use fkooman\Rest\Service;
-use fkooman\Rest\ExceptionHandler;
-
-ExceptionHandler::register();
 
 $service = new Service();
 $service->setDefaultRoute('/welcome');
@@ -29,13 +26,17 @@ $service->setDefaultRoute('/welcome');
 $service->get(
     '/',
     function () {
-        return 'Root';
+        $response = new Response(200, 'text/plain');
+        $response->setBody('root');
+        return $response;
     }
 );
 $service->get(
     '/welcome',
     function () {
-        return 'Welcome!';
+        $response = new Response(200, 'text/plain');
+        $response->setBody('welcome');
+        return $response;
     }
 );
 
