@@ -1,16 +1,16 @@
 [![Build Status](https://travis-ci.org/fkooman/php-lib-rest.png?branch=master)](https://travis-ci.org/fkooman/php-lib-rest)
 
 # Introduction
-Library written in PHP to make it easy to develop REST applications. 
+Library written in PHP to make it easy to develop web and REST applications. 
 
 # Features
 The library has the following features:
-* Wrapper HTTP request and response class to make it very easy to test your
+* Wrapper HTTP `Request` and `Response` class to make it very easy to test your
   applications
 * RESTful router support
 * Various plugins for authentication
 
-Furthermore extensive tests are available written in PHPUnit.
+Furthermore, extensive tests are available written in PHPUnit.
 
 # Installation
 You can use this library through [Composer](http://getcomposer.org/) by 

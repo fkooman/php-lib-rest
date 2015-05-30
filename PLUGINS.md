@@ -3,12 +3,14 @@ Writing a plugin is very easy.
 
     <?php
 
+    namespace Vendor;
+
     use fkooman\Http\Request;
     use fkooman\Rest\ServicePluginInterface;
 
     class MyPlugin implements ServicePluginInterface 
     {
-        public function execute(Request $request, array $matchPluginConfig)
+        public function execute(Request $request, array $routeConfig)
         {
             // my logic
         }
@@ -17,7 +19,7 @@ Writing a plugin is very easy.
 You can return any object from the `execute()` method which will be available
 to the callback.
 
-        public function execute(Request $request, array $matchPluginConfig)
+        public function execute(Request $request, array $routeConfig)
         {
             $obj = new StdClass();
             $obj->foo = 'bar';
@@ -30,24 +32,27 @@ the `Service` class:
     $myPlugin = new MyPlugin();
 
     $service = new Service();
-    $service->registerOnMatchPlugin($myPlugin);
+    $service->registerDefaultPlugin($myPlugin);
 
-If you want to disable the plugin by default, i.e. allow per route enabling of
-the plugin you can use this:
+This registers a *default* plugin, which means that it will be run for every
+matching route. You can also register *optional* plugins that need to be 
+enabled per route:
 
-    $service->registerOnMatchPlugin($myPlugin, array('defaultDisable' => true));
+    $service->registerOptionalPlugin($myPlugin);
 
-You can then use the route configuration to manipulate this:
+Assuming you registered the plugin using `registerOptionalPlugin` you can 
+enable it for a specific route like this:
 
     $service->get(
         '/foo',
         function(Request $request, StdClass $s) {
-            // my logic
+            $response = new Response();
+            $response->setBody($s->foo);
+            return $response;
         },
         array(
-            'MyPlugin' => array('enabled' => true)
+            'Vendor\MyPlugin' => array('enabled' => true)
         )
     );
 
-You can also disable the plugin, if you leave it enabled by default by setting
-`enabled` to `false`.
+For default plugins you can disabled them by using `'enabled' => false`.
