@@ -25,7 +25,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 80,
+            'SERVER_PORT' => '80',
             'QUERY_STRING' => 'foo=bar',
             'REQUEST_URI' => '/bar/index.php?foo=bar',
             'SCRIPT_NAME' => '/bar/index.php',
@@ -48,7 +48,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $srv = array(
             'HTTPS' => 'on',
             'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 443,
+            'SERVER_PORT' => '443',
             'QUERY_STRING' => 'foo=bar',
             'REQUEST_URI' => '/bar/index.php?foo=bar',
             'SCRIPT_NAME' => '/bar/index.php',
@@ -72,7 +72,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 8080,
+            'SERVER_PORT' => '8080',
             'QUERY_STRING' => 'foo=bar',
             'REQUEST_URI' => '/bar/index.php?foo=bar',
             'SCRIPT_NAME' => '/bar/index.php',
@@ -94,7 +94,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 80,
+            'SERVER_PORT' => '80',
             'QUERY_STRING' => 'foo=bar',
             'PATH_INFO' => '/def',
             'REQUEST_URI' => '/bar/index.php/def?foo=bar',
@@ -117,7 +117,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 80,
+            'SERVER_PORT' => '80',
             'QUERY_STRING' => 'foo=bar',
             'PATH_INFO' => '/def',
             'REQUEST_URI' => '/bar/def?foo=bar',
@@ -140,7 +140,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 80,
+            'SERVER_PORT' => '80',
             'QUERY_STRING' => 'foo=bar',
             'PATH_INFO' => '/def',
             'REQUEST_URI' => '/def?foo=bar',
@@ -163,7 +163,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 80,
+            'SERVER_PORT' => '80',
             'QUERY_STRING' => '',
             'REQUEST_URI' => '/bar/index.php',
             'SCRIPT_NAME' => '/bar/index.php',
@@ -185,7 +185,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 443,
+            'SERVER_PORT' => '443',
             'HTTP_X_FORWARDED_PROTO' => 'https',
             'QUERY_STRING' => 'foo=bar',
             'REQUEST_URI' => '/bar/index.php?foo=bar',
@@ -216,7 +216,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
-            'SERVER_PORT' => 80,
+            'SERVER_PORT' => '80',
             'QUERY_STRING' => 'foo=bar',
             'PATH_INFO' => '/foo',
             'REQUEST_URI' => '/bar/index.php/foo?foo=bar',

@@ -77,7 +77,7 @@ class Url
 
     public function getPort()
     {
-        return $this->srv['SERVER_PORT'];
+        return intval($this->srv['SERVER_PORT']);
     }
 
     public function getPathInfo()
