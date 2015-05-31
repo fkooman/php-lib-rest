@@ -22,10 +22,14 @@ class PluginRegistry
     public function init(Service $service)
     {
         foreach ($this->defaultPlugins as $plugin) {
-            $plugin->init($service);
+            if (method_exists($plugin, 'init')) {
+                $plugin->init($service);
+            }
         }
         foreach ($this->optionalPlugins as $plugin) {
-            $plugin->init($service);
+            if (method_exists($plugin, 'init')) {
+                $plugin->init($service);
+            }
         }
     }
 
