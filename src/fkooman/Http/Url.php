@@ -162,7 +162,7 @@ class Url
         return '/' !== $rootPath ? $rootPath : '';
     }
 
-    public function getRootUrl()
+    public function getAuthority()
     {
         $s = $this->getScheme();
         $h = $this->getHost();
@@ -176,7 +176,22 @@ class Url
             $authority = sprintf('%s://%s:%s', $s, $h, $p);
         }
 
-        return $authority.$this->getRoot();
+        return $authority;
+    }
+
+    public function getRootUrl()
+    {
+        return $this->getAuthority().$this->getRoot();
+    }
+
+    public function toString()
+    {
+        return $this->getAuthority().$this->srv['REQUEST_URI'];
+    }
+
+    public function __toString()
+    {
+        return $this->toString();
     }
 
     /**

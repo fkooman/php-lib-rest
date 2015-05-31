@@ -64,6 +64,8 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https://www.example.org/bar/index.php', $u->getRootUrl());
         $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
+        $this->assertEquals('https://www.example.org/bar/index.php?foo=bar', $u->__toString());
+        $this->assertEquals('https://www.example.org/bar/index.php?foo=bar', $u->toString());
     }
 
     public function testHttpNonStandardPort()
