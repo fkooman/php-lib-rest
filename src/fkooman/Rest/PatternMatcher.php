@@ -44,7 +44,7 @@ class PatternMatcher
     public static function isMatch($path, $pattern)
     {
         // validate path
-        if (!is_string($path) || 0 >= strlen($path) || 0 !== strpos($path, '/')) {
+        if (null !== $path && (!is_string($path) || 0 >= strlen($path) || 0 !== strpos($path, '/'))) {
             throw new InvalidArgumentException('invalid path');
         }
 
