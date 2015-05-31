@@ -155,7 +155,7 @@ class Url
      * like CSS and JS files independent on whether URL rewriting and/or
      * PATH_INFO is used.
      */
-    public function getRootPath()
+    public function getRootFolder()
     {
         $rootPath = dirname($this->srv['SCRIPT_NAME']);
 
