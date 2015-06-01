@@ -55,6 +55,11 @@ class Request
         return $this->url;
     }
 
+    public function getPostParameters()
+    {
+        return $this->post;
+    }
+
     public function getPostParameter($key)
     {
         if (array_key_exists($key, $this->post)) {

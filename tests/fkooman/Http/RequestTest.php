@@ -65,6 +65,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(15, $r->getHeader('Content-Length'));
         $this->assertEquals('bar', $r->getPostParameter('foo'));
         $this->assertNull($r->getPostParameter('xyz'));
+        $this->assertEquals(array('foo' => 'bar', 'bar' => 'baz'), $r->getPostParameters());
         $this->assertNull($r->getHeader('Foo'));
         $this->assertEquals('*/*', $r->getHeader('HTTP_Accept'));
     }
