@@ -27,6 +27,6 @@
         "fkooman/rest-plugin-bearer": "Bearer (OAuth) Authentication plugin",
         "fkooman/rest-plugin-indieauth": "IndieAuth Authentication plugin",
         "fkooman/rest-plugin-mellon": "Mellon (SAML) Authentication plugin",
-        "fkooman/rest-plugin-simplesaml": "simpleSAMLphp (SAML) Authentication plugin"
+        "fkooman/rest-plugin-tls": "TLS Client Certificate Authentication plugin"
     }
 }
