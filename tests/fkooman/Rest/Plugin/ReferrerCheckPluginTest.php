@@ -31,7 +31,7 @@ class ReferrerCheckPluginTest extends PHPUnit_Framework_TestCase
             'REQUEST_URI' => '/bar/index.php?foo=bar',
             'SCRIPT_NAME' => '/bar/index.php',
             'REQUEST_METHOD' => 'POST',
-            'HTTP_REFERER' => 'http://www.example.org/bar/index.php',
+            'HTTP_REFERER' => 'http://www.example.org/bar/index.php/',
         );
         $request = new Request($srv);
         $rcp = new ReferrerCheckPlugin();

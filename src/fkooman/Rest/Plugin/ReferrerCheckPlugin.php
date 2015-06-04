@@ -30,7 +30,8 @@ class ReferrerCheckPlugin implements ServicePluginInterface
 {
     public function execute(Request $request, array $matchPluginConfig)
     {
-        // these methods do not require CSRF protection
+        // these methods do not require CSRF protection as they are not
+        // supposed to have side effects on the server
         $safeMethods = array('GET', 'HEAD', 'OPTIONS');
 
         if (!in_array($request->getMethod(), $safeMethods)) {

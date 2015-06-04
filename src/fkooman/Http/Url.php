@@ -148,12 +148,16 @@ class Url
     {
         if (0 === strpos($this->srv['REQUEST_URI'], $this->srv['SCRIPT_NAME'])) {
             // no rewriting in the web server
-            return $this->srv['SCRIPT_NAME'];
+            return $this->srv['SCRIPT_NAME'].'/';
         }
         // rewriting in the web server enabled
         $rootPath = dirname($this->srv['SCRIPT_NAME']);
 
-        return '/' !== $rootPath ? $rootPath : '';
+        if ('/' === $rootPath) {
+            return '/';
+        }
+
+        return $rootPath.'/';
     }
 
     /**
@@ -165,7 +169,11 @@ class Url
     {
         $rootPath = dirname($this->srv['SCRIPT_NAME']);
 
-        return '/' !== $rootPath ? $rootPath : '';
+        if ('/' === $rootPath) {
+            return '/';
+        }
+
+        return $rootPath.'/';
     }
 
     public function getAuthority()
