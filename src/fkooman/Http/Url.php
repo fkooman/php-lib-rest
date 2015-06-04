@@ -18,6 +18,7 @@
 namespace fkooman\Http;
 
 use RuntimeException;
+use InvalidArgumentException;
 
 class Url
 {
@@ -42,6 +43,11 @@ class Url
         foreach ($requiredKeys as $key) {
             if (!array_key_exists($key, $srv)) {
                 throw new RuntimeException(sprintf('missing key "%s"', $key));
+            }
+            // we only want ASCII to avoid the need for mb_* functions
+            if (false === mb_check_encoding($srv[$key], 'US-ASCII')) {
+                // not ASCII
+                throw new InvalidArgumentException('non ASCII characters detected');
             }
             $this->srv[$key] = $srv[$key];
         }

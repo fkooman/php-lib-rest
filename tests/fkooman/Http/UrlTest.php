@@ -234,4 +234,22 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
     }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage non ASCII characters detected
+     */
+    public function testNonAsciiUrlPart()
+    {
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => '80',
+            'QUERY_STRING' => 'name=François',
+            'PATH_INFO' => '/foo',
+            'REQUEST_URI' => '/bar/index.php/foo?name=François',
+            'SCRIPT_NAME' => '/bar/index.php',
+        );
+
+        $u = new Url($srv);
+    }
 }
