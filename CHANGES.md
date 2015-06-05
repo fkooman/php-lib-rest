@@ -1,5 +1,9 @@
 # Release History
 
+## 0.9.0
+- major refactoring
+- new `PluginRegistry`
+
 ## 0.8.9
 - add new `Url` class, deprecates `Uri` in the near future
 

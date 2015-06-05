@@ -39,7 +39,6 @@ class Service
         $this->routes = array();
         $this->supportedMethods = array();
         $this->pluginRegistry = null;
-        ExceptionHandler::register();
     }
 
     public function setPluginRegistry(PluginRegistry $pluginRegistry)
@@ -148,7 +147,15 @@ class Service
         $availableRouteCallbackParameters[get_class($request)] = $request;
         $response = $route->executeCallback($availableRouteCallbackParameters);
         if (!($response instanceof Response)) {
-            throw new RuntimeException('callback return value must be Response object');
+            // if the response is a string, we assume it needs to be sent back
+            // to the client as text/html
+            if (!is_string($response)) {
+                throw new RuntimeException('callback return value must be Response object');
+            }
+            $htmlResponse = new Response();
+            $htmlResponse->setBody($response);
+
+            return $htmlResponse;
         }
 
         return $response;

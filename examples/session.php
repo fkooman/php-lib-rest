@@ -20,6 +20,9 @@ require_once dirname(__DIR__).'/vendor/autoload.php';
 use fkooman\Rest\Service;
 use fkooman\Http\Response;
 use fkooman\Http\Session;
+use fkooman\Rest\ExceptionHandler;
+
+ExceptionHandler::register();
 
 $session = new Session('foo');
 $service = new Service();
