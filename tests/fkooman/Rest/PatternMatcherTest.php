@@ -43,5 +43,6 @@ class PatternMatcherTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(PatternMatcher::isMatch('/foo/', '/foo'));
         $this->assertFalse(PatternMatcher::isMatch('/foo/bar/baz', '/foo/:id'));
         $this->assertFalse(PatternMatcher::isMatch('/foo/bar/', '/foo/:id'));
+        $this->assertFalse(PatternMatcher::isMatch('/_indieauth/auth', '/:foo/auth'));
     }
 }

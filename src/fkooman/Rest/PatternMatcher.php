@@ -69,7 +69,7 @@ class PatternMatcher
         }
 
         // replace all occurences of :var with (?P<var>([^/]+))
-        $pattern = preg_replace('/:([\w]+)/i', '(?P<${1}>([^/]+))', $pattern);
+        $pattern = preg_replace('/:([\w]+)/i', '(?P<${1}>([^/_]+))', $pattern);
         if (null === $pattern) {
             throw new LogicException('regular expression for parameter replacement failed');
         }
