@@ -24,10 +24,10 @@ class MethodNotAllowedException extends HttpException
     /** @var array */
     private $allowedMethods;
 
-    public function __construct($message, $description, array $allowedMethods, $code = 0, Exception $previous = null)
+    public function __construct($requestMethod, array $allowedMethods, $code = 0, Exception $previous = null)
     {
         $this->allowedMethods = $allowedMethods;
-        parent::__construct($message, $description, 405, $previous);
+        parent::__construct(sprintf('method %s not supported', $requestMethod), null, 405, $previous);
     }
 
     private function addHeader(Response $response)

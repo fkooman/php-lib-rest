@@ -23,14 +23,13 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testMethodNotAllowedException()
     {
-        $e = new MethodNotAllowedException('foo', 'foo_description', array('GET', 'POST'));
+        $e = new MethodNotAllowedException('DELETE', array('GET', 'POST'));
         $response = $e->getJsonResponse();
         $this->assertEquals(405, $response->getStatusCode());
         $this->assertEquals('GET,POST', $response->getHeader('Allow'));
         $this->assertEquals(
             array(
-                'error' => 'foo',
-                'error_description' => 'foo_description',
+                'error' => 'method DELETE not supported',
             ),
             $response->getBody()
         );
@@ -38,14 +37,13 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
 
     public function testNoMethodAllowed()
     {
-        $e = new MethodNotAllowedException('foo', 'no method allowed', array());
+        $e = new MethodNotAllowedException('GET', array());
         $response = $e->getJsonResponse();
         $this->assertEquals(405, $response->getStatusCode());
         $this->assertNull($response->getHeader('Allow'));
         $this->assertEquals(
             array(
-                'error' => 'foo',
-                'error_description' => 'no method allowed',
+                'error' => 'method GET not supported',
             ),
             $response->getBody()
         );

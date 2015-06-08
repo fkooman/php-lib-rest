@@ -28,16 +28,12 @@ class Service
     /** @var array */
     private $routes;
 
-    /** @var array */
-    private $supportedMethods;
-
     /** @var fkooman\Rest\PluginRegistry */
     private $pluginRegistry;
 
     public function __construct()
     {
         $this->routes = array();
-        $this->supportedMethods = array();
         $this->pluginRegistry = null;
     }
 
@@ -85,11 +81,6 @@ class Service
     public function addRoute(array $methods, $pattern, $callback, array $routeOptions = array())
     {
         $this->routes[] = new Route($methods, $pattern, $callback, $routeOptions);
-        foreach ($methods as $method) {
-            if (!in_array($method, $this->supportedMethods)) {
-                $this->supportedMethods[] = $method;
-            }
-        }
     }
 
     public function run(Request $request = null)
@@ -110,27 +101,30 @@ class Service
         }
 
         foreach ($this->routes as $route) {
+            // FIXME: have to find the BEST match, not the first...
             if (false !== $availableRouteCallbackParameters = $route->isMatch($request->getMethod(), $request->getUrl()->getPathInfo())) {
                 return $this->executeCallback($request, $route, $availableRouteCallbackParameters);
             }
         }
 
-        // handle non matching patterns
-        if (in_array($request->getMethod(), $this->supportedMethods)) {
-            throw new NotFoundException('url not found', $request->getUrl()->getPathInfo());
+        // figure out all supported methods by all routes
+        $supportedMethods = array();
+        foreach ($this->routes as $route) {
+            $routeMethods = $route->getMethods();
+            foreach ($routeMethods as $method) {
+                if (!in_array($method, $supportedMethods)) {
+                    $supportedMethods[] = $method;
+                }
+            }
         }
 
-        if (0 !== count($this->supportedMethods)) {
-            $errorDescription = sprintf('only %s allowed', implode(',', $this->supportedMethods));
-        } else {
-            $errorDescription = 'no methods allowed';
+        // requested method supported, document is just not available
+        if (in_array($request->getMethod(), $supportedMethods)) {
+            throw new NotFoundException('url not found', $request->getUrl()->getRoot().$request->getUrl()->getPathInfo());
         }
 
-        throw new MethodNotAllowedException(
-            sprintf('unsupported method "%s"', $request->getMethod()),
-            $errorDescription,
-            $this->supportedMethods
-        );
+        // requested method net supported...
+        throw new MethodNotAllowedException($request->getMethod(), $supportedMethods);
     }
 
     private function executeCallback(Request $request, Route $route, array $availableRouteCallbackParameters)

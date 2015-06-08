@@ -51,6 +51,11 @@ class Route
         return array();
     }
 
+    public function getMethods()
+    {
+        return $this->methods;
+    }
+
     public function executeCallback(array $availableParameters)
     {
         // FIXME: we assume that callback is callable!
