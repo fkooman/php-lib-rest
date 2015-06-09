@@ -120,7 +120,7 @@ class Service
 
         // requested method supported, document is just not available
         if (in_array($request->getMethod(), $supportedMethods)) {
-            throw new NotFoundException('url not found', $request->getUrl()->getRoot().$request->getUrl()->getPathInfo());
+            throw new NotFoundException('url not found', $request->getUrl()->getRoot().substr($request->getUrl()->getPathInfo(), 1));
         }
 
         // requested method net supported...
