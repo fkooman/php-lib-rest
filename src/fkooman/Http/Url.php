@@ -88,6 +88,13 @@ class Url
 
     public function getPathInfo()
     {
+        // On CentOS 7 with PHP 5.4 PATH_INFO is null when rewriting is
+        // enabled and you go to the root. On Fedora 22 with PHP 5.6 PATH_INFO
+        // is '/'
+        if (null === $this->srv['PATH_INFO']) {
+            return '/';
+        }
+
         return $this->srv['PATH_INFO'];
     }
 
