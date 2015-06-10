@@ -16,6 +16,7 @@
     "license": "Apache-2.0",
     "name": "fkooman/rest",
     "require": {
+        "ext-mbstring": "*",
         "fkooman/json": "~0.6.0",
         "php": ">=5.3.3"
     },
