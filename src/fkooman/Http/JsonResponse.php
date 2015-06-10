@@ -30,9 +30,4 @@ class JsonResponse extends Response
     {
         parent::setBody(Json::encode($body));
     }
-
-    public function getBody()
-    {
-        return Json::decode(parent::getBody());
-    }
 }

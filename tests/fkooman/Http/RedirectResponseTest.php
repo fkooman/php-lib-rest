@@ -22,14 +22,35 @@ class RedirectResponseTest extends \PHPUnit_Framework_TestCase
     public function testRedirect301Response()
     {
         $h = new RedirectResponse('http://www.example.org/redirect');
-        $this->assertEquals(301, $h->getStatusCode());
-        $this->assertEquals('http://www.example.org/redirect', $h->getHeader('Location'));
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 301 Moved Permanently',
+                'Content-Type: text/html;charset=UTF-8',
+                'Location: http://www.example.org/redirect',
+                '',
+                '',
+            ),
+            $h->toArray()
+        );
+
+#        $this->assertEquals(301, $h->getStatusCode());
+#        $this->assertEquals('http://www.example.org/redirect', $h->getHeader('Location'));
     }
 
     public function testRedirect302Response()
     {
         $h = new RedirectResponse('http://www.example.org/redirect302', 302);
-        $this->assertEquals(302, $h->getStatusCode());
-        $this->assertEquals('http://www.example.org/redirect302', $h->getHeader('Location'));
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 302 Found',
+                'Content-Type: text/html;charset=UTF-8',
+                'Location: http://www.example.org/redirect302',
+                '',
+                '',
+            ),
+            $h->toArray()
+        );
+#        $this->assertEquals(302, $h->getStatusCode());
+#        $this->assertEquals('http://www.example.org/redirect302', $h->getHeader('Location'));
     }
 }

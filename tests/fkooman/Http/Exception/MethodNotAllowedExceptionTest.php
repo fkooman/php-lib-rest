@@ -24,28 +24,51 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
     public function testMethodNotAllowedException()
     {
         $e = new MethodNotAllowedException('DELETE', array('GET', 'POST'));
-        $response = $e->getJsonResponse();
-        $this->assertEquals(405, $response->getStatusCode());
-        $this->assertEquals('GET,POST', $response->getHeader('Allow'));
+
         $this->assertEquals(
             array(
-                'error' => 'method DELETE not supported',
+                'HTTP/1.1 405 Method Not Allowed',
+                'Content-Type: application/json',
+                'Allow: GET,POST',
+                '',
+                '{"error":"method DELETE not supported"}',
             ),
-            $response->getBody()
+            $e->getJsonResponse()->toArray()
         );
+
+#        $response = $e->getJsonResponse();
+#        $this->assertEquals(405, $response->getStatusCode());
+#        $this->assertEquals('GET,POST', $response->getHeader('Allow'));
+#        $this->assertEquals(
+#            array(
+#                'error' => 'method DELETE not supported',
+#            ),
+#            $response->getBody()
+#        );
     }
 
     public function testNoMethodAllowed()
     {
         $e = new MethodNotAllowedException('GET', array());
-        $response = $e->getJsonResponse();
-        $this->assertEquals(405, $response->getStatusCode());
-        $this->assertNull($response->getHeader('Allow'));
+
         $this->assertEquals(
             array(
-                'error' => 'method GET not supported',
+                'HTTP/1.1 405 Method Not Allowed',
+                'Content-Type: application/json',
+                '',
+                '{"error":"method GET not supported"}',
             ),
-            $response->getBody()
+            $e->getJsonResponse()->toArray()
         );
+
+#        $response = $e->getJsonResponse();
+#        $this->assertEquals(405, $response->getStatusCode());
+#        $this->assertNull($response->getHeader('Allow'));
+#        $this->assertEquals(
+#            array(
+#                'error' => 'method GET not supported',
+#            ),
+#            $response->getBody()
+#        );
     }
 }

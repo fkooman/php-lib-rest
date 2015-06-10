@@ -30,12 +30,4 @@ class FormResponse extends Response
             http_build_query($body)
         );
     }
-
-    public function getBody()
-    {
-        $body = parent::getBody();
-        parse_str($body, $parsedFormString);
-
-        return $parsedFormString;
-    }
 }

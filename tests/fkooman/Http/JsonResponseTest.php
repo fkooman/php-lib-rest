@@ -25,8 +25,19 @@ class JsonResponseTest extends PHPUnit_Framework_TestCase
     {
         $h = new JsonResponse(200);
         $h->setBody(array('foo' => 'bar'));
-        $this->assertEquals(200, $h->getStatusCode());
-        $this->assertEquals('application/json', $h->getHeader('Content-Type'));
-        $this->assertEquals(array('foo' => 'bar'), $h->getBody());
+
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: application/json',
+                '',
+                '{"foo":"bar"}',
+            ),
+            $h->toArray()
+        );
+
+#        $this->assertEquals(200, $h->getStatusCode());
+#        $this->assertEquals('application/json', $h->getHeader('Content-Type'));
+#        $this->assertEquals(array('foo' => 'bar'), $h->getBody());
     }
 }

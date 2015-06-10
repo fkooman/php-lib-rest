@@ -26,23 +26,33 @@ class BadRequestExceptionTest extends PHPUnit_Framework_TestCase
         $e = new BadRequestException('foo');
         $this->assertEquals(400, $e->getCode());
         $this->assertEquals('foo', $e->getMessage());
-        $jsonResponse = $e->getJsonResponse();
-        $this->assertEquals(400, $jsonResponse->getStatusCode());
-        $this->assertEquals('Bad Request', $jsonResponse->getStatusReason());
-        $this->assertEquals('application/json', $jsonResponse->getHeader('Content-Type'));
         $this->assertEquals(
             array(
-                'error' => 'foo',
+                'HTTP/1.1 400 Bad Request',
+                'Content-Type: application/json',
+                '',
+                '{"error":"foo"}',
             ),
-            $jsonResponse->getBody()
+            $e->getJsonResponse()->toArray()
         );
 
-        $htmlResponse = $e->getHtmlResponse();
-        $this->assertEquals(400, $htmlResponse->getStatusCode());
-        $this->assertEquals('text/html;charset=UTF-8', $htmlResponse->getHeader('Content-Type'));
         $this->assertEquals(
-            '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>foo</p></body></html>',
-            $htmlResponse->getBody()
+            array(
+                'HTTP/1.1 400 Bad Request',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>foo</p></body></html>',
+
+            ),
+            $e->getHtmlResponse()->toArray()
         );
+
+#        $htmlResponse = $e->getHtmlResponse();
+#        $this->assertEquals(400, $htmlResponse->getStatusCode());
+#        $this->assertEquals('text/html;charset=UTF-8', $htmlResponse->getHeader('Content-Type'));
+#        $this->assertEquals(
+#            '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>foo</p></body></html>',
+#            $htmlResponse->getBody()
+#        );
     }
 }

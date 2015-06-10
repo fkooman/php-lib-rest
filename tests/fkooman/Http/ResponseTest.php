@@ -24,10 +24,15 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     public function testResponse()
     {
         $r = new Response();
-        $this->assertEquals(200, $r->getStatusCode());
-        $this->assertEquals('text/html;charset=UTF-8', $r->getHeader('Content-Type'));
-        $this->assertEquals('', $r->getBody());
-        $this->assertNull($r->getHeader('Foo'));
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                '',
+            ),
+            $r->toArray()
+        );
     }
 
     /**
@@ -43,34 +48,51 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     {
         $r = new Response();
         $r->setBody('<em>Foo</em>');
-        $this->assertEquals('<em>Foo</em>', $r->getBody());
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                '<em>Foo</em>',
+            ),
+            $r->toArray()
+        );
+#        $r->setBody('<em>Foo</em>');
+#        $this->assertEquals('<em>Foo</em>', $r->getBody());
     }
 
     public function testGetStatusCodeAndReason()
     {
         $r = new Response(404);
-        $this->assertEquals(404, $r->getStatusCode());
-        $this->assertEquals('Not Found', $r->getStatusReason());
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 404 Not Found',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                '',
+            ),
+            $r->toArray()
+        );
+#        $this->assertEquals(404, $r->getStatusCode());
+#        $this->assertEquals('Not Found', $r->getStatusReason());
     }
 
     public function testSetGetHeader()
     {
         $r = new Response();
         $r->setHeader('Foo', 'Bar');
-        $this->assertEquals('Bar', $r->getHeader('Foo'));
-    }
-
-    public function testGetHeaders()
-    {
-        $r = new Response();
-        $r->setHeader('Foo', 'Bar');
         $this->assertEquals(
             array(
-                'Foo' => 'Bar',
-                'Content-Type' => 'text/html;charset=UTF-8',
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                'Foo: Bar',
+                '',
+                '',
             ),
-            $r->getHeaders()
+            $r->toArray()
         );
+
+#        $this->assertEquals('Bar', $r->getHeader('Foo'));
     }
 
     public function testSetHeaders()
@@ -84,12 +106,24 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             array(
-                'Foo' => 'Bar',
-                'Bar' => 'Baz',
-                'Content-Type' => 'text/html;charset=UTF-8',
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                'Foo: Bar',
+                'Bar: Baz',
+                '',
+                '',
             ),
-            $r->getHeaders()
+            $r->toArray()
         );
+
+#        $this->assertEquals(
+#            array(
+#                'Foo' => 'Bar',
+#                'Bar' => 'Baz',
+#                'Content-Type' => 'text/html;charset=UTF-8',
+#            ),
+#            $r->getHeaders()
+#        );
     }
 
     public function testUpdateExistingHeader()
@@ -98,9 +132,36 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $r->setHeader('CONTENT-TYPE', 'application/json');
         $this->assertEquals(
             array(
-                'Content-Type' => 'application/json',
+                'HTTP/1.1 200 OK',
+                'Content-Type: application/json',
+                '',
+                '',
             ),
-            $r->getHeaders()
+            $r->toArray()
+        );
+
+#        $this->assertEquals(
+#            array(
+#                'Content-Type' => 'application/json',
+#            ),
+#            $r->getHeaders()
+#        );
+    }
+
+    public function testAddHeader()
+    {
+        $r = new Response(200, 'application/json');
+        $r->setHeader('Link', '<https://example.org/micropub>; rel="micropub"');
+        $r->addHeader('Link', '<https://example.net/micropub>; rel="micropub"');
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: application/json',
+                'Link: <https://example.org/micropub>; rel="micropub", <https://example.net/micropub>; rel="micropub"',
+                '',
+                '',
+            ),
+            $r->toArray()
         );
     }
 

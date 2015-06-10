@@ -76,8 +76,8 @@ class HttpException extends Exception
         $htmlData = sprintf(
             '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>%s %s</title></head><body><h1>%s</h1><p>%s</p></body></html>',
             $this->getCode(),
-            $response->getStatusReason(),
-            $response->getStatusReason(),
+            Response::codeToReason($this->getCode()),
+            Response::codeToReason($this->getCode()),
             htmlspecialchars($message, ENT_QUOTES)
         );
         $response->setBody($htmlData);

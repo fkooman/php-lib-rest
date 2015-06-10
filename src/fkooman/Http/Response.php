@@ -22,73 +22,24 @@ use InvalidArgumentException;
 class Response
 {
     /** @var int */
-    private $statusCode;
+    protected $statusCode;
 
     /** @var array */
-    private $headers;
+    protected $headers;
 
     /** @var string */
-    private $body;
-
-    private $statusCodes = array(
-        100 => 'Continue',
-        101 => 'Switching Protocols',
-        200 => 'OK',
-        201 => 'Created',
-        202 => 'Accepted',
-        203 => 'Non-Authoritative Information',
-        204 => 'No Content',
-        205 => 'Reset Content',
-        206 => 'Partial Content',
-        300 => 'Multiple Choices',
-        301 => 'Moved Permanently',
-        302 => 'Found',
-        303 => 'See Other',
-        304 => 'Not Modified',
-        305 => 'Use Proxy',
-        306 => '(Unused)',
-        307 => 'Temporary Redirect',
-        400 => 'Bad Request',
-        401 => 'Unauthorized',
-        402 => 'Payment Required',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        405 => 'Method Not Allowed',
-        406 => 'Not Acceptable',
-        407 => 'Proxy Authentication Required',
-        408 => 'Request Timeout',
-        409 => 'Conflict',
-        410 => 'Gone',
-        411 => 'Length Required',
-        412 => 'Precondition Failed',
-        413 => 'Request Entity Too Large',
-        414 => 'Request-URI Too Long',
-        415 => 'Unsupported Media Type',
-        416 => 'Requested Range Not Satisfiable',
-        417 => 'Expectation Failed',
-        500 => 'Internal Server Error',
-        501 => 'Not Implemented',
-        502 => 'Bad Gateway',
-        503 => 'Service Unavailable',
-        504 => 'Gateway Timeout',
-        505 => 'HTTP Version Not Supported',
-    );
+    protected $body;
 
     public function __construct($statusCode = 200, $contentType = 'text/html;charset=UTF-8')
     {
-        $this->setStatusCode($statusCode);
+        if (false === self::codeToReason($statusCode)) {
+            throw new InvalidArgumentException('invalid status code');
+        }
+        $this->statusCode = $statusCode;
         $this->headers = array(
             'Content-Type' => $contentType,
         );
         $this->body = '';
-    }
-
-    public function setStatusCode($code)
-    {
-        if (!is_int($code) || !array_key_exists($code, $this->statusCodes)) {
-            throw new InvalidArgumentException('invalid status code');
-        }
-        $this->statusCode = $code;
     }
 
     public function setBody($body)
@@ -96,72 +47,151 @@ class Response
         $this->body = $body;
     }
 
-    public function getBody()
-    {
-        return $this->body;
-    }
-
-    public function getStatusCode()
-    {
-        return $this->statusCode;
-    }
-
-    public function getStatusReason()
-    {
-        return $this->statusCodes[$this->statusCode];
-    }
-
     public function setHeaders(array $headers)
     {
-        foreach ($headers as $k => $v) {
-            $this->setHeader($k, $v);
+        foreach ($headers as $key => $value) {
+            $this->setHeader($key, $value);
         }
     }
 
-    public function setHeader($headerKey, $headerValue)
+    public function setHeader($key, $value)
     {
-        $foundHeaderKey = $this->getHeaderKey($headerKey);
-        if (null === $foundHeaderKey) {
-            $this->headers[$headerKey] = $headerValue;
-        } else {
-            $this->headers[$foundHeaderKey] = $headerValue;
+        $key = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $key))));
+        $this->headers[$key] = $value;
+    }
+
+    public function addHeader($key, $value)
+    {
+        $key = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $key))));
+        if (array_key_exists($key, $this->headers)) {
+            $this->headers[$key] = sprintf('%s, %s', $this->headers[$key], $value);
         }
-    }
-
-    public function getHeader($headerKey)
-    {
-        $headerKey = $this->getHeaderKey($headerKey);
-
-        return null !== $headerKey ? $this->headers[$headerKey] : null;
-    }
-
-    /**
-     * Look for a header in a case insensitive way. It is possible to have a
-     * header key 'Content-type' or a header key 'Content-Type', these should
-     * be treated the same.
-     *
-     * @param headerName the name of the header to search for
-     * @returns The name of the header as it was set (original case)
-     */
-    private function getHeaderKey($headerKey)
-    {
-        $headerKeys = array_keys($this->headers);
-        $keyPositionInArray = array_search(strtolower($headerKey), array_map('strtolower', $headerKeys));
-
-        return false !== $keyPositionInArray ? $headerKeys[$keyPositionInArray] : null;
-    }
-
-    public function getHeaders($formatted = false)
-    {
-        return $this->headers;
     }
 
     public function send()
     {
-        header(sprintf('HTTP/1.1 %s %s', $this->getStatusCode(), $this->getStatusReason()));
-        foreach ($this->getHeaders() as $k => $v) {
-            header($k.': '.$v);
+        header(
+            sprintf(
+                'HTTP/1.1 %s %s',
+                $this->statusCode,
+                self::codeToReason($this->statusCode)
+            )
+        );
+        foreach ($this->headers as $k => $v) {
+            header(
+                sprintf('%s: %s', $k, $v)
+            );
         }
         echo $this->body;
+    }
+
+    public function toArray()
+    {
+        $output = array();
+        $output[] = sprintf(
+            'HTTP/1.1 %s %s',
+            $this->statusCode,
+            self::codeToReason($this->statusCode)
+        );
+        foreach ($this->headers as $k => $v) {
+            $output[] = sprintf('%s: %s', $k, $v);
+        }
+        $output[] = '';
+        $output[] = $this->body;
+
+        return $output;
+    }
+
+    public static function codeToReason($code)
+    {
+        $reasonList = array(
+            100 => 'Continue',
+            101 => 'Switching Protocols',
+            200 => 'OK',
+            201 => 'Created',
+            202 => 'Accepted',
+            203 => 'Non-Authoritative Information',
+            204 => 'No Content',
+            205 => 'Reset Content',
+            206 => 'Partial Content',
+            300 => 'Multiple Choices',
+            301 => 'Moved Permanently',
+            302 => 'Found',
+            303 => 'See Other',
+            304 => 'Not Modified',
+            305 => 'Use Proxy',
+            306 => '(Unused)',
+            307 => 'Temporary Redirect',
+            400 => 'Bad Request',
+            401 => 'Unauthorized',
+            402 => 'Payment Required',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            405 => 'Method Not Allowed',
+            406 => 'Not Acceptable',
+            407 => 'Proxy Authentication Required',
+            408 => 'Request Timeout',
+            409 => 'Conflict',
+            410 => 'Gone',
+            411 => 'Length Required',
+            412 => 'Precondition Failed',
+            413 => 'Request Entity Too Large',
+            414 => 'Request-URI Too Long',
+            415 => 'Unsupported Media Type',
+            416 => 'Requested Range Not Satisfiable',
+            417 => 'Expectation Failed',
+            500 => 'Internal Server Error',
+            501 => 'Not Implemented',
+            502 => 'Bad Gateway',
+            503 => 'Service Unavailable',
+            504 => 'Gateway Timeout',
+            505 => 'HTTP Version Not Supported',100 => 'Continue',
+            101 => 'Switching Protocols',
+            200 => 'OK',
+            201 => 'Created',
+            202 => 'Accepted',
+            203 => 'Non-Authoritative Information',
+            204 => 'No Content',
+            205 => 'Reset Content',
+            206 => 'Partial Content',
+            300 => 'Multiple Choices',
+            301 => 'Moved Permanently',
+            302 => 'Found',
+            303 => 'See Other',
+            304 => 'Not Modified',
+            305 => 'Use Proxy',
+            306 => '(Unused)',
+            307 => 'Temporary Redirect',
+            400 => 'Bad Request',
+            401 => 'Unauthorized',
+            402 => 'Payment Required',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            405 => 'Method Not Allowed',
+            406 => 'Not Acceptable',
+            407 => 'Proxy Authentication Required',
+            408 => 'Request Timeout',
+            409 => 'Conflict',
+            410 => 'Gone',
+            411 => 'Length Required',
+            412 => 'Precondition Failed',
+            413 => 'Request Entity Too Large',
+            414 => 'Request-URI Too Long',
+            415 => 'Unsupported Media Type',
+            416 => 'Requested Range Not Satisfiable',
+            417 => 'Expectation Failed',
+            500 => 'Internal Server Error',
+            501 => 'Not Implemented',
+            502 => 'Bad Gateway',
+            503 => 'Service Unavailable',
+            504 => 'Gateway Timeout',
+            505 => 'HTTP Version Not Supported',
+        );
+
+        if (!array_key_exists($code, $reasonList)) {
+            return false;
+        }
+
+        return $reasonList[$code];
     }
 }

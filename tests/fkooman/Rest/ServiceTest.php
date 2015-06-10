@@ -47,7 +47,18 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $s->run($r);
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('foo', $response->getBody());
+
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                'foo',
+            ),
+            $response->toArray()
+        );
+
+#        $this->assertEquals(200, $response->getStatusCode());
+#        $this->assertEquals('foo', $response->getBody());
     }
 }
