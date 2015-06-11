@@ -36,12 +36,12 @@ class ReferrerCheckPlugin implements ServicePluginInterface
 
         if (!in_array($request->getMethod(), $safeMethods)) {
             $referrer = $request->getHeader('HTTP_REFERER');
-            $rootUrl = $request->getUrl()->getRootUrl();
+            $rootFolderUrl = $request->getUrl()->getRootFolderUrl();
 
             if (null === $referrer) {
                 throw new BadRequestException('HTTP_REFERER header missing');
             }
-            if (0 !== strpos($referrer, $rootUrl)) {
+            if (0 !== strpos($referrer, $rootFolderUrl)) {
                 throw new BadRequestException('HTTP_REFERER has unexpected value');
             }
         }
