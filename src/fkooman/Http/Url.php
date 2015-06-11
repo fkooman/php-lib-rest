@@ -183,6 +183,11 @@ class Url
         return $rootPath.'/';
     }
 
+    public function getRootFolderUrl()
+    {
+        return $this->getAuthority().$this->getRootFolder();
+    }
+
     public function getAuthority()
     {
         $s = $this->getScheme();

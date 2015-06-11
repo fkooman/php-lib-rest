@@ -231,6 +231,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/bar/', $u->getRootFolder());
         $this->assertEquals('/foo', $u->getPathInfo());
         $this->assertEquals('http://www.example.org/bar/index.php/', $u->getRootUrl());
+        $this->assertEquals('http://www.example.org/bar/', $u->getRootFolderUrl());
         $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
     }
