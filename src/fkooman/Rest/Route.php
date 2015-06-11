@@ -20,14 +20,22 @@ namespace fkooman\Rest;
 use ReflectionFunction;
 use BadFunctionCallException;
 use ReflectionParameter;
+use InvalidArgumentException;
 
 class Route
 {
     public function __construct(array $methods, $pattern, $callback, array $config = array())
     {
-        // FIXME: validate input, pattern must be string, callback must be callable etc.
         $this->methods = $methods;
+
+        if (!is_string($pattern) || 0 >= strlen($pattern)) {
+            throw new InvalidArgumentException('pattern must be non-empty string');
+        }
         $this->pattern = $pattern;
+
+        if (!is_callable($callback)) {
+            throw new InvalidArgumentException('callback is not callable');
+        }
         $this->callback = $callback;
 
         $this->config = $config;
@@ -58,7 +66,6 @@ class Route
 
     public function executeCallback(array $availableParameters)
     {
-        // FIXME: we assume that callback is callable!
         $callbackParameters = array();
         $reflectionFunction = new ReflectionFunction($this->callback);
         foreach ($reflectionFunction->getParameters() as $parameter) {

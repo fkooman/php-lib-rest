@@ -101,7 +101,6 @@ class Service
         }
 
         foreach ($this->routes as $route) {
-            // FIXME: have to find the BEST match, not the first...
             if (false !== $availableRouteCallbackParameters = $route->isMatch($request->getMethod(), $request->getUrl()->getPathInfo())) {
                 return $this->executeCallback($request, $route, $availableRouteCallbackParameters);
             }
