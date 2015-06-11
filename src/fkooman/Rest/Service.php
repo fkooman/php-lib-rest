@@ -89,14 +89,11 @@ class Service
             $request = new Request($_SERVER);
         }
 
-        // support PUT and DELETE method override when _METHOD is set in a form
-        // POST
+        // support method override when _METHOD is set in a form POST
         if ('POST' === $request->getMethod()) {
-            if ('PUT' === $request->getPostParameter('_METHOD')) {
-                $request->setMethod('PUT');
-            }
-            if ('DELETE' === $request->getPostParameter('_METHOD')) {
-                $request->setMethod('DELETE');
+            $methodOverride = $request->getPostParameter('_METHOD');
+            if (null !== $methodOverride) {
+                $request->setMethod($methodOverride);
             }
         }
 
