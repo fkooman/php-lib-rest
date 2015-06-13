@@ -20,7 +20,6 @@ namespace fkooman\Rest;
 use PHPUnit_Framework_TestCase;
 use fkooman\Http\Request;
 
-
 class ServiceTest extends PHPUnit_Framework_TestCase
 {
     public function testSimple()
