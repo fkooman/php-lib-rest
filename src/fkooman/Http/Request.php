@@ -30,6 +30,12 @@ class Request
     /** @var fkooman\Http\Url */
     private $url;
 
+    /**
+     * Contruct the Request object.
+     *
+     * @param array $srv  the server parameters, typically $_SERVER
+     * @param array $post the server POST parameters, typically $_POST
+     */
     public function __construct(array $srv = null, array $post = null)
     {
         if (null === $srv) {
@@ -50,16 +56,32 @@ class Request
         $this->url = new Url($srv);
     }
 
+    /**
+     * Get the Url object.
+     */
     public function getUrl()
     {
         return $this->url;
     }
 
+    /**
+     * Get the POST parameters.
+     *
+     * @return array the key value pair POST parameters
+     */
     public function getPostParameters()
     {
         return $this->post;
     }
 
+    /**
+     * Get a specific POST parameter.
+     *
+     * @param string $key the POST key parameter to retrieve.
+     *
+     * @return string|null the value of the POST parameter key, or null if the
+     *                     key does not exist
+     */
     public function getPostParameter($key)
     {
         if (array_key_exists($key, $this->post)) {
@@ -69,16 +91,35 @@ class Request
         return;
     }
 
+    /**
+     * Set the HTTP method manually. Used for HTTP method override from
+     * Service class to support _METHOD form override.
+     *
+     * @param string $method the HTTP method to switch to
+     */
     public function setMethod($method)
     {
         $this->srv['REQUEST_METHOD'] = $method;
     }
 
+    /**
+     * Get the HTTP request method.
+     *
+     * @return string the HTTP method
+     */
     public function getMethod()
     {
         return $this->srv['REQUEST_METHOD'];
     }
 
+    /**
+     * Get the request header.
+     *
+     * @param string $k the HTTP header to retrieve
+     *
+     * @return string|null the header value or null if the header key is not
+     *                     set
+     */
     public function getHeader($k)
     {
         $headers = $this->getHeaders();
@@ -93,6 +134,11 @@ class Request
         return;
     }
 
+    /**
+     * Get the HTTP headers.
+     *
+     * @return array the HTTP headers as a key value array
+     */
     public function getHeaders()
     {
         // *** FALLBACK for FastCGI ***
@@ -119,6 +165,11 @@ class Request
         return $headers;
     }
 
+    /**
+     * Get the HTTP request body.
+     *
+     * @return string the HTTP body as a string, can also be binary.
+     */
     public function getBody()
     {
         return @file_get_contents('php://input');

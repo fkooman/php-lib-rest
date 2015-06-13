@@ -30,6 +30,12 @@ class Response
     /** @var string */
     protected $body;
 
+    /**
+     * Construct the Response.
+     *
+     * @param int    $statusCode  the HTTP status code
+     * @param string $contentType the Content-Type header of the response
+     */
     public function __construct($statusCode = 200, $contentType = 'text/html;charset=UTF-8')
     {
         if (false === self::codeToReason($statusCode)) {
@@ -42,11 +48,22 @@ class Response
         $this->body = '';
     }
 
+    /**
+     * Set the response body.
+     *
+     * @param string $body set the body value, also binary objects permitted.
+     */
     public function setBody($body)
     {
         $this->body = $body;
     }
 
+    /**
+     * Set headers.
+     *
+     * @param array $headers the array of headers where the key is the header
+     *                       name and the value is the header value
+     */
     public function setHeaders(array $headers)
     {
         foreach ($headers as $key => $value) {
@@ -54,12 +71,23 @@ class Response
         }
     }
 
+    /**
+     * Set a header. If it already exists the value is overwritten with the
+     * new one.
+     */
     public function setHeader($key, $value)
     {
         $key = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $key))));
         $this->headers[$key] = $value;
     }
 
+    /**
+     * Add a header. If it already exists the value is appended to the existing
+     * header using comma separation.
+     *
+     * @param string $key   the name of the header
+     * @param string $value the value of the header
+     */
     public function addHeader($key, $value)
     {
         $key = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $key))));
@@ -68,6 +96,9 @@ class Response
         }
     }
 
+    /**
+     * Construct the response and send it out.
+     */
     public function send()
     {
         header(
@@ -85,6 +116,9 @@ class Response
         echo $this->body;
     }
 
+    /**
+     * Convert the full response to array for the purpose of unit testing.
+     */
     public function toArray()
     {
         $output = array();
@@ -102,7 +136,12 @@ class Response
         return $output;
     }
 
-    public static function codeToReason($code)
+    /**
+     * Convert HTTP status code to "human readable" string.
+     *
+     * @param int $statusCode the HTTP status code
+     */
+    public static function codeToReason($statusCode)
     {
         $reasonList = array(
             100 => 'Continue',
@@ -188,10 +227,10 @@ class Response
             505 => 'HTTP Version Not Supported',
         );
 
-        if (!array_key_exists($code, $reasonList)) {
+        if (!array_key_exists($statusCode, $reasonList)) {
             return false;
         }
 
-        return $reasonList[$code];
+        return $reasonList[$statusCode];
     }
 }
