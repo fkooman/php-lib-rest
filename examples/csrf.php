@@ -25,6 +25,11 @@ use fkooman\Rest\Plugin\ReferrerCheck\ReferrerCheckPlugin;
 ExceptionHandler::register();
 
 $service = new Service();
+
+// registering the ReferrerCheckPlugin checks the HTTP_REFERER on all requests
+// that can have side-effects, e.g. PUT, POST, DELETE. If the HTTP_REFERER
+// header does not contain the expected value the request is denied.
+
 $pluginRegistry = new PluginRegistry();
 $pluginRegistry->registerDefaultPlugin(new ReferrerCheckPlugin());
 $service->setPluginRegistry($pluginRegistry);
@@ -36,8 +41,6 @@ $service->get(
     }
 );
 
-// this POST will check the HTTP_REFERER header. If it does not match the
-// expected value the POST will fail
 $service->post(
     '/',
     function () {
