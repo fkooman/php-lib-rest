@@ -1,265 +1,236 @@
 <?php
 
 /**
-* Copyright 2015 François Kooman <fkooman@tuxed.net>
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
+ * Copyright 2015 François Kooman <fkooman@tuxed.net>.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 namespace fkooman\Http;
 
-use fkooman\Http\Exception\ResponseException;
+use InvalidArgumentException;
 
 class Response
 {
-    private $headers;
+    /** @var int */
+    protected $statusCode;
 
-    private $content;
+    /** @var array */
+    protected $headers;
 
-    private $contentFile;
+    /** @var string */
+    protected $body;
 
-    private $statusCode;
-
-    private $statusCodes = array(
-        100 => "Continue",
-        101 => "Switching Protocols",
-        200 => "OK",
-        201 => "Created",
-        202 => "Accepted",
-        203 => "Non-Authoritative Information",
-        204 => "No Content",
-        205 => "Reset Content",
-        206 => "Partial Content",
-        300 => "Multiple Choices",
-        301 => "Moved Permanently",
-        302 => "Found",
-        303 => "See Other",
-        304 => "Not Modified",
-        305 => "Use Proxy",
-        306 => "(Unused)",
-        307 => "Temporary Redirect",
-        400 => "Bad Request",
-        401 => "Unauthorized",
-        402 => "Payment Required",
-        403 => "Forbidden",
-        404 => "Not Found",
-        405 => "Method Not Allowed",
-        406 => "Not Acceptable",
-        407 => "Proxy Authentication Required",
-        408 => "Request Timeout",
-        409 => "Conflict",
-        410 => "Gone",
-        411 => "Length Required",
-        412 => "Precondition Failed",
-        413 => "Request Entity Too Large",
-        414 => "Request-URI Too Long",
-        415 => "Unsupported Media Type",
-        416 => "Requested Range Not Satisfiable",
-        417 => "Expectation Failed",
-        500 => "Internal Server Error",
-        501 => "Not Implemented",
-        502 => "Bad Gateway",
-        503 => "Service Unavailable",
-        504 => "Gateway Timeout",
-        505 => "HTTP Version Not Supported",
-    );
-
-    private $useXSendfile;
-
-    public function __construct($statusCode = 200, $contentType = "text/html")
+    /**
+     * Construct the Response.
+     *
+     * @param int    $statusCode  the HTTP status code
+     * @param string $contentType the Content-Type header of the response
+     */
+    public function __construct($statusCode = 200, $contentType = 'text/html;charset=UTF-8')
     {
-        $this->headers = array();
-        $this->setStatusCode($statusCode);
-        $this->setContentType($contentType);
-        $this->useXSendfile(false);
-    }
-
-    public function useXSendfile($useXSendfile)
-    {
-        $this->useXSendfile = $useXSendfile;
-    }
-
-    public function getContent()
-    {
-        return $this->content;
-    }
-
-    public function getStatusCode()
-    {
-        return $this->statusCode;
-    }
-
-    public function getStatusReason()
-    {
-        return $this->statusCodes[$this->statusCode];
-    }
-
-    public function setContentType($contentType)
-    {
-        $this->setHeader("Content-Type", $contentType);
-    }
-
-    public function getContentType()
-    {
-        return $this->getHeader("Content-Type");
-    }
-
-    public function setContent($content)
-    {
-        $this->content = $content;
-    }
-
-    public function getContentFile()
-    {
-        return $this->contentFile;
-    }
-
-    public function setContentFile($contentFile)
-    {
-        $this->contentFile = $contentFile;
-    }
-
-    public function setStatusCode($code)
-    {
-        if (!is_numeric($code) || !array_key_exists($code, $this->statusCodes)) {
-            throw new ResponseException("invalid status code");
+        if (false === self::codeToReason($statusCode)) {
+            throw new InvalidArgumentException('invalid status code');
         }
-        $this->statusCode = (int) $code;
+        $this->statusCode = $statusCode;
+        $this->headers = array(
+            'Content-Type' => $contentType,
+        );
+        $this->body = '';
     }
 
+    /**
+     * Set the response body.
+     *
+     * @param string $body set the body value, also binary objects permitted.
+     */
+    public function setBody($body)
+    {
+        $this->body = $body;
+    }
+
+    /**
+     * Set headers.
+     *
+     * @param array $headers the array of headers where the key is the header
+     *                       name and the value is the header value
+     */
     public function setHeaders(array $headers)
     {
-        foreach ($headers as $k => $v) {
-            $this->setHeader($k, $v);
+        foreach ($headers as $key => $value) {
+            $this->setHeader($key, $value);
         }
-    }
-
-    public function setHeader($headerKey, $headerValue)
-    {
-        $foundHeaderKey = $this->getHeaderKey($headerKey);
-        if (null === $foundHeaderKey) {
-            $this->headers[$headerKey] = $headerValue;
-        } else {
-            $this->headers[$foundHeaderKey] = $headerValue;
-        }
-    }
-
-    public function getHeader($headerKey)
-    {
-        $headerKey = $this->getHeaderKey($headerKey);
-
-        return $headerKey !== null ? $this->headers[$headerKey] : null;
     }
 
     /**
-     * Look for a header in a case insensitive way. It is possible to have a
-     * header key "Content-type" or a header key "Content-Type", these should
-     * be treated as the same.
-     *
-     * @param headerName the name of the header to search for
-     * @returns The name of the header as it was set (original case)
-     *
+     * Set a header. If it already exists the value is overwritten with the
+     * new one.
      */
-    protected function getHeaderKey($headerKey)
+    public function setHeader($key, $value)
     {
-        $headerKeys = array_keys($this->headers);
-        $keyPositionInArray = array_search(strtolower($headerKey), array_map('strtolower', $headerKeys));
-
-        return (false === $keyPositionInArray) ? null : $headerKeys[$keyPositionInArray];
+        $key = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $key))));
+        $this->headers[$key] = $value;
     }
 
-    public function getHeaders($formatted = false)
+    /**
+     * Add a header. If it already exists the value is appended to the existing
+     * header using comma separation.
+     *
+     * @param string $key   the name of the header
+     * @param string $value the value of the header
+     */
+    public function addHeader($key, $value)
     {
-        if (!$formatted) {
-            return $this->headers;
+        $key = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $key))));
+        if (array_key_exists($key, $this->headers)) {
+            $this->headers[$key] = sprintf('%s, %s', $this->headers[$key], $value);
         }
-        $hdrs = array();
+    }
+
+    /**
+     * Construct the response and send it out.
+     */
+    public function send()
+    {
+        header(
+            sprintf(
+                'HTTP/1.1 %s %s',
+                $this->statusCode,
+                self::codeToReason($this->statusCode)
+            )
+        );
         foreach ($this->headers as $k => $v) {
-            array_push($hdrs, $k.": ".$v);
+            header(
+                sprintf('%s: %s', $k, $v)
+            );
         }
-
-        return $hdrs;
-    }
-
-    public function getStatusLine()
-    {
-        return "HTTP/1.1 ".$this->getStatusCode()." ".$this->getStatusReason();
-    }
-
-    public function sendResponse()
-    {
-        header($this->getStatusLine());
-        foreach ($this->getHeaders() as $k => $v) {
-            header($k.": ".$v);
-        }
-        if (null !== $this->getContentFile()) {
-            if ($this->useXSendfile) {
-                // use X-Sendfile (see https://tn123.org/mod_xsendfile/)
-                header("X-Sendfile: ".$this->getContentFile());
-            } else {
-                // just use PHP to send it (less efficient than X-Sendfile)
-                header("Content-Length: ".filesize($this->getContentFile()));
-                readfile($this->getContentFile());
-            }
-        } else {
-            echo $this->content;
-        }
+        echo $this->body;
     }
 
     /**
-     * Construct the Response from a file, you can create the
-     * dumps from actual traffic using "curl -i http://www.example.org > dump.txt"
+     * Convert the full response to array for the purpose of unit testing.
      */
-    public static function fromFile($file)
+    public function toArray()
     {
-        $data = @file_get_contents($file);
-        if (false === $data) {
-            throw new ResponseException("unable to read file");
+        $output = array();
+        $output[] = sprintf(
+            'HTTP/1.1 %s %s',
+            $this->statusCode,
+            self::codeToReason($this->statusCode)
+        );
+        foreach ($this->headers as $k => $v) {
+            $output[] = sprintf('%s: %s', $k, $v);
         }
-        $response = new self();
+        $output[] = '';
+        $output[] = $this->body;
 
-        // separate the headers from the content
-        list($headerLines, $contentData) = explode("\r\n\r\n", $data);
-
-        $headerLinesArray = explode("\r\n", $headerLines);
-
-        // First header is HTTP response code, e.g.: HTTP/1.1 200 OK
-        $responseCode = substr($headerLinesArray[0], 9, 3);
-        $response->setStatusCode($responseCode);
-
-        unset($headerLinesArray[0]);
-        foreach ($headerLinesArray as $headerLine) {
-            list($k, $v) = explode(":", $headerLine);
-            $response->setHeader(trim($k), trim($v));
-        }
-        $response->setContent($contentData);
-
-        return $response;
+        return $output;
     }
 
-    public function __toString()
+    /**
+     * Convert HTTP status code to "human readable" string.
+     *
+     * @param int $statusCode the HTTP status code
+     */
+    public static function codeToReason($statusCode)
     {
-        $s  = PHP_EOL;
-        $s .= "*Response*".PHP_EOL;
-        $s .= "Status:".PHP_EOL;
-        $s .= "\t".$this->getStatusLine().PHP_EOL;
-        $s .= "Headers:".PHP_EOL;
-        foreach ($this->getHeaders() as $k => $v) {
-            $s .= "\t".($k.": ".$v).PHP_EOL;
-        }
-        $s .= "Content:".PHP_EOL;
-        $s .= $this->content;
+        $reasonList = array(
+            100 => 'Continue',
+            101 => 'Switching Protocols',
+            200 => 'OK',
+            201 => 'Created',
+            202 => 'Accepted',
+            203 => 'Non-Authoritative Information',
+            204 => 'No Content',
+            205 => 'Reset Content',
+            206 => 'Partial Content',
+            300 => 'Multiple Choices',
+            301 => 'Moved Permanently',
+            302 => 'Found',
+            303 => 'See Other',
+            304 => 'Not Modified',
+            305 => 'Use Proxy',
+            306 => '(Unused)',
+            307 => 'Temporary Redirect',
+            400 => 'Bad Request',
+            401 => 'Unauthorized',
+            402 => 'Payment Required',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            405 => 'Method Not Allowed',
+            406 => 'Not Acceptable',
+            407 => 'Proxy Authentication Required',
+            408 => 'Request Timeout',
+            409 => 'Conflict',
+            410 => 'Gone',
+            411 => 'Length Required',
+            412 => 'Precondition Failed',
+            413 => 'Request Entity Too Large',
+            414 => 'Request-URI Too Long',
+            415 => 'Unsupported Media Type',
+            416 => 'Requested Range Not Satisfiable',
+            417 => 'Expectation Failed',
+            500 => 'Internal Server Error',
+            501 => 'Not Implemented',
+            502 => 'Bad Gateway',
+            503 => 'Service Unavailable',
+            504 => 'Gateway Timeout',
+            505 => 'HTTP Version Not Supported',100 => 'Continue',
+            101 => 'Switching Protocols',
+            200 => 'OK',
+            201 => 'Created',
+            202 => 'Accepted',
+            203 => 'Non-Authoritative Information',
+            204 => 'No Content',
+            205 => 'Reset Content',
+            206 => 'Partial Content',
+            300 => 'Multiple Choices',
+            301 => 'Moved Permanently',
+            302 => 'Found',
+            303 => 'See Other',
+            304 => 'Not Modified',
+            305 => 'Use Proxy',
+            306 => '(Unused)',
+            307 => 'Temporary Redirect',
+            400 => 'Bad Request',
+            401 => 'Unauthorized',
+            402 => 'Payment Required',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            405 => 'Method Not Allowed',
+            406 => 'Not Acceptable',
+            407 => 'Proxy Authentication Required',
+            408 => 'Request Timeout',
+            409 => 'Conflict',
+            410 => 'Gone',
+            411 => 'Length Required',
+            412 => 'Precondition Failed',
+            413 => 'Request Entity Too Large',
+            414 => 'Request-URI Too Long',
+            415 => 'Unsupported Media Type',
+            416 => 'Requested Range Not Satisfiable',
+            417 => 'Expectation Failed',
+            500 => 'Internal Server Error',
+            501 => 'Not Implemented',
+            502 => 'Bad Gateway',
+            503 => 'Service Unavailable',
+            504 => 'Gateway Timeout',
+            505 => 'HTTP Version Not Supported',
+        );
 
-        return $s;
+        if (!array_key_exists($statusCode, $reasonList)) {
+            return false;
+        }
+
+        return $reasonList[$statusCode];
     }
 }

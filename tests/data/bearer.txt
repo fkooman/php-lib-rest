@@ -1,9 +1,0 @@
-HTTP/1.1 401 Unauthorized
-Date: Sun, 28 Apr 2013 13:00:54 GMT
-Server: Apache/2.2.22 (Unix) DAV/2 PHP/5.3.15 with Suhosin-Patch mod_ssl/2.2.22 OpenSSL/0.9.8r
-X-Powered-By: PHP/5.3.15
-WWW-Authenticate: Bearer realm="VOOT Proxy",error="invalid_token",error_description="the token is not active"
-Content-Length: 71
-Content-Type: application/json
-
-{"error":"invalid_token","error_description":"the token is not active"}

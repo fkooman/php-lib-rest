@@ -11,9 +11,9 @@ Example with successful result:
 
     $ curl -i http://localhost/php-lib-rest/examples/rest.php/hello/world
     HTTP/1.1 200 OK
-    Date: Fri, 10 Oct 2014 14:43:32 GMT
-    Server: Apache/2.4.10 (Fedora) OpenSSL/1.0.1e-fips PHP/5.5.17
-    X-Powered-By: PHP/5.5.17
+    Date: Thu, 11 Jun 2015 17:05:12 GMT
+    Server: Apache/2.4.12 (Fedora) OpenSSL/1.0.1k-fips PHP/5.6.9
+    X-Powered-By: PHP/5.6.9
     Content-Length: 39
     Content-Type: application/json
 
@@ -23,35 +23,35 @@ Example where URL is missing:
 
     $ curl -i http://localhost/php-lib-rest/examples/rest.php/foo
     HTTP/1.1 404 Not Found
-    Date: Fri, 10 Oct 2014 14:44:01 GMT
-    Server: Apache/2.4.10 (Fedora) OpenSSL/1.0.1e-fips PHP/5.5.17
-    X-Powered-By: PHP/5.5.17
-    Content-Length: 68
+    Date: Thu, 11 Jun 2015 17:04:27 GMT
+    Server: Apache/2.4.12 (Fedora) OpenSSL/1.0.1k-fips PHP/5.6.9
+    X-Powered-By: PHP/5.6.9
+    Content-Length: 96
     Content-Type: application/json
 
-    {"error":"url not found"}
+    {"error":"url not found","error_description":"\/fkooman\/php-lib-rest\/examples\/rest.php\/foo"}
 
 Example where the request method is not supported:
 
     $ curl -i -X DELETE http://localhost/php-lib-rest/examples/rest.php/hello/world
     HTTP/1.1 405 Method Not Allowed
-    Date: Fri, 10 Oct 2014 14:44:25 GMT
-    Server: Apache/2.4.10 (Fedora) OpenSSL/1.0.1e-fips PHP/5.5.17
-    X-Powered-By: PHP/5.5.17
-    Allow: GET,POST
-    Content-Length: 85
+    Date: Thu, 11 Jun 2015 17:02:59 GMT
+    Server: Apache/2.4.12 (Fedora) OpenSSL/1.0.1k-fips PHP/5.6.9
+    X-Powered-By: PHP/5.6.9
+    Allow: GET,HEAD,POST
+    Content-Length: 39
     Content-Type: application/json
 
-    {"error":"unsupported method"}
+    {"error":"method DELETE not supported"}
 
 Example where a certain request is not acceptable
 
     $ curl -i -X POST http://localhost/php-lib-rest/examples/rest.php/hello/foo
     HTTP/1.1 400 Bad Request
-    Date: Fri, 10 Oct 2014 14:44:49 GMT
-    Server: Apache/2.4.10 (Fedora) OpenSSL/1.0.1e-fips PHP/5.5.17
-    X-Powered-By: PHP/5.5.17
-    Content-Length: 80
+    Date: Thu, 11 Jun 2015 17:03:53 GMT
+    Server: Apache/2.4.12 (Fedora) OpenSSL/1.0.1k-fips PHP/5.6.9
+    X-Powered-By: PHP/5.6.9
+    Content-Length: 35
     Connection: close
     Content-Type: application/json
 

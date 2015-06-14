@@ -16,14 +16,18 @@
     "license": "Apache-2.0",
     "name": "fkooman/rest",
     "require": {
+        "ext-mbstring": "*",
         "fkooman/json": "~0.6.0",
         "php": ">=5.3.3"
+    },
+    "require-dev": {
+        "ext-xdebug": "*"
     },
     "suggest": {
         "fkooman/rest-plugin-basic": "Basic Authentication plugin",
         "fkooman/rest-plugin-bearer": "Bearer (OAuth) Authentication plugin",
         "fkooman/rest-plugin-indieauth": "IndieAuth Authentication plugin",
         "fkooman/rest-plugin-mellon": "Mellon (SAML) Authentication plugin",
-        "fkooman/rest-plugin-simplesaml": "simpleSAMLphp (SAML) Authentication plugin"
+        "fkooman/rest-plugin-tls": "TLS Client Certificate Authentication plugin"
     }
 }

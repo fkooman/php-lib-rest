@@ -19,25 +19,16 @@ namespace fkooman\Http;
 
 use PHPUnit_Framework_TestCase;
 
-class FormResponseTest extends PHPUnit_Framework_TestCase
+class SessionTest extends PHPUnit_Framework_TestCase
 {
-    public function testResponse()
+    public function testSetGetValue()
     {
-        $h = new FormResponse(200);
-        $h->setBody(array('foo' => 'bar'));
-
-        $this->assertEquals(
-            array(
-                'HTTP/1.1 200 OK',
-                'Content-Type: application/x-www-form-urlencoded',
-                '',
-                'foo=bar',
-            ),
-            $h->toArray()
-        );
-
-    #        $this->assertEquals(200, $h->getStatusCode());
-    #        $this->assertEquals('application/x-www-form-urlencoded', $h->getHeader('Content-Type'));
-    #        $this->assertEquals(array('foo' => 'bar'), $h->getBody());
+        $s = new Session();
+        $s->set('foo', 'bar');
+        $this->assertEquals('bar', $s->get('foo'));
+        $s->delete('foo');
+        $this->assertNull($s->get('foo'));
+        $s->destroy();
+        $this->assertNull($s->get('foo'));
     }
 }

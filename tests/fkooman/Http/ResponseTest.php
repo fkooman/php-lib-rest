@@ -1,70 +1,185 @@
 <?php
 
 /**
-* Copyright 2015 François Kooman <fkooman@tuxed.net>
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
+ * Copyright 2015 François Kooman <fkooman@tuxed.net>.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 namespace fkooman\Http;
 
-class ResponseTest extends \PHPUnit_Framework_TestCase
+use PHPUnit_Framework_TestCase;
+
+class ResponseTest extends PHPUnit_Framework_TestCase
 {
-    private $filePath;
-
-    public function setUp()
-    {
-        $this->filePath = dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR."data";
-    }
-
     public function testResponse()
     {
-        $h = new Response();
-        $this->assertEquals(200, $h->getStatusCode());
-        $this->assertEquals("text/html", $h->getContentType());
-        $this->assertEquals("", $h->getContent());
-        $this->assertNull($h->getHeader("Foo"));
-    }
-
-    public function testResponseFromFile()
-    {
-        $h = Response::fromFile($this->filePath.DIRECTORY_SEPARATOR."simple.txt");
-        $this->assertEquals(200, $h->getStatusCode());
-        $this->assertEquals("text/plain", $h->getContentType());
-        $this->assertEquals("Hello World", $h->getContent());
-        $this->assertEquals(11, $h->getHeader("Content-Length"));
-    }
-
-    public function testResponseBearerFromFile()
-    {
-        $h = Response::fromFile($this->filePath.DIRECTORY_SEPARATOR."bearer.txt");
-        $this->assertEquals(401, $h->getStatusCode());
-        $this->assertEquals("application/json", $h->getContentType());
+        $r = new Response();
         $this->assertEquals(
-            'Bearer realm="VOOT Proxy",error="invalid_token",error_description="the token is not active"',
-            $h->getHeader("WWW-AuThEnTiCaTe")
-        );
-        $this->assertEquals(
-            '{"error":"invalid_token","error_description":"the token is not active"}',
-            $h->getContent()
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                '',
+            ),
+            $r->toArray()
         );
     }
 
-    public function testResponseEmptyResponseFromFile()
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage invalid status code
+     */
+    public function testInvalidCode()
     {
-        $h = Response::fromFile($this->filePath.DIRECTORY_SEPARATOR."empty_response.txt");
-        $this->assertEquals(200, $h->getStatusCode());
-        $this->assertEquals("text/html", $h->getContentType());
-        $this->assertEquals("", $h->getContent());
+        $h = new Response(999);
+    }
+
+    public function testSetBody()
+    {
+        $r = new Response();
+        $r->setBody('<em>Foo</em>');
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                '<em>Foo</em>',
+            ),
+            $r->toArray()
+        );
+#        $r->setBody('<em>Foo</em>');
+#        $this->assertEquals('<em>Foo</em>', $r->getBody());
+    }
+
+    public function testGetStatusCodeAndReason()
+    {
+        $r = new Response(404);
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 404 Not Found',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                '',
+            ),
+            $r->toArray()
+        );
+#        $this->assertEquals(404, $r->getStatusCode());
+#        $this->assertEquals('Not Found', $r->getStatusReason());
+    }
+
+    public function testSetGetHeader()
+    {
+        $r = new Response();
+        $r->setHeader('Foo', 'Bar');
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                'Foo: Bar',
+                '',
+                '',
+            ),
+            $r->toArray()
+        );
+
+#        $this->assertEquals('Bar', $r->getHeader('Foo'));
+    }
+
+    public function testSetHeaders()
+    {
+        $r = new Response();
+        $r->setHeaders(
+            array(
+                'Foo' => 'Bar',
+                'Bar' => 'Baz',
+            )
+        );
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                'Foo: Bar',
+                'Bar: Baz',
+                '',
+                '',
+            ),
+            $r->toArray()
+        );
+
+#        $this->assertEquals(
+#            array(
+#                'Foo' => 'Bar',
+#                'Bar' => 'Baz',
+#                'Content-Type' => 'text/html;charset=UTF-8',
+#            ),
+#            $r->getHeaders()
+#        );
+    }
+
+    public function testUpdateExistingHeader()
+    {
+        $r = new Response();
+        $r->setHeader('CONTENT-TYPE', 'application/json');
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: application/json',
+                '',
+                '',
+            ),
+            $r->toArray()
+        );
+
+#        $this->assertEquals(
+#            array(
+#                'Content-Type' => 'application/json',
+#            ),
+#            $r->getHeaders()
+#        );
+    }
+
+    public function testAddHeader()
+    {
+        $r = new Response(200, 'application/json');
+        $r->setHeader('Link', '<https://example.org/micropub>; rel="micropub"');
+        $r->addHeader('Link', '<https://example.net/micropub>; rel="micropub"');
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: application/json',
+                'Link: <https://example.org/micropub>; rel="micropub", <https://example.net/micropub>; rel="micropub"',
+                '',
+                '',
+            ),
+            $r->toArray()
+        );
+    }
+
+    public function testSendResponse()
+    {
+        $this->expectOutputString('Hello World!');
+
+        $r = new Response();
+        $r->setHeader('Foo', 'Bar');
+        $r->setBody('Hello World!');
+        $r->send();
+
+        $this->assertEquals(
+            array(
+                'Content-Type: text/html;charset=UTF-8',
+                'Foo: Bar',
+            ),
+            xdebug_get_headers()
+        );
     }
 }
