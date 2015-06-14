@@ -55,4 +55,4 @@ enable it for a specific route like this:
         )
     );
 
-For default plugins you can disabled them by using `'enabled' => false`.
+For default plugins you can disable them by using `'enabled' => false`.

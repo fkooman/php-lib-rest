@@ -26,9 +26,9 @@ You need to run Composer **FIRST** in order to be able to run the tests:
     $ php /path/to/composer.phar install
         
 # Example
-A simple sample application can be found in the `examples/` directory. 
-Please check there to see how to use this library. The example should work
-"as is" when placed in a directory reachable through a web server.
+Some sample applications can be found in the `examples/` directory. Please 
+check there to see how to use this library. The example should work "as is" 
+when placed in a directory reachable through a web server.
 
 # License
 Licensed under the Apache License, Version 2.0;
