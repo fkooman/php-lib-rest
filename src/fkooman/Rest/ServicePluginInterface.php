@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace fkooman\Rest\Plugin;
+namespace fkooman\Rest;
 
 use fkooman\Http\Request;
 

@@ -17,7 +17,7 @@
  */
 namespace fkooman\Rest\Plugin\ReferrerCheck;
 
-use fkooman\Rest\Plugin\ServicePluginInterface;
+use fkooman\Rest\ServicePluginInterface;
 use fkooman\Http\Request;
 use fkooman\Http\Exception\BadRequestException;
 
