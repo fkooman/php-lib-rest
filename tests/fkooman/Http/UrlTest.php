@@ -35,11 +35,10 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('http', $u->getScheme());
         $this->assertEquals('www.example.org', $u->getHost());
         $this->assertEquals(80, $u->getPort());
-        $this->assertEquals('/bar/index.php/', $u->getRoot());
-        $this->assertEquals('/bar/', $u->getRootFolder());
+        $this->assertEquals('/bar/', $u->getRoot());
         $this->assertEquals('/', $u->getPathInfo());
-        $this->assertEquals('http://www.example.org/bar/index.php/', $u->getRootUrl());
-        $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
+        $this->assertEquals('http://www.example.org/bar/', $u->getRootUrl());
+        $this->assertEquals(array('foo' => 'bar'), $u->getQueryStringAsArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
     }
 
@@ -59,10 +58,9 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('www.example.org', $u->getHost());
         $this->assertEquals(443, $u->getPort());
         $this->assertEquals('/', $u->getPathInfo());
-        $this->assertEquals('/bar/index.php/', $u->getRoot());
-        $this->assertEquals('/bar/', $u->getRootFolder());
-        $this->assertEquals('https://www.example.org/bar/index.php/', $u->getRootUrl());
-        $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
+        $this->assertEquals('/bar/', $u->getRoot());
+        $this->assertEquals('https://www.example.org/bar/', $u->getRootUrl());
+        $this->assertEquals(array('foo' => 'bar'), $u->getQueryStringAsArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
         $this->assertEquals('https://www.example.org/bar/index.php?foo=bar', $u->__toString());
         $this->assertEquals('https://www.example.org/bar/index.php?foo=bar', $u->toString());
@@ -83,10 +81,9 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('www.example.org', $u->getHost());
         $this->assertEquals(8080, $u->getPort());
         $this->assertEquals('/', $u->getPathInfo());
-        $this->assertEquals('/bar/index.php/', $u->getRoot());
-        $this->assertEquals('/bar/', $u->getRootFolder());
-        $this->assertEquals('http://www.example.org:8080/bar/index.php/', $u->getRootUrl());
-        $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
+        $this->assertEquals('/bar/', $u->getRoot());
+        $this->assertEquals('http://www.example.org:8080/bar/', $u->getRootUrl());
+        $this->assertEquals(array('foo' => 'bar'), $u->getQueryStringAsArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
     }
 
@@ -106,10 +103,9 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('www.example.org', $u->getHost());
         $this->assertEquals(80, $u->getPort());
         $this->assertEquals('/bar/index.php/', $u->getRoot());
-        $this->assertEquals('/bar/', $u->getRootFolder());
         $this->assertEquals('/def', $u->getPathInfo());
         $this->assertEquals('http://www.example.org/bar/index.php/', $u->getRootUrl());
-        $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
+        $this->assertEquals(array('foo' => 'bar'), $u->getQueryStringAsArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
     }
 
@@ -129,10 +125,9 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('www.example.org', $u->getHost());
         $this->assertEquals(80, $u->getPort());
         $this->assertEquals('/bar/', $u->getRoot());
-        $this->assertEquals('/bar/', $u->getRootFolder());
         $this->assertEquals('/def', $u->getPathInfo());
         $this->assertEquals('http://www.example.org/bar/', $u->getRootUrl());
-        $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
+        $this->assertEquals(array('foo' => 'bar'), $u->getQueryStringAsArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
     }
 
@@ -152,10 +147,9 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('www.example.org', $u->getHost());
         $this->assertEquals(80, $u->getPort());
         $this->assertEquals('/', $u->getRoot());
-        $this->assertEquals('/', $u->getRootFolder());
         $this->assertEquals('/def', $u->getPathInfo());
         $this->assertEquals('http://www.example.org/', $u->getRootUrl());
-        $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
+        $this->assertEquals(array('foo' => 'bar'), $u->getQueryStringAsArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
     }
 
@@ -173,11 +167,10 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('http', $u->getScheme());
         $this->assertEquals('www.example.org', $u->getHost());
         $this->assertEquals(80, $u->getPort());
-        $this->assertEquals('/bar/index.php/', $u->getRoot());
-        $this->assertEquals('/bar/', $u->getRootFolder());
+        $this->assertEquals('/bar/', $u->getRoot());
         $this->assertEquals('/', $u->getPathInfo());
-        $this->assertEquals('http://www.example.org/bar/index.php/', $u->getRootUrl());
-        $this->assertEquals(array(), $u->getQueryArray());
+        $this->assertEquals('http://www.example.org/bar/', $u->getRootUrl());
+        $this->assertEquals(array(), $u->getQueryStringAsArray());
         $this->assertNull($u->getQueryParameter('foo'));
     }
 
@@ -196,11 +189,10 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https', $u->getScheme());
         $this->assertEquals('www.example.org', $u->getHost());
         $this->assertEquals(443, $u->getPort());
-        $this->assertEquals('/bar/index.php/', $u->getRoot());
-        $this->assertEquals('/bar/', $u->getRootFolder());
+        $this->assertEquals('/bar/', $u->getRoot());
         $this->assertEquals('/', $u->getPathInfo());
-        $this->assertEquals('https://www.example.org/bar/index.php/', $u->getRootUrl());
-        $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
+        $this->assertEquals('https://www.example.org/bar/', $u->getRootUrl());
+        $this->assertEquals(array('foo' => 'bar'), $u->getQueryStringAsArray());
     }
 
     /**
@@ -228,11 +220,9 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('www.example.org', $u->getHost());
         $this->assertEquals(80, $u->getPort());
         $this->assertEquals('/bar/index.php/', $u->getRoot());
-        $this->assertEquals('/bar/', $u->getRootFolder());
         $this->assertEquals('/foo', $u->getPathInfo());
         $this->assertEquals('http://www.example.org/bar/index.php/', $u->getRootUrl());
-        $this->assertEquals('http://www.example.org/bar/', $u->getRootFolderUrl());
-        $this->assertEquals(array('foo' => 'bar'), $u->getQueryArray());
+        $this->assertEquals(array('foo' => 'bar'), $u->getQueryStringAsArray());
         $this->assertEquals('bar', $u->getQueryParameter('foo'));
     }
 

@@ -20,6 +20,35 @@ namespace fkooman\Http;
 use RuntimeException;
 use InvalidArgumentException;
 
+/**
+ * Url Class.
+ *
+ * Helper class to easily determine the request URL. It has a number of
+ * important functions:
+ *
+ * - Determine the REST route (i.e.: PATH_INFO) that should be executed. There
+ *   are a number of scenarios we want to support. For example of the requested
+ *   route is /foo/bar the request could look like any of these:
+ *   - http://www.example.org/app/index.php/foo/bar (in folder 'app'
+ *   - http://www.example.org/app/foo/bar (URL rewriting to index.php)
+ *   - http://www.example.org/index.php/foo/bar (in the root)
+ *   - http://www.example.org/foo/bar (in the root with rewriting)
+ *
+ *   We want to make it possible to figure out the (relative and absolute) path
+ *   of the application, if it runs in the root we want to return '/', if it
+ *   runs in a folder we want to return /app/.
+ *
+ *   In essence, we need to detect whether or not URL rewriting is active and
+ *   whether or not the application is located in the root or in a folder.
+ *   Various server variables give different results for different web servers
+ *   and configurations and also for different PHP versions and whether or not
+ *   php-fpm is used. This all needs to be made consisent.
+ *
+ * - Make the query parameters easily available.
+ *
+ * - Make it possible to reconstruct the full request URL from the server
+ *   variables.
+ */
 class Url
 {
     /** @var array */
@@ -36,8 +65,7 @@ class Url
             'SERVER_NAME',
             'SERVER_PORT',
             'REQUEST_URI',
-            'SCRIPT_NAME',
-            'QUERY_STRING',  // always set, but '' if no query string present
+            'QUERY_STRING',
         );
         $optionalKeys = array(
             'PATH_INFO',
@@ -63,8 +91,6 @@ class Url
                 $this->srv[$key] = $srv[$key];
             }
         }
-
-        $this->fixScriptName();
     }
 
     /**
@@ -117,7 +143,7 @@ class Url
     {
         // On CentOS 7 with PHP 5.4 PATH_INFO is null when rewriting is
         // enabled and you go to the root. On Fedora 22 with PHP 5.6 PATH_INFO
-        // is '/'
+        // is '/' in the same scenario.
         if (null === $this->srv['PATH_INFO']) {
             return '/';
         }
@@ -142,15 +168,15 @@ class Url
      * @return array the query string as array. The array will be empty if
      *               the query string is empty
      */
-    public function getQueryArray()
+    public function getQueryStringAsArray()
     {
         if ('' === $this->getQueryString()) {
             return array();
         }
-        $qArray = array();
-        parse_str($this->getQueryString(), $qArray);
+        $queryStringArray = array();
+        parse_str($this->getQueryString(), $queryStringArray);
 
-        return $qArray;
+        return $queryStringArray;
     }
 
     /**
@@ -163,9 +189,9 @@ class Url
      */
     public function getQueryParameter($key)
     {
-        $qArray = $this->getQueryArray();
-        if (array_key_exists($key, $qArray)) {
-            return $qArray[$key];
+        $queryStringArray = $this->getQueryStringAsArray();
+        if (array_key_exists($key, $queryStringArray)) {
+            return $queryStringArray[$key];
         }
 
         return;
@@ -189,42 +215,39 @@ class Url
      */
     public function getRoot()
     {
-        if (0 === strpos($this->srv['REQUEST_URI'], $this->srv['SCRIPT_NAME'])) {
-            // no rewriting in the web server
-            return $this->srv['SCRIPT_NAME'].'/';
-        }
-        // rewriting in the web server enabled
-        $rootPath = dirname($this->srv['SCRIPT_NAME']);
+        $r = $this->srv['REQUEST_URI'];
+        $q = $this->srv['QUERY_STRING'];
+        $p = $this->srv['PATH_INFO'];
 
-        if ('/' === $rootPath) {
-            return '/';
+        // remove query string from request uri if set
+        if (0 !== strlen($q)) {
+            $r = substr($r, 0, strlen($r) - strlen($q) - 1);
         }
 
-        return $rootPath.'/';
+        // remove path info from request uri if set
+        if (null !== $p && 0 !== strlen($p)) {
+            $r = substr($r, 0, strlen($r) - strlen($p));
+        }
+
+        // if path info is not set, remove the last path component, it is
+        // probably the PHP script
+        if (null === $p) {
+            $r = substr($r, 0, strrpos($r, '/'));
+        }
+
+        if (0 === strlen($r) || strrpos($r, '/') !== strlen($r) - 1) {
+            $r .= '/';
+        }
+
+        return $r;
     }
 
     /**
-     * Get the folder of getRoot(). This is useful for referencing resources
-     * like CSS and JS files independent on whether URL rewriting and/or
-     * PATH_INFO is used.
+     * Get the root as a full URL.
      */
-    public function getRootFolder()
+    public function getRootUrl()
     {
-        $rootPath = dirname($this->srv['SCRIPT_NAME']);
-
-        if ('/' === $rootPath) {
-            return '/';
-        }
-
-        return $rootPath.'/';
-    }
-
-    /**
-     * Get the root folder as a full URL.
-     */
-    public function getRootFolderUrl()
-    {
-        return $this->getAuthority().$this->getRootFolder();
+        return $this->getAuthority().$this->getRoot();
     }
 
     /**
@@ -251,14 +274,6 @@ class Url
     }
 
     /**
-     * Get the root as a full URL.
-     */
-    public function getRootUrl()
-    {
-        return $this->getAuthority().$this->getRoot();
-    }
-
-    /**
      * Get the URL as a string.
      */
     public function toString()
@@ -272,26 +287,5 @@ class Url
     public function __toString()
     {
         return $this->toString();
-    }
-
-    /**
-     * PHP-FPM has a bug in combination with Apache where the SCRIPT_NAME
-     * also includes the PATH_INFO. This is fixed in PHP >= 5.6 it seems.
-     * Unfortunately CentOS 7 is affected by this issue.
-     * See: https://bugs.php.net/bug.php?id=65641.
-     */
-    private function fixScriptName()
-    {
-        $pathInfo = $this->srv['PATH_INFO'];
-        $scriptName = $this->srv['SCRIPT_NAME'];
-
-        if (null !== $pathInfo) {
-            // check if SCRIPT_NAME ends with PATH_INFO, if so, remove
-            // PATH_INFO from SCRIPT_NAME and return that instead
-            if (0 === strpos(strrev($scriptName), strrev($pathInfo))) {
-                $scriptName = substr($scriptName, 0, strlen($scriptName) - strlen($pathInfo));
-            }
-        }
-        $this->srv['SCRIPT_NAME'] = $scriptName;
     }
 }

@@ -33,7 +33,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'HTTP_ACCEPT' => '*/*',
         );
         $r = new Request($srv);
-        $this->assertEquals('http://www.example.org/bar/index.php/', $r->getUrl()->getRootUrl());
+        $this->assertEquals('http://www.example.org/bar/', $r->getUrl()->getRootUrl());
         $this->assertEquals('*/*', $r->getHeader('Accept'));
         $this->assertEquals('GET', $r->getMethod());
     }
@@ -58,7 +58,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         );
 
         $r = new Request($srv, $post);
-        $this->assertEquals('http://www.example.org/bar/index.php/', $r->getUrl()->getRootUrl());
+        $this->assertEquals('http://www.example.org/bar/', $r->getUrl()->getRootUrl());
         $this->assertEquals('*/*', $r->getHeader('Accept'));
         $this->assertEquals('POST', $r->getMethod());
         $this->assertEquals('application/x-www-form-urlencoded', $r->getHeader('Content-Type'));
@@ -105,7 +105,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'GET',
         );
         $r = new Request($srv);
-        $this->assertEquals('http://www.example.org/index.php/', $r->getUrl()->getRootUrl());
+        $this->assertEquals('http://www.example.org/', $r->getUrl()->getRootUrl());
         $this->assertEquals('GET', $r->getMethod());
         $r->setMethod('POST');
         $this->assertEquals('POST', $r->getMethod());

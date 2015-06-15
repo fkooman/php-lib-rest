@@ -17,7 +17,7 @@
  */
 namespace fkooman\Rest\Plugin\ReferrerCheck;
 
-use fkooman\Rest\ServicePluginInterface;
+use fkooman\Rest\Plugin\ServicePluginInterface;
 use fkooman\Http\Request;
 use fkooman\Http\Exception\BadRequestException;
 
@@ -36,12 +36,12 @@ class ReferrerCheckPlugin implements ServicePluginInterface
 
         if (!in_array($request->getMethod(), $safeMethods)) {
             $referrer = $request->getHeader('HTTP_REFERER');
-            $rootFolderUrl = $request->getUrl()->getRootFolderUrl();
+            $rootUrl = $request->getUrl()->getRootUrl();
 
             if (null === $referrer) {
                 throw new BadRequestException('HTTP_REFERER header missing');
             }
-            if (0 !== strpos($referrer, $rootFolderUrl)) {
+            if (0 !== strpos($referrer, $rootUrl)) {
                 throw new BadRequestException('HTTP_REFERER has unexpected value');
             }
         }
