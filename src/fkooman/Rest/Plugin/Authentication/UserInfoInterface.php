@@ -15,20 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace fkooman\Rest\Plugin;
+namespace fkooman\Rest\Plugin\Authentication;
 
-class UserInfo
+interface UserInfoInterface
 {
-    /** @var string */
-    private $userId;
-
-    public function __construct($userId)
-    {
-        $this->userId = $userId;
-    }
-
-    public function getUserId()
-    {
-        return $this->userId;
-    }
+    /**
+     * Gets the unique user identifier.
+     *
+     * @return string the user identifier
+     */
+    public function getUserId();
 }
