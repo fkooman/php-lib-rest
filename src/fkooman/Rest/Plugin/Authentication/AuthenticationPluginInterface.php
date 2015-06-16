@@ -17,6 +17,7 @@
  */
 namespace fkooman\Rest\Plugin\Authentication;
 
+use fkooman\Http\Request;
 use fkooman\Rest\ServicePluginInterface;
 
 interface AuthenticationPluginInterface extends ServicePluginInterface
