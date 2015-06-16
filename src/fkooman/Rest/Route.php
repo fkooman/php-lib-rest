@@ -24,6 +24,18 @@ use InvalidArgumentException;
 
 class Route
 {
+    /** @var array */
+    private $methods;
+
+    /** @var string */
+    private $pattern;
+
+    /** @var callable */
+    private $callback;
+
+    /** @var array */
+    private $config;
+
     public function __construct(array $methods, $pattern, $callback, array $config = array())
     {
         $this->methods = $methods;
