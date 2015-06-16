@@ -26,7 +26,7 @@ class PatternMatcher
      * Determines if the provided path matches the provided pattern and returns
      * matched parameters if specified.
      *
-     * @param string $path typically the PATH_INFO from the request
+     * @param string $path    typically the PATH_INFO from the request
      * @param string $pattern the pattern to match against
      *
      * E: isMatch('/foo/bar',     '/foo/:id')     ==> array('id' => 'bar')
@@ -94,11 +94,13 @@ class PatternMatcher
         }
 
         $patternParameters = array();
-        foreach ($parameters as $k => $v) {
-            // find the name of the parameter in the callback and set it to
-            // the value
-            if (is_string($k)) {
-                $patternParameters[$k] = $v;
+        if (null !== $parameters) {
+            foreach ($parameters as $k => $v) {
+                // find the name of the parameter in the callback and set it to
+                // the value
+                if (is_string($k)) {
+                    $patternParameters[$k] = $v;
+                }
             }
         }
 
