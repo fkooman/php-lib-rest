@@ -58,11 +58,15 @@ web server. For example on CentOS you can put the following in
         RewriteBase /app
         RewriteCond %{REQUEST_FILENAME} !-f
         RewriteRule ^(.*)$ index.php/$1 [QSA,L]
+
+        SetEnvIfNoCase ^Authorization$ "(.+)" HTTP_AUTHORIZATION=$1
     </Directory>
 
 This will make everything work perfectly using Apache and `mod_php`. If you
 want to use for example PHP-FPM you can use `ProxyPassMatch` in your 
 `VirtualHost` section instead:
+
+    SetEnvIfNoCase ^Authorization$ "(.+)" HTTP_AUTHORIZATION=$1
 
     ProxyPassMatch /css !
     ProxyPassMatch /robots.txt !
