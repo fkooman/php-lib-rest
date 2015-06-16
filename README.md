@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/fkooman/php-lib-rest.png?branch=master)](https://travis-ci.org/fkooman/php-lib-rest)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/fkooman/php-lib-rest/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/fkooman/php-lib-rest/?branch=master)
 
 # Introduction
 Library written in PHP to make it easy to develop web and REST applications. 
