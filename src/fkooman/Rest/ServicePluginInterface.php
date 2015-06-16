@@ -21,5 +21,16 @@ use fkooman\Http\Request;
 
 interface ServicePluginInterface
 {
+    /**
+     * Execute the plugin.
+     *
+     * @param Request $request     the HTTP request
+     * @param array   $routeConfig specific configuration for the plugin
+     *                             determined by the matching route
+     *
+     * @return mixed any object on success, a Response object that will be
+     *               returned to the client immediately, or null if the plugin had no
+     *               information that needs to be processed further
+     */
     public function execute(Request $request, array $routeConfig);
 }
