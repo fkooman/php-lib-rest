@@ -22,6 +22,9 @@ class Session
     /** @var string */
     private $ns;
 
+    /** @var array */
+    private $sessionOptions;
+
     public function __construct($ns = 'MySession', array $sessionOptions = array())
     {
         $this->ns = $ns;
