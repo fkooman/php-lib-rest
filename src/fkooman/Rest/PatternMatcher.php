@@ -26,8 +26,8 @@ class PatternMatcher
      * Determines if the provided path matches the provided pattern and returns
      * matched parameters if specified.
      *
-     * @param path string typically the PATH_INFO from the request
-     * @param pattern the pattern to match against
+     * @param string $path typically the PATH_INFO from the request
+     * @param string $pattern the pattern to match against
      *
      * E: isMatch('/foo/bar',     '/foo/:id')     ==> array('id' => 'bar')
      *    isMatch('/foo/bar/baz', '/foo/bar/baz') ==> array()
