@@ -28,7 +28,7 @@ class Service
     /** @var array */
     private $routes;
 
-    /** @var fkooman\Rest\PluginRegistry */
+    /** @var PluginRegistry */
     private $pluginRegistry;
 
     public function __construct()

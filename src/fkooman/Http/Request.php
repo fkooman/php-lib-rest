@@ -27,7 +27,7 @@ class Request
     /** @var array */
     private $post;
 
-    /** @var fkooman\Http\Url */
+    /** @var Url */
     private $url;
 
     /**
