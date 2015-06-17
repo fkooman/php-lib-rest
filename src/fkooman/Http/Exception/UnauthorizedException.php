@@ -51,7 +51,7 @@ class UnauthorizedException extends HttpException
 
     private function addHeader(Response $response)
     {
-        $response->setHeader(
+        $response->addHeader(
             'WWW-Authenticate',
             sprintf('%s %s', $this->authScheme, $this->authParamsToString())
         );

@@ -34,17 +34,18 @@ interface AuthenticationPluginInterface extends ServicePluginInterface
     public function isAttempt(Request $request);
 
     /**
-     * Gets the authentication "realm".
-     *
-     * @return string the realm, e.g. 'My Protected Resource'
-     */
-    public function getRealm();
-
-    /**
      * Gets the authentication scheme.
      *
      * @return string the name of the authentication scheme, e.g. 'Basic',
      *                'Bearer'
      */
     public function getScheme();
+
+    /**
+     * Get the authentication parameters thet should be part of the
+     * WWW-Authenticate response.
+     *
+     * @return array the authentication parameters as array, e.g. realm
+     */
+    public function getAuthParams();
 }

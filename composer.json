@@ -8,8 +8,8 @@
     ],
     "autoload": {
         "psr-0": {
-            "fkooman\\Http": "src/",
-            "fkooman\\Rest": "src/"
+            "fkooman\\Http\\": "src/",
+            "fkooman\\Rest\\": "src/"
         }
     },
     "description": "Simple PHP library for writing REST services.",

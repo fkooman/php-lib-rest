@@ -165,6 +165,22 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testAddHeaderNonExisting()
+    {
+        $r = new Response(200, 'application/json');
+        $r->addHeader('Link', '<https://example.net/micropub>; rel="micropub"');
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: application/json',
+                'Link: <https://example.net/micropub>; rel="micropub"',
+                '',
+                '',
+            ),
+            $r->toArray()
+        );
+    }
+
 #    public function testSendResponse()
 #    {
 #        $this->expectOutputString('Hello World!');

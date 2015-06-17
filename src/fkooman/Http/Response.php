@@ -93,6 +93,8 @@ class Response
         $key = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $key))));
         if (array_key_exists($key, $this->headers)) {
             $this->headers[$key] = sprintf('%s, %s', $this->headers[$key], $value);
+        } else {
+            $this->headers[$key] = $value;
         }
     }
 
