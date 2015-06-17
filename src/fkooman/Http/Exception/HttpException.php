@@ -55,9 +55,9 @@ class HttpException extends Exception
     {
         $response = new FormResponse($this->getCode());
         $responseData = array();
-        $responseData['error'] = $this->getMessage();
+        $responseData['error'] = htmlspecialchars($this->getMessage(), ENT_QUOTES);
         if (null !== $this->getDescription()) {
-            $responseData['error_description'] = $this->getDescription();
+            $responseData['error_description'] = htmlspecialchars($this->getDescription(), ENT_QUOTES);
         }
         $response->setBody($responseData);
 
