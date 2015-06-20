@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 namespace fkooman\Rest;
 
 use PHPUnit_Framework_TestCase;
@@ -32,6 +33,12 @@ class PatternMatcherTest extends PHPUnit_Framework_TestCase
             PatternMatcher::isMatch('/foo/bar/baz/', '/foo/:c/:d/')
         );
 
+        // if the parameter value does not start with _ we want to accept it
+        $this->assertEquals(
+            array('id' => 'bar_baz'),
+            PatternMatcher::isMatch('/foo/bar_baz', '/foo/:id')
+        );
+
         $this->assertEquals(array(), PatternMatcher::isMatch(null, '*'));
         $this->assertEquals(array(), PatternMatcher::isMatch('/foo/bar/baz', '/foo/bar/baz'));
         $this->assertEquals(array(), PatternMatcher::isMatch('/foo/bar/', '*'));
@@ -43,6 +50,10 @@ class PatternMatcherTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(PatternMatcher::isMatch('/foo/', '/foo'));
         $this->assertFalse(PatternMatcher::isMatch('/foo/bar/baz', '/foo/:id'));
         $this->assertFalse(PatternMatcher::isMatch('/foo/bar/', '/foo/:id'));
+
+        // if the value for a parameter match *starts* with an underscore we
+        // treat it as special and do not accept it as a valid match
         $this->assertFalse(PatternMatcher::isMatch('/_indieauth/auth', '/:foo/auth'));
+        $this->assertFalse(PatternMatcher::isMatch('/__indieauth/auth', '/:foo/auth'));
     }
 }

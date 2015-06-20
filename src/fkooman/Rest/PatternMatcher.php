@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 namespace fkooman\Rest;
 
 use LogicException;
@@ -37,7 +38,7 @@ class PatternMatcher
      *    isMatch('/foo/bar/baz', '/foo/:id')     ==> false
      *    isMatch('/foo/bar/',    '/foo/:id')     ==> false
      *
-     * @returns false|array array containing the values matching the variables
+     * @returns mixed array containing the values matching the variables
      *                      if there are any variables, empty array for an
      *                      exact match, false if there is no match
      */
@@ -68,8 +69,8 @@ class PatternMatcher
             return false;
         }
 
-        // replace all occurences of :var with (?P<var>([^/]+))
-        $pattern = preg_replace('/:([\w]+)/i', '(?P<${1}>([^/_]+))', $pattern);
+        // replace all occurences of :var with (?P<var>([^_][^/]+))
+        $pattern = preg_replace('/:([\w]+)/i', '(?P<${1}>([^_][^/]+))', $pattern);
         if (null === $pattern) {
             throw new LogicException('regular expression for parameter replacement failed');
         }
