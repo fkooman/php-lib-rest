@@ -75,27 +75,32 @@ class Response
     /**
      * Set a header. If it already exists the value is overwritten with the
      * new one.
+     *
+     * @param string $keyName the name of the header
+     * @param string $value   the value of the header
      */
-    public function setHeader($key, $value)
+    public function setHeader($keyName, $value)
     {
-        $key = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $key))));
-        $this->headers[$key] = $value;
+        $normalizedKeyName = self::normalizeHeaderKeyName($keyName);
+        $this->headers[$normalizedKeyName] = $value;
     }
 
     /**
      * Add a header. If it already exists the value is appended to the existing
-     * header using comma separation.
+     * header using comma separation. NOTE: not all headers 'support' this. It
+     * is up to the developer to figure out if this is supported by the
+     * specific header by consulting the specification.
      *
-     * @param string $key   the name of the header
-     * @param string $value the value of the header
+     * @param string $keyName the name of the header
+     * @param string $value   the value of the header
      */
-    public function addHeader($key, $value)
+    public function addHeader($keyName, $value)
     {
-        $key = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $key))));
-        if (array_key_exists($key, $this->headers)) {
-            $this->headers[$key] = sprintf('%s, %s', $this->headers[$key], $value);
+        $normalizedKeyName = self::normalizeHeaderKeyName($keyName);
+        if (array_key_exists($normalizedKeyName, $this->headers)) {
+            $this->headers[$normalizedKeyName] = sprintf('%s, %s', $this->headers[$normalizedKeyName], $value);
         } else {
-            $this->headers[$key] = $value;
+            $this->headers[$normalizedKeyName] = $value;
         }
     }
 
@@ -235,5 +240,36 @@ class Response
         }
 
         return $reasonList[$statusCode];
+    }
+
+    /**
+     * Normalize a HTTP response header keyname to avoid header duplication in
+     * setHeader and addHeader. If setHeader('Foo', 'Bar') is called, calling
+     * a subsequent setHeader('FOO', 'Baz') should overwrite the first one.
+     * If addHeader('Foo', 'Bar') is called calling a subsequent
+     * addHeader('FOO', Baz') should result in a header 'Foo' with value
+     * 'Bar, Baz'. NOTE: this normalization does not strip any HTTP_ or HTTP-
+     * prefix like in Request::normalizeHeaderKeyName as that prefix is not
+     * typically used for Response headers.
+     *
+     * @param string $keyName the keyname to normalize
+     *
+     * @return string the normalized keyname
+     */
+    public static function normalizeHeaderKeyName($keyName)
+    {
+        return str_replace(
+            ' ',
+            '-',
+            ucwords(
+                strtolower(
+                    str_replace(
+                        array('_', '-'),
+                        ' ',
+                        $keyName
+                    )
+                )
+            )
+        );
     }
 }
