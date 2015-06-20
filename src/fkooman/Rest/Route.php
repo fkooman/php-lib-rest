@@ -97,15 +97,14 @@ class Route
     /**
      * Find the parameter required by the callback.
      *
-     * @param ReflectionParameter p a parameter belonging to the callback
-     * @param array availableParameters
-     *      contains a list of parameters available to the callback, where the
-     *      key contains either the type hinted name of the class, or the
-     *      name of the parameter if the parameter is no class, e.g.:
-     *          array('foo' => 5, 'stdClass' => new StdClass())
+     * @param ReflectionParameter $p                   a parameter belonging to the callback
+     * @param array               $availableParameters contains a list of parameters available to the callback, where the
+     *                                                 key contains either the type hinted name of the class, or the
+     *                                                 name of the parameter if the parameter is no class, e.g.:
+     *                                                 array('foo' => 5, 'stdClass' => new StdClass())
      *
-     * @return the value of the parameter from $availableParameters, or an
-     *             (optional) provided default value by the callback
+     * @return string the value of the parameter from $availableParameters, or an
+     *                (optional) provided default value by the callback
      */
     private function findAvailableParameterValue(ReflectionParameter $p, array $availableParameters)
     {

@@ -38,9 +38,9 @@ class PatternMatcher
      *    isMatch('/foo/bar/baz', '/foo/:id')     ==> false
      *    isMatch('/foo/bar/',    '/foo/:id')     ==> false
      *
-     * @returns mixed array containing the values matching the variables
-     *                      if there are any variables, empty array for an
-     *                      exact match, false if there is no match
+     * @return mixed array containing the values matching the variables
+     *               if there are any variables, empty array for an
+     *               exact match, false if there is no match
      */
     public static function isMatch($path, $pattern)
     {
