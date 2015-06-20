@@ -79,8 +79,8 @@ class Request
      *
      * @param string $key the POST key parameter to retrieve.
      *
-     * @return string|null the value of the POST parameter key, or null if the
-     *                     key does not exist
+     * @return mixed the string value of the POST parameter key, or null if the
+     *               key does not exist
      */
     public function getPostParameter($key)
     {
@@ -113,22 +113,19 @@ class Request
     }
 
     /**
-     * Get the request header.
+     * Get the value of the request header keyname.
      *
-     * @param string $k the HTTP header to retrieve
+     * @param string $k the HTTP header keyname
      *
-     * @return string|null the header value or null if the header key is not
-     *                     set
+     * @return mixed the value of the header keyname as string or null if the
+     *               header key is not set
      */
-    public function getHeader($k)
+    public function getHeader($keyName)
     {
         $headers = $this->getHeaders();
-        if (0 === strpos($k, 'HTTP_') || 0 === strpos($k, 'HTTP-')) {
-            $k = substr($k, 5);
-            $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', $k))));
-        }
-        if (array_key_exists($k, $headers)) {
-            return $headers[$k];
+        $keyName = self::normalizeHeaderKeyName($keyName);
+        if (array_key_exists($keyName, $headers)) {
+            return $headers[$keyName];
         }
 
         return;
@@ -137,29 +134,13 @@ class Request
     /**
      * Get the HTTP headers.
      *
-     * @return array the HTTP headers as a key value array
+     * @return array the HTTP headers as a key-value array
      */
     public function getHeaders()
     {
-        // *** FALLBACK for FastCGI ***
-        // Source: https://php.net/manual/en/function.getallheaders.php#104307
-        // Get all headers prefixed with HTTP{_-} and also Content-Type and
-        // Content-Length from $_SERVER if available
-
         $headers = array();
         foreach ($this->srv as $k => $v) {
-            if (0 === strpos($k, 'HTTP_') || 0 === strpos($k, 'HTTP-')) {
-                $k = str_replace(' ', '-', ucwords(strtolower(str_replace(array('_', '-'), ' ', substr($k, 5)))));
-                $headers[$k] = $v;
-                continue;
-            }
-            if ('CONTENT_TYPE' === $k) {
-                $headers['Content-Type'] = $v;
-            }
-            if ('CONTENT_LENGTH' === $k) {
-                $headers['Content-Length'] = $v;
-            }
-            $headers[$k] = $v;
+            $headers[self::normalizeHeaderKeyName($k)] = $v;
         }
 
         return $headers;
@@ -173,5 +154,38 @@ class Request
     public function getBody()
     {
         return @file_get_contents('php://input');
+    }
+
+    /**
+     * Normalize a HTTP request header keyname. It will remove any HTTP_ or
+     * HTTP- prefix, replace all underscores with dashes and capitalize the
+     * first letter(s). For example:.
+     *
+     * HTTP_ACCEPT: Accept
+     * CONTENT_TYPE: Content-Type
+     *
+     * @param string $keyName the keyname to normalize
+     *
+     * @return string the normalized keyname
+     */
+    public static function normalizeHeaderKeyName($keyName)
+    {
+        if (0 === stripos($keyName, 'HTTP_') || 0 === stripos($keyName, 'HTTP-')) {
+            $keyName = substr($keyName, 5);
+        }
+
+        return str_replace(
+            ' ',
+            '-',
+            ucwords(
+                strtolower(
+                    str_replace(
+                        array('_', '-'),
+                        ' ',
+                        $keyName
+                    )
+                )
+            )
+        );
     }
 }
