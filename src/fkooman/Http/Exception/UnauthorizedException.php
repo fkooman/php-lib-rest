@@ -22,40 +22,31 @@ use fkooman\Http\Response;
 
 class UnauthorizedException extends HttpException
 {
-    /** @var string */
+    /** @var array */
     private $authScheme;
 
-    /** @var array */
-    private $authParams;
-
-    public function __construct($message, $description, $authScheme = 'Basic', array $authParams = array(), $code = 0, Exception $previous = null)
+    public function __construct($message, $description, $code = 0, Exception $previous = null)
     {
-        $this->authScheme = $authScheme;
-        if (!array_key_exists('realm', $authParams)) {
-            $authParams['realm'] = 'My Realm';
-        }
-        $this->authParams = $authParams;
+        $this->authScheme = array();
         parent::__construct($message, $description, 401, $previous);
     }
 
-    private function authParamsToString()
+    public function addScheme($scheme, array $authParams = array())
     {
-        $a = array();
-        foreach ($this->authParams as $k => $v) {
-            if (is_string($k) && is_string($v) && 0 < strlen($k) && 0 < strlen($v)) {
-                $a[] = sprintf('%s="%s"', $k, $v);
-            }
+        if (!array_key_exists('realm', $authParams)) {
+            $authParams['realm'] = 'Protected Resource';
         }
-
-        return implode(',', $a);
+        $this->authScheme[$scheme] = $authParams;
     }
 
     private function addHeader(Response $response)
     {
-        $response->addHeader(
-            'WWW-Authenticate',
-            sprintf('%s %s', $this->authScheme, $this->authParamsToString())
-        );
+        foreach ($this->authScheme as $k => $v) {
+            $response->addHeader(
+                'WWW-Authenticate',
+                sprintf('%s %s', $k, self::authParamsToString($v))
+            );
+        }
 
         return $response;
     }
@@ -73,5 +64,17 @@ class UnauthorizedException extends HttpException
     public function getHtmlResponse()
     {
         return $this->addHeader(parent::getHtmlResponse());
+    }
+
+    public static function authParamsToString(array $authParams)
+    {
+        $a = array();
+        foreach ($authParams as $k => $v) {
+            if (is_string($k) && is_string($v) && 0 < strlen($k) && 0 < strlen($v)) {
+                $a[] = sprintf('%s="%s"', $k, $v);
+            }
+        }
+
+        return implode(',', $a);
     }
 }

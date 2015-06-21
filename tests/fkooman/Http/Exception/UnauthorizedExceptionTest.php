@@ -24,7 +24,11 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testUnauthorizeException()
     {
-        $e = new UnauthorizedException('invalid credentials', 'invalid username or password', 'Basic', array('realm' => 'Foo'));
+        $e = new UnauthorizedException(
+            'invalid credentials',
+            'invalid username or password'
+        );
+        $e->addScheme('Basic', array('realm' => 'Foo'));
 
         $this->assertEquals(
             array(
@@ -53,7 +57,9 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
     {
         $e = new UnauthorizedException(
             'invalid_token',
-            'token is invalid or expired',
+            'token is invalid or expired'
+        );
+        $e->addScheme(
             'Bearer',
             array(
                 'realm' => 'My OAuth Realm',
