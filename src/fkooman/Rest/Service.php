@@ -141,7 +141,7 @@ class Service
             // if the response is a string, we assume it needs to be sent back
             // to the client as text/html
             if (!is_string($response)) {
-                throw new RuntimeException('callback return value must be Response object');
+                throw new RuntimeException('callback return value must be Response object or string');
             }
             $htmlResponse = new Response();
             $htmlResponse->setBody($response);
