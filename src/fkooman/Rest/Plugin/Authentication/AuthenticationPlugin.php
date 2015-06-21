@@ -18,6 +18,7 @@
 
 namespace fkooman\Rest\Plugin\Authentication;
 
+use fkooman\Rest\ServicePluginInterface;
 use fkooman\Http\Request;
 
 /**
