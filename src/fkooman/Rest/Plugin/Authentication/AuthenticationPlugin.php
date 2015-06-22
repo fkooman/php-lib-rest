@@ -20,6 +20,7 @@ namespace fkooman\Rest\Plugin\Authentication;
 
 use fkooman\Rest\ServicePluginInterface;
 use fkooman\Http\Request;
+use fkooman\Http\Exception\UnauthorizedException;
 
 /**
  * Authentication Plugin to implement supporting multiple authentication
@@ -34,7 +35,16 @@ class AuthenticationPlugin implements ServicePluginInterface
 
     public function __construct()
     {
-        $this->plugins[] = array();
+        $this->plugins = array();
+    }
+
+    public function init(Service $service)
+    {
+        foreach ($this->plugins as $plugin) {
+            if (method_exists($plugin, 'init')) {
+                $plugin->init($service);
+            }
+        }
     }
 
     public function registerAuthenticationPlugin(AuthenticationPluginInterface $plugin)
