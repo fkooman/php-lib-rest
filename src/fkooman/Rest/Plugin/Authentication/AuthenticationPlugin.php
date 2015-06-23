@@ -21,6 +21,7 @@ namespace fkooman\Rest\Plugin\Authentication;
 use fkooman\Rest\ServicePluginInterface;
 use fkooman\Http\Request;
 use fkooman\Http\Exception\UnauthorizedException;
+use fkooman\Rest\Service;
 
 /**
  * Authentication Plugin to implement supporting multiple authentication
