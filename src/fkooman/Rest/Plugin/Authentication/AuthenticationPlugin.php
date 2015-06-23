@@ -59,7 +59,7 @@ class AuthenticationPlugin implements ServicePluginInterface
             // first check to see if it is an attempt based on Request
             if ($plugin->isAttempt($request)) {
                 // it is an attempt, so it MUST succeed
-                return $plugin->execute($plugin, array());
+                return $plugin->execute($request, array());
             }
         }
 
