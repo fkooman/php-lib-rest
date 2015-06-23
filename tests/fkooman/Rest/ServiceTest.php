@@ -20,6 +20,7 @@ namespace fkooman\Rest;
 
 use PHPUnit_Framework_TestCase;
 use fkooman\Http\Request;
+use fkooman\Rest\Plugin\Authentication\UserInfoInterface;
 
 class ServiceTest extends PHPUnit_Framework_TestCase
 {
@@ -149,5 +150,53 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     {
         $s = new Service();
         $s->setPluginRegistry(new PluginRegistry());
+    }
+
+    /**
+     * Test how stuff goes if a plugin returns an object that needs to be
+     * matched not to the object itself, but to an interface implemented by
+     * the object.
+     */
+    public function testPluginInterfaceCallbackMatch()
+    {
+        $stubUserInfo = $this->getMockBuilder('fkooman\Rest\Plugin\Authentication\UserInfoInterface')->setMockClassName('StubUserInfo')->getMock();
+        $stubUserInfo->method('getUserId')->willReturn('foo');
+
+        $stubPlugin = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('StubPlugin')->getMock();
+        $stubPlugin->method('execute')->willReturn($stubUserInfo);
+
+        $pluginRegistry = new PluginRegistry();
+        $pluginRegistry->registerDefaultPlugin($stubPlugin);
+
+        $service = new Service();
+        $service->setPluginRegistry($pluginRegistry);
+
+        $service->get(
+            '/',
+            function (Request $request, UserInfoInterface $userInfo) {
+                return $userInfo->getUserId();
+            }
+        );
+
+        $request = new Request(
+            array(
+                'SERVER_NAME' => 'www.example.org',
+                'SERVER_PORT' => 80,
+                'QUERY_STRING' => '',
+                'REQUEST_URI' => '/',
+                'REQUEST_METHOD' => 'GET',
+            )
+        );
+
+        $response = $service->run($request);
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                'foo',
+            ),
+            $response->toArray()
+        );
     }
 }

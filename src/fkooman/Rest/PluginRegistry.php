@@ -4,6 +4,7 @@ namespace fkooman\Rest;
 
 use fkooman\Http\Response;
 use fkooman\Http\Request;
+use ReflectionClass;
 
 class PluginRegistry
 {
@@ -74,6 +75,13 @@ class PluginRegistry
                 // if we get an object, just add it to the list of available
                 // parameters for the callback
                 $availableRouteCallbackParameters[get_class($response)] = $response;
+
+                // we also add all the implemented interfaces there
+                $reflectionClass = new ReflectionClass($response);
+                $responseInterfaces = $reflectionClass->getInterfaceNames();
+                foreach ($responseInterfaces as $interfaceName) {
+                    $availableRouteCallbackParameters[$interfaceName] = $response;
+                }
             }
         }
 
