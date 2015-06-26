@@ -61,15 +61,18 @@ class ExceptionHandler
 
         if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
             $e->getHtmlResponse()->send();
-            exit(1);
+
+            return;
         }
         if (false !== strpos($request->getHeader('Accept'), 'application/x-www-form-urlencoded')) {
             $e->getFormResponse()->send();
-            exit(1);
+
+            return;
         }
 
         // by default we return JSON
         $e->getJsonResponse()->send();
-        exit(1);
+
+        return;
     }
 }
