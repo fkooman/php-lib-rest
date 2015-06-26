@@ -55,6 +55,11 @@ class AuthenticationPlugin implements ServicePluginInterface
 
     public function execute(Request $request, array $routeConfig)
     {
+        if (0 === count($this->plugins)) {
+            // no authentication plugins registered
+            return;
+        }
+
         foreach ($this->plugins as $plugin) {
             // first check to see if it is an attempt based on Request
             if ($plugin->isAttempt($request)) {
