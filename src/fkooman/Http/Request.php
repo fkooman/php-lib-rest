@@ -116,7 +116,7 @@ class Request
     /**
      * Get the value of the request header keyname.
      *
-     * @param string $k the HTTP header keyname
+     * @param string $keyName the HTTP header keyname
      *
      * @return mixed the value of the header keyname as string or null if the
      *               header key is not set
