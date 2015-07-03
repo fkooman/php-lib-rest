@@ -17,8 +17,12 @@ BuildArch:  noarch
 
 Provides:   php-composer(%{composer_vendor}/%{composer_project}) = %{version}
 
-Requires:   php >= 5.3.3
+Requires:   php(language) >= 5.3.3
 Requires:   php-mbstring
+Requires:   php-pcre
+Requires:   php-session
+Requires:   php-spl
+Requires:   php-standard
 
 Requires:   php-composer(fkooman/json) >= 0.6.0
 Requires:   php-composer(fkooman/json) < 0.7.0
@@ -41,7 +45,8 @@ cp -pr src/* ${RPM_BUILD_ROOT}%{_datadir}/php
 %dir %{_datadir}/php/%{composer_vendor}/Rest
 %{_datadir}/php/%{composer_vendor}/Http/*
 %{_datadir}/php/%{composer_vendor}/Rest/*
-%doc README.md CHANGES.md COPYING composer.json
+%doc README.md CHANGES.md composer.json
+%license COPYING
 
 %changelog
 * Sun Jun 28 2015 François Kooman <fkooman@tuxed.net> - 0.9.0-1
