@@ -24,8 +24,8 @@ Requires:   php-session
 Requires:   php-spl
 Requires:   php-standard
 
-Requires:   php-composer(fkooman/json) >= 0.6.0
-Requires:   php-composer(fkooman/json) < 0.7.0
+Requires:   php-composer(fkooman/json) >= 1.0.0
+Requires:   php-composer(fkooman/json) < 2.0.0
 
 %description
 Library written in PHP to make it easy to develop REST applications.

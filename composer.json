@@ -20,7 +20,7 @@
         "ext-pcre": "*",
         "ext-session": "*",
         "ext-spl": "*",
-        "fkooman/json": "~0.6.0",
+        "fkooman/json": "^1.0.0",
         "php": ">=5.3.3"
     },
     "suggest": {
