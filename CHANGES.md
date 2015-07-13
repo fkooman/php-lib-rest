@@ -1,5 +1,8 @@
 # Release History
 
+## 0.9.1
+- update `fkooman/ini`
+
 ## 0.9.0
 - major refactoring
 - new `PluginRegistry`
