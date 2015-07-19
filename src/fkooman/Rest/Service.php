@@ -25,6 +25,7 @@ use fkooman\Http\Request;
 use fkooman\Rest\Plugin\ReferrerCheck\ReferrerCheckPlugin;
 use fkooman\Http\Response;
 use RuntimeException;
+use ErrorException;
 
 class Service
 {
@@ -36,6 +37,8 @@ class Service
 
     public function __construct()
     {
+        set_error_handler(array('fkooman\Rest\Service', 'handleErrors'));
+
         $this->routes = array();
         $this->pluginRegistry = new PluginRegistry();
 
@@ -168,5 +171,14 @@ class Service
         }
 
         return $response;
+    }
+
+    public static function handleErrors($severity, $message, $file, $line)
+    {
+        if (!(error_reporting() & $severity)) {
+            // This error code is not included in error_reporting
+            return;
+        }
+        throw new ErrorException($message, 0, $severity, $file, $line);
     }
 }
