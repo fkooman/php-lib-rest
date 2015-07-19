@@ -91,10 +91,6 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @expectedException fkooman\Http\Exception\MethodNotAllowedException
-     * @expectedExceptionMessage method DELETE not supported
-     */
     public function testMethodNotAllowed()
     {
         $r = new Request(
@@ -116,12 +112,18 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $s->run($r);
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 405 Method Not Allowed',
+                'Content-Type: application/json',
+                'Allow: GET,HEAD',
+                '',
+                '{"error":"method DELETE not supported"}',
+            ),
+            $response->toArray()
+        );
     }
 
-    /**
-     * @expectedException fkooman\Http\Exception\NotFoundException
-     * @expectedExceptionMessage url not found
-     */
     public function testNotFound()
     {
         $r = new Request(
@@ -143,12 +145,15 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $s->run($r);
-    }
-
-    public function testSetPluginRegistry()
-    {
-        $s = new Service();
-        $s->setPluginRegistry(new PluginRegistry());
+        $this->assertEquals(
+            array(
+                'HTTP/1.1 404 Not Found',
+                'Content-Type: application/json',
+                '',
+                '{"error":"url not found","error_description":"\/index.php\/foo"}',
+            ),
+            $response->toArray()
+        );
     }
 
     /**
@@ -158,17 +163,14 @@ class ServiceTest extends PHPUnit_Framework_TestCase
      */
     public function testPluginInterfaceCallbackMatch()
     {
-        $stubUserInfo = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('StubFoo')->getMock();
-        $stubUserInfo->method('execute')->willReturn('foo');
+        $stubFoo = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('StubFoo')->getMock();
+        $stubFoo->method('execute')->willReturn('foo');
 
         $stubPlugin = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('StubPlugin')->getMock();
-        $stubPlugin->method('execute')->willReturn($stubUserInfo);
-
-        $pluginRegistry = new PluginRegistry();
-        $pluginRegistry->registerDefaultPlugin($stubPlugin);
+        $stubPlugin->method('execute')->willReturn($stubFoo);
 
         $service = new Service();
-        $service->setPluginRegistry($pluginRegistry);
+        $service->getPluginRegistry()->registerDefaultPlugin($stubPlugin);
 
         $service->get(
             '/',

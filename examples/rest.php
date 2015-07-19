@@ -20,9 +20,6 @@ require_once dirname(__DIR__).'/vendor/autoload.php';
 use fkooman\Http\JsonResponse;
 use fkooman\Rest\Service;
 use fkooman\Http\Exception\BadRequestException;
-use fkooman\Rest\ExceptionHandler;
-
-ExceptionHandler::register();
 
 $service = new Service();
 $service->get(

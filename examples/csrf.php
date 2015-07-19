@@ -18,21 +18,14 @@
 require_once dirname(__DIR__).'/vendor/autoload.php';
 
 use fkooman\Rest\Service;
-use fkooman\Rest\ExceptionHandler;
-use fkooman\Rest\PluginRegistry;
 use fkooman\Rest\Plugin\ReferrerCheck\ReferrerCheckPlugin;
-
-ExceptionHandler::register();
 
 $service = new Service();
 
 // registering the ReferrerCheckPlugin checks the HTTP_REFERER on all requests
 // that can have side-effects, e.g. PUT, POST, DELETE. If the HTTP_REFERER
 // header does not contain the expected value the request is denied.
-
-$pluginRegistry = new PluginRegistry();
-$pluginRegistry->registerDefaultPlugin(new ReferrerCheckPlugin());
-$service->setPluginRegistry($pluginRegistry);
+$service->getPluginRegistry()->registerDefaultPlugin(new ReferrerCheckPlugin());
 
 $service->get(
     '/',

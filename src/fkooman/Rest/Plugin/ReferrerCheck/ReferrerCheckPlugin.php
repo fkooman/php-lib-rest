@@ -29,8 +29,13 @@ use fkooman\Http\Exception\BadRequestException;
  */
 class ReferrerCheckPlugin implements ServicePluginInterface
 {
-    public function execute(Request $request, array $matchPluginConfig)
+    public function execute(Request $request, array $routeConfig)
     {
+        // only relevant if the request comes from a browser
+        if (false === strpos($request->getHeader('Accept'), 'text/html')) {
+            return;
+        }
+
         // these methods do not require CSRF protection as they are not
         // supposed to have side effects on the server
         $safeMethods = array('GET', 'HEAD', 'OPTIONS');

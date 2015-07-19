@@ -20,7 +20,9 @@ namespace fkooman\Rest;
 
 use fkooman\Http\Exception\MethodNotAllowedException;
 use fkooman\Http\Exception\NotFoundException;
+use fkooman\Http\Exception\HttpException;
 use fkooman\Http\Request;
+use fkooman\Rest\Plugin\ReferrerCheck\ReferrerCheckPlugin;
 use fkooman\Http\Response;
 use RuntimeException;
 
@@ -35,14 +37,15 @@ class Service
     public function __construct()
     {
         $this->routes = array();
-        $this->pluginRegistry = null;
+        $this->pluginRegistry = new PluginRegistry();
+
+        // enable ReferrerCheck by default
+        $this->pluginRegistry->registerDefaultPlugin(new ReferrerCheckPlugin());
     }
 
-    public function setPluginRegistry(PluginRegistry $pluginRegistry)
+    public function getPluginRegistry()
     {
-        $this->pluginRegistry = $pluginRegistry;
-        // initialize the plugins
-        $this->pluginRegistry->init($this);
+        return $this->pluginRegistry;
     }
 
     public function get($requestPattern, $callback, array $routeOptions = array())
@@ -89,7 +92,22 @@ class Service
         if (null === $request) {
             $request = new Request($_SERVER);
         }
+        try {
+            return $this->runService($request);
+        } catch (HttpException $e) {
+            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
+                return $e->getHtmlResponse();
+            }
+            if (false !== strpos($request->getHeader('Accept'), 'application/x-www-form-urlencoded')) {
+                return $e->getFormResponse();
+            }
 
+            return $e->getJsonResponse();
+        }
+    }
+
+    private function runService(Request $request)
+    {
         // support method override when _METHOD is set in a form POST
         if ('POST' === $request->getMethod()) {
             $methodOverride = $request->getPostParameter('_METHOD');

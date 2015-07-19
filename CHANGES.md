@@ -1,5 +1,10 @@
 # Release History
 
+## 1.0.0
+- remove `ExceptionHandler`
+- change `PluginRegistry()`
+- enable `ReferrerCheckPlugin` by default (only for browser requests)
+
 ## 0.9.1
 - update `fkooman/ini`
 

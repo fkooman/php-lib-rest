@@ -9,7 +9,7 @@ The library has the following features:
 * Wrapper HTTP `Request` and `Response` class to make it very easy to test your
   applications
 * RESTful router support
-* Various plugins for authentication
+* Various plugins available for authentication
 
 Furthermore, extensive tests are available written in PHPUnit.
 

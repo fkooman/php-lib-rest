@@ -33,6 +33,7 @@ class ReferrerCheckPluginTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/bar/index.php',
             'REQUEST_METHOD' => 'POST',
             'HTTP_REFERER' => 'http://www.example.org/bar/index.php/',
+            'HTTP_ACCEPT' => 'text/html',
         );
         $request = new Request($srv);
         $rcp = new ReferrerCheckPlugin();
@@ -48,6 +49,7 @@ class ReferrerCheckPluginTest extends PHPUnit_Framework_TestCase
             'REQUEST_URI' => '/bar/index.php?foo=bar',
             'SCRIPT_NAME' => '/bar/index.php',
             'REQUEST_METHOD' => 'GET',
+            'HTTP_ACCEPT' => 'text/html',
         );
         $request = new Request($srv);
         $rcp = new ReferrerCheckPlugin();
@@ -67,6 +69,7 @@ class ReferrerCheckPluginTest extends PHPUnit_Framework_TestCase
             'REQUEST_URI' => '/bar/index.php?foo=bar',
             'SCRIPT_NAME' => '/bar/index.php',
             'REQUEST_METHOD' => 'POST',
+            'HTTP_ACCEPT' => 'text/html',
         );
         $request = new Request($srv);
         $rcp = new ReferrerCheckPlugin();
@@ -87,6 +90,7 @@ class ReferrerCheckPluginTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/bar/index.php',
             'REQUEST_METHOD' => 'POST',
             'HTTP_REFERER' => 'http://www.attacker.org/foo',
+            'HTTP_ACCEPT' => 'text/html',
         );
         $request = new Request($srv);
         $rcp = new ReferrerCheckPlugin();
