@@ -5,7 +5,7 @@
 %global github_name      php-lib-rest
 
 Name:       php-%{composer_vendor}-%{composer_project}
-Version:    0.9.1
+Version:    1.0.0
 Release:    1%{?dist}
 Summary:    Simple PHP library for writing REST services
 
@@ -49,53 +49,5 @@ cp -pr src/* ${RPM_BUILD_ROOT}%{_datadir}/php
 %license COPYING
 
 %changelog
-* Mon Jul 13 2015 François Kooman <fkooman@tuxed.net> - 0.9.1-1
-- update to 0.9.1
-
-* Sun Jun 28 2015 François Kooman <fkooman@tuxed.net> - 0.9.0-1
-- update to 0.9.0
-
-* Thu May 28 2015 François Kooman <fkooman@tuxed.net> - 0.8.9-1
-- update to 0.8.9
-
-* Thu May 14 2015 François Kooman <fkooman@tuxed.net> - 0.8.8-1
-- update to 0.8.8
-
-* Thu May 14 2015 François Kooman <fkooman@tuxed.net> - 0.8.7-1
-- update to 0.8.7
-
-* Thu May 14 2015 François Kooman <fkooman@tuxed.net> - 0.8.6-1
-- update to 0.8.6
-
-* Sun May 10 2015 François Kooman <fkooman@tuxed.net> - 0.8.5-1
-- update to 0.8.5
-
-* Sat May 09 2015 François Kooman <fkooman@tuxed.net> - 0.8.4-1
-- update to 0.8.4
-
-* Tue May 05 2015 François Kooman <fkooman@tuxed.net> - 0.8.3-1
-- update to 0.8.3
-
-* Tue May 05 2015 François Kooman <fkooman@tuxed.net> - 0.8.2-1
-- update to 0.8.2
-
-* Mon Apr 27 2015 François Kooman <fkooman@tuxed.net> - 0.8.1-1
-- update to 0.8.1
-
-* Sun Apr 12 2015 François Kooman <fkooman@tuxed.net> - 0.8.0-1
-- update to 0.8.0
-
-* Tue Mar 24 2015 François Kooman <fkooman@tuxed.net> - 0.7.5-1
-- update to 0.7.5
-
-* Sun Mar 15 2015 François Kooman <fkooman@tuxed.net> - 0.7.4-1
-- update to 0.7.4
-
-* Tue Mar 10 2015 François Kooman <fkooman@tuxed.net> - 0.7.0-1
-- update to 0.7.0
-
-* Tue Feb 17 2015 François Kooman <fkooman@tuxed.net> - 0.6.8-1
-- update to 0.6.8
-
-* Wed Jan 28 2015 François Kooman <fkooman@tuxed.net> - 0.6.5-1
-- update to 0.6.5
+* Sun Jul 19 2015 François Kooman <fkooman@tuxed.net> - 1.0.0-1
+- update to 1.0.0
