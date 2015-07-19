@@ -20,7 +20,6 @@ namespace fkooman\Rest;
 
 use PHPUnit_Framework_TestCase;
 use fkooman\Http\Request;
-use fkooman\Rest\Plugin\Authentication\UserInfoInterface;
 
 class ServiceTest extends PHPUnit_Framework_TestCase
 {
@@ -159,8 +158,8 @@ class ServiceTest extends PHPUnit_Framework_TestCase
      */
     public function testPluginInterfaceCallbackMatch()
     {
-        $stubUserInfo = $this->getMockBuilder('fkooman\Rest\Plugin\Authentication\UserInfoInterface')->setMockClassName('StubUserInfo')->getMock();
-        $stubUserInfo->method('getUserId')->willReturn('foo');
+        $stubUserInfo = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('StubFoo')->getMock();
+        $stubUserInfo->method('execute')->willReturn('foo');
 
         $stubPlugin = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('StubPlugin')->getMock();
         $stubPlugin->method('execute')->willReturn($stubUserInfo);
@@ -173,8 +172,8 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
         $service->get(
             '/',
-            function (Request $request, UserInfoInterface $userInfo) {
-                return $userInfo->getUserId();
+            function (Request $request, ServicePluginInterface $i) {
+                return $i->execute($request, array());
             }
         );
 
