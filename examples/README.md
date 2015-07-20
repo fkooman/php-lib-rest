@@ -2,6 +2,9 @@
 This application will show how to use the REST service routing capabilies of 
 this framework
 
+The `MyApp.php` shows an example of extending the `Service` class to write a
+complete REST application. 
+
 # Tests
 You can use cURL to test this code, assuming `php-lib-rest` is available 
 through `http://localhost/php-lib-rest/examples/rest.php`. Modify your URL
