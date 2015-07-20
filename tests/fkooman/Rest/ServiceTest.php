@@ -18,8 +18,11 @@
 
 namespace fkooman\Rest;
 
+require_once __DIR__.'/TestPlugin.php';
+
 use PHPUnit_Framework_TestCase;
 use fkooman\Http\Request;
+use fkooman\Rest\Plugin\TestPlugin;
 
 class ServiceTest extends PHPUnit_Framework_TestCase
 {
@@ -198,6 +201,36 @@ class ServiceTest extends PHPUnit_Framework_TestCase
                 'foo',
             ),
             $response->toArray()
+        );
+    }
+
+    // plugins need to be initiated
+    public function testInit()
+    {
+        $testPlugin = new TestPlugin();
+
+        $request = new Request(
+            array(
+                'SERVER_NAME' => 'www.example.org',
+                'SERVER_PORT' => 80,
+                'QUERY_STRING' => '',
+                'REQUEST_URI' => '/index.php/foo',
+                'SCRIPT_NAME' => '/index.php',
+                'PATH_INFO' => '/foo',
+                'REQUEST_METHOD' => 'GET',
+            )
+        );
+
+        $service = new Service();
+        $service->getPluginRegistry()->registerDefaultPlugin($testPlugin);
+        $this->assertSame(
+            array(
+                'HTTP/1.1 200 OK',
+                'Content-Type: text/html;charset=UTF-8',
+                '',
+                'foo',
+            ),
+            $service->run($request)->toArray()
         );
     }
 }

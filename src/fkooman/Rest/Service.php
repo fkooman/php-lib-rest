@@ -92,6 +92,9 @@ class Service
 
     public function run(Request $request = null)
     {
+        // initialize the plugins
+        $this->pluginRegistry->init($this);
+
         if (null === $request) {
             $request = new Request($_SERVER);
         }
