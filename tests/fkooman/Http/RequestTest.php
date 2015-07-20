@@ -34,9 +34,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'HTTP_ACCEPT' => '*/*',
         );
         $r = new Request($srv);
-        $this->assertEquals('http://www.example.org/bar/', $r->getUrl()->getRootUrl());
-        $this->assertEquals('*/*', $r->getHeader('Accept'));
-        $this->assertEquals('GET', $r->getMethod());
+        $this->assertSame('http://www.example.org/bar/', $r->getUrl()->getRootUrl());
+        $this->assertSame('*/*', $r->getHeader('Accept'));
+        $this->assertSame('GET', $r->getMethod());
     }
 
     public function testPost()
@@ -59,16 +59,16 @@ class RequestTest extends PHPUnit_Framework_TestCase
         );
 
         $r = new Request($srv, $post);
-        $this->assertEquals('http://www.example.org/bar/', $r->getUrl()->getRootUrl());
-        $this->assertEquals('*/*', $r->getHeader('Accept'));
-        $this->assertEquals('POST', $r->getMethod());
-        $this->assertEquals('application/x-www-form-urlencoded', $r->getHeader('Content-Type'));
-        $this->assertEquals(15, $r->getHeader('Content-Length'));
-        $this->assertEquals('bar', $r->getPostParameter('foo'));
+        $this->assertSame('http://www.example.org/bar/', $r->getUrl()->getRootUrl());
+        $this->assertSame('*/*', $r->getHeader('Accept'));
+        $this->assertSame('POST', $r->getMethod());
+        $this->assertSame('application/x-www-form-urlencoded', $r->getHeader('Content-Type'));
+        $this->assertSame(15, $r->getHeader('Content-Length'));
+        $this->assertSame('bar', $r->getPostParameter('foo'));
         $this->assertNull($r->getPostParameter('xyz'));
-        $this->assertEquals(array('foo' => 'bar', 'bar' => 'baz'), $r->getPostParameters());
+        $this->assertSame(array('foo' => 'bar', 'bar' => 'baz'), $r->getPostParameters());
         $this->assertNull($r->getHeader('Foo'));
-        $this->assertEquals('*/*', $r->getHeader('HTTP_Accept'));
+        $this->assertSame('*/*', $r->getHeader('HTTP_Accept'));
     }
 
     /**
@@ -106,10 +106,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'GET',
         );
         $r = new Request($srv);
-        $this->assertEquals('http://www.example.org/', $r->getUrl()->getRootUrl());
-        $this->assertEquals('GET', $r->getMethod());
+        $this->assertSame('http://www.example.org/', $r->getUrl()->getRootUrl());
+        $this->assertSame('GET', $r->getMethod());
         $r->setMethod('POST');
-        $this->assertEquals('POST', $r->getMethod());
+        $this->assertSame('POST', $r->getMethod());
     }
 
     public function testNonHttpHeader()
@@ -124,6 +124,6 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'FOO_BAR_BAZ' => 'foo',
         );
         $r = new Request($srv);
-        $this->assertEquals('foo', $r->getHeader('FOO_BAR_BAZ'));
+        $this->assertSame('foo', $r->getHeader('FOO_BAR_BAZ'));
     }
 }

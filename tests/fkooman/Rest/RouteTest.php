@@ -27,7 +27,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $m = new Route(array('GET'), '/foo/bar', function () {
         });
-        $this->assertEquals(array(), $m->isMatch('GET', '/foo/bar'));
+        $this->assertSame(array(), $m->isMatch('GET', '/foo/bar'));
         $this->assertFalse($m->isMatch('POST', '/foo/bar'));
         $this->assertFalse($m->isMatch('GET', '/foo/baz'));
     }
@@ -50,7 +50,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
             }
         );
         $s = new StdClass();
-        $this->assertEquals(
+        $this->assertSame(
             'foo',
             $m->executeCallback(
                 array(

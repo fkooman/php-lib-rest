@@ -25,15 +25,15 @@ class HttpExceptionTest extends PHPUnit_Framework_TestCase
     public function testHttpException()
     {
         $e = new HttpException('foo', 'foo_description', 404);
-        $this->assertEquals(404, $e->getCode());
-        $this->assertEquals('foo', $e->getMessage());
-        $this->assertEquals('foo_description', $e->getDescription());
+        $this->assertSame(404, $e->getCode());
+        $this->assertSame('foo', $e->getMessage());
+        $this->assertSame('foo_description', $e->getDescription());
     }
 
     public function testHttpExceptionHtmlMessageEscaping()
     {
         $e = new HttpException('xyz&\'', 'foo_description', 404);
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 404 Not Found',
                 'Content-Type: text/html;charset=UTF-8',
@@ -43,6 +43,6 @@ class HttpExceptionTest extends PHPUnit_Framework_TestCase
             $e->getHtmlResponse()->toArray()
         );
 
-#        $this->assertEquals('<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>404 Not Found</title></head><body><h1>Not Found</h1><p>xyz&amp;&#039; (foo_description)</p></body></html>', $e->getHtmlResponse()->getBody());
+#        $this->assertSame('<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>404 Not Found</title></head><body><h1>Not Found</h1><p>xyz&amp;&#039; (foo_description)</p></body></html>', $e->getHtmlResponse()->getBody());
     }
 }

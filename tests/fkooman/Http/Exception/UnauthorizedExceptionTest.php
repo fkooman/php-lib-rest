@@ -30,7 +30,7 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
         );
         $e->addScheme('Basic', array('realm' => 'Foo'));
 
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 401 Unauthorized',
                 'Content-Type: application/json',
@@ -42,9 +42,9 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
         );
 
 #        $response = $e->getJsonResponse();
-#        $this->assertEquals(401, $response->getStatusCode());
-#        $this->assertEquals('Basic realm="Foo"', $response->getHeader('WWW-Authenticate'));
-#        $this->assertEquals(
+#        $this->assertSame(401, $response->getStatusCode());
+#        $this->assertSame('Basic realm="Foo"', $response->getHeader('WWW-Authenticate'));
+#        $this->assertSame(
 #            array(
 #                'error' => 'invalid credentials',
 #                'error_description' => 'invalid username or password',
@@ -68,7 +68,7 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 401 Unauthorized',
                 'Content-Type: application/json',
@@ -80,12 +80,12 @@ class UnauthorizedExceptionTest extends PHPUnit_Framework_TestCase
         );
 
 #        $response = $e->getJsonResponse();
-#        $this->assertEquals(401, $response->getStatusCode());
-#        $this->assertEquals(
+#        $this->assertSame(401, $response->getStatusCode());
+#        $this->assertSame(
 #            'Bearer realm="My OAuth Realm",error="invalid_token",error_description="token is invalid or expired"',
 #            $response->getHeader('WWW-Authenticate')
 #        );
-#        $this->assertEquals(
+#        $this->assertSame(
 #            array(
 #                'error' => 'invalid_token',
 #                'error_description' => 'token is invalid or expired',

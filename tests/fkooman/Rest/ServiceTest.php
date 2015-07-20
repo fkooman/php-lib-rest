@@ -44,7 +44,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $s->run($r);
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
@@ -80,7 +80,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $s->run($r);
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
@@ -112,7 +112,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $s->run($r);
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 405 Method Not Allowed',
                 'Content-Type: application/json',
@@ -145,7 +145,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
         $response = $s->run($r);
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 404 Not Found',
                 'Content-Type: application/json',
@@ -190,7 +190,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
         );
 
         $response = $service->run($request);
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',

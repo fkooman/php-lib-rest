@@ -26,7 +26,7 @@ class SessionTest extends PHPUnit_Framework_TestCase
     {
         $s = new Session();
         $s->set('foo', 'bar');
-        $this->assertEquals('bar', $s->get('foo'));
+        $this->assertSame('bar', $s->get('foo'));
         $s->delete('foo');
         $this->assertNull($s->get('foo'));
         $s->destroy();

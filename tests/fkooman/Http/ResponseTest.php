@@ -25,7 +25,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     public function testResponse()
     {
         $r = new Response();
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
@@ -49,7 +49,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     {
         $r = new Response();
         $r->setBody('<em>Foo</em>');
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
@@ -59,13 +59,13 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             $r->toArray()
         );
 #        $r->setBody('<em>Foo</em>');
-#        $this->assertEquals('<em>Foo</em>', $r->getBody());
+#        $this->assertSame('<em>Foo</em>', $r->getBody());
     }
 
     public function testGetStatusCodeAndReason()
     {
         $r = new Response(404);
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 404 Not Found',
                 'Content-Type: text/html;charset=UTF-8',
@@ -74,15 +74,15 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             ),
             $r->toArray()
         );
-#        $this->assertEquals(404, $r->getStatusCode());
-#        $this->assertEquals('Not Found', $r->getStatusReason());
+#        $this->assertSame(404, $r->getStatusCode());
+#        $this->assertSame('Not Found', $r->getStatusReason());
     }
 
     public function testSetGetHeader()
     {
         $r = new Response();
         $r->setHeader('Foo', 'Bar');
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
@@ -93,7 +93,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             $r->toArray()
         );
 
-#        $this->assertEquals('Bar', $r->getHeader('Foo'));
+#        $this->assertSame('Bar', $r->getHeader('Foo'));
     }
 
     public function testSetHeaders()
@@ -105,7 +105,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
                 'Bar' => 'Baz',
             )
         );
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
@@ -117,7 +117,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             $r->toArray()
         );
 
-#        $this->assertEquals(
+#        $this->assertSame(
 #            array(
 #                'Foo' => 'Bar',
 #                'Bar' => 'Baz',
@@ -131,7 +131,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     {
         $r = new Response();
         $r->setHeader('CONTENT-TYPE', 'application/json');
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: application/json',
@@ -141,7 +141,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             $r->toArray()
         );
 
-#        $this->assertEquals(
+#        $this->assertSame(
 #            array(
 #                'Content-Type' => 'application/json',
 #            ),
@@ -154,7 +154,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $r = new Response(200, 'application/json');
         $r->setHeader('Link', '<https://example.org/micropub>; rel="micropub"');
         $r->addHeader('Link', '<https://example.net/micropub>; rel="micropub"');
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: application/json',
@@ -170,7 +170,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     {
         $r = new Response(200, 'application/json');
         $r->addHeader('Link', '<https://example.net/micropub>; rel="micropub"');
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: application/json',
@@ -191,7 +191,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 #        $r->setBody('Hello World!');
 #        $r->send();
 
-#        $this->assertEquals(
+#        $this->assertSame(
 #            array(
 #                'Content-Type: text/html;charset=UTF-8',
 #                'Foo: Bar',

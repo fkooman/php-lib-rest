@@ -25,9 +25,9 @@ class BadRequestExceptionTest extends PHPUnit_Framework_TestCase
     public function testBadRequestException()
     {
         $e = new BadRequestException('foo');
-        $this->assertEquals(400, $e->getCode());
-        $this->assertEquals('foo', $e->getMessage());
-        $this->assertEquals(
+        $this->assertSame(400, $e->getCode());
+        $this->assertSame('foo', $e->getMessage());
+        $this->assertSame(
             array(
                 'HTTP/1.1 400 Bad Request',
                 'Content-Type: application/json',
@@ -37,7 +37,7 @@ class BadRequestExceptionTest extends PHPUnit_Framework_TestCase
             $e->getJsonResponse()->toArray()
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 400 Bad Request',
                 'Content-Type: text/html;charset=UTF-8',
@@ -49,9 +49,9 @@ class BadRequestExceptionTest extends PHPUnit_Framework_TestCase
         );
 
 #        $htmlResponse = $e->getHtmlResponse();
-#        $this->assertEquals(400, $htmlResponse->getStatusCode());
-#        $this->assertEquals('text/html;charset=UTF-8', $htmlResponse->getHeader('Content-Type'));
-#        $this->assertEquals(
+#        $this->assertSame(400, $htmlResponse->getStatusCode());
+#        $this->assertSame('text/html;charset=UTF-8', $htmlResponse->getHeader('Content-Type'));
+#        $this->assertSame(
 #            '<!DOCTYPE HTML><html><head><meta charset="utf-8"><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>foo</p></body></html>',
 #            $htmlResponse->getBody()
 #        );

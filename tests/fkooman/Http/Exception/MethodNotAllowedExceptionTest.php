@@ -26,7 +26,7 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
     {
         $e = new MethodNotAllowedException('DELETE', array('GET', 'POST'));
 
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 405 Method Not Allowed',
                 'Content-Type: application/json',
@@ -38,9 +38,9 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
         );
 
 #        $response = $e->getJsonResponse();
-#        $this->assertEquals(405, $response->getStatusCode());
-#        $this->assertEquals('GET,POST', $response->getHeader('Allow'));
-#        $this->assertEquals(
+#        $this->assertSame(405, $response->getStatusCode());
+#        $this->assertSame('GET,POST', $response->getHeader('Allow'));
+#        $this->assertSame(
 #            array(
 #                'error' => 'method DELETE not supported',
 #            ),
@@ -52,7 +52,7 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
     {
         $e = new MethodNotAllowedException('GET', array());
 
-        $this->assertEquals(
+        $this->assertSame(
             array(
                 'HTTP/1.1 405 Method Not Allowed',
                 'Content-Type: application/json',
@@ -63,9 +63,9 @@ class MethodNotAllowedExceptionTest extends PHPUnit_Framework_TestCase
         );
 
 #        $response = $e->getJsonResponse();
-#        $this->assertEquals(405, $response->getStatusCode());
+#        $this->assertSame(405, $response->getStatusCode());
 #        $this->assertNull($response->getHeader('Allow'));
-#        $this->assertEquals(
+#        $this->assertSame(
 #            array(
 #                'error' => 'method GET not supported',
 #            ),

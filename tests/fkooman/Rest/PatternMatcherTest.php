@@ -24,24 +24,24 @@ class PatternMatcherTest extends PHPUnit_Framework_TestCase
 {
     public function testMatches()
     {
-        $this->assertEquals(
+        $this->assertSame(
             array('id' => 'bar'),
             PatternMatcher::isMatch('/foo/bar', '/foo/:id')
         );
-        $this->assertEquals(
+        $this->assertSame(
             array('c' => 'bar', 'd' => 'baz'),
             PatternMatcher::isMatch('/foo/bar/baz/', '/foo/:c/:d/')
         );
 
         // if the parameter value does not start with _ we want to accept it
-        $this->assertEquals(
+        $this->assertSame(
             array('id' => 'bar_baz'),
             PatternMatcher::isMatch('/foo/bar_baz', '/foo/:id')
         );
 
-        $this->assertEquals(array(), PatternMatcher::isMatch(null, '*'));
-        $this->assertEquals(array(), PatternMatcher::isMatch('/foo/bar/baz', '/foo/bar/baz'));
-        $this->assertEquals(array(), PatternMatcher::isMatch('/foo/bar/', '*'));
+        $this->assertSame(array(), PatternMatcher::isMatch(null, '*'));
+        $this->assertSame(array(), PatternMatcher::isMatch('/foo/bar/baz', '/foo/bar/baz'));
+        $this->assertSame(array(), PatternMatcher::isMatch('/foo/bar/', '*'));
 
         $this->assertFalse(PatternMatcher::isMatch(null, '/foo'));
         $this->assertFalse(PatternMatcher::isMatch(null, '/'));

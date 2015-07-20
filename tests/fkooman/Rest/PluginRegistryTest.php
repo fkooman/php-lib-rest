@@ -101,7 +101,7 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
         $p = new PluginRegistry();
         $p->registerDefaultPlugin($stub);
         $response = $p->run($request, $route);
-        $this->assertEquals(array(), $response);
+        $this->assertSame(array(), $response);
     }
 
     public function testOptionalPluginNotEnabledReturnObject()
@@ -127,7 +127,7 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
         $p = new PluginRegistry();
         $p->registerOptionalPlugin($stub);
         $response = $p->run($request, $route);
-        $this->assertEquals(array(), $response);
+        $this->assertSame(array(), $response);
     }
 
     public function testOptionalPluginEnabledReturnObject()
