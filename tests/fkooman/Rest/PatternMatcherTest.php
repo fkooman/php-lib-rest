@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 namespace fkooman\Rest;
 
 use PHPUnit_Framework_TestCase;
@@ -39,6 +38,18 @@ class PatternMatcherTest extends PHPUnit_Framework_TestCase
             PatternMatcher::isMatch('/foo/bar_baz', '/foo/:id')
         );
 
+        // triggered bug where the length of a match is of length 1, does not
+        // occur when length is >1
+        $this->assertSame(
+            array('one' => 'a'),
+            PatternMatcher::isMatch('/a', '/:one')
+        );
+
+        $this->assertSame(
+            array('one' => 'a_'),
+            PatternMatcher::isMatch('/a_', '/:one')
+        );
+
         $this->assertSame(array(), PatternMatcher::isMatch(null, '*'));
         $this->assertSame(array(), PatternMatcher::isMatch('/foo/bar/baz', '/foo/bar/baz'));
         $this->assertSame(array(), PatternMatcher::isMatch('/foo/bar/', '*'));
@@ -50,6 +61,8 @@ class PatternMatcherTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(PatternMatcher::isMatch('/foo/', '/foo'));
         $this->assertFalse(PatternMatcher::isMatch('/foo/bar/baz', '/foo/:id'));
         $this->assertFalse(PatternMatcher::isMatch('/foo/bar/', '/foo/:id'));
+        $this->assertFalse(PatternMatcher::isMatch('/foo/_', '/foo/:id'));
+        $this->assertFalse(PatternMatcher::isMatch('/foo/_a', '/foo/:id'));
 
         // if the value for a parameter match *starts* with an underscore we
         // treat it as special and do not accept it as a valid match

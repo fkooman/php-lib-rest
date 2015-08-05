@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 namespace fkooman\Rest;
 
 use LogicException;
@@ -69,8 +68,8 @@ class PatternMatcher
             return false;
         }
 
-        // replace all occurences of :var with (?P<var>([^_][^/]+))
-        $pattern = preg_replace('/:([\w]+)/i', '(?P<${1}>([^_][^/]+))', $pattern);
+        // replace all occurences of :var with (?P<var>([^_][^/]*))
+        $pattern = preg_replace('/:([\w]+)/i', '(?P<${1}>([^_][^/]*))', $pattern);
         if (null === $pattern) {
             throw new LogicException('regular expression for parameter replacement failed');
         }
