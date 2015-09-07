@@ -1,5 +1,8 @@
 # Release History
 
+## 1.0.4 (2015-09-07)
+- fix unit tests running on CentOS 6
+
 ## 1.0.3 (2015-09-07)
 - move HTTP classes to `fkooman/http` and depend on it
 

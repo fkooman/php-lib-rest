@@ -166,10 +166,14 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     public function testPluginInterfaceCallbackMatch()
     {
         $stubFoo = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('StubFoo')->getMock();
-        $stubFoo->method('execute')->willReturn('foo');
+        $stubFoo->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue('foo'));
 
         $stubPlugin = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('StubPlugin')->getMock();
-        $stubPlugin->method('execute')->willReturn($stubFoo);
+        $stubPlugin->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue($stubFoo));
 
         $service = new Service();
         $service->getPluginRegistry()->registerDefaultPlugin($stubPlugin);

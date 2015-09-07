@@ -27,7 +27,9 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
     public function testDefaultPluginNotDisabledReturnResponse()
     {
         $stub = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('Stub')->getMock();
-        $stub->method('execute')->willReturn(new Response());
+        $stub->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue(new Response()));
 
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
@@ -53,7 +55,9 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
     public function testDefaultPluginNotDisabledReturnObject()
     {
         $stub = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('Stub')->getMock();
-        $stub->method('execute')->willReturn((object) array('foo' => 'bar'));
+        $stub->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue((object) array('foo' => 'bar')));
 
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
@@ -79,7 +83,9 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
     public function testDefaultPluginDisabledReturnObject()
     {
         $stub = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('Stub')->getMock();
-        $stub->method('execute')->willReturn((object) array('foo' => 'bar'));
+        $stub->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue((object) array('foo' => 'bar')));
 
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
@@ -106,7 +112,9 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
     public function testOptionalPluginNotEnabledReturnObject()
     {
         $stub = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('Stub')->getMock();
-        $stub->method('execute')->willReturn((object) array('foo' => 'bar'));
+        $stub->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue((object) array('foo' => 'bar')));
 
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
@@ -132,7 +140,9 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
     public function testOptionalPluginEnabledReturnObject()
     {
         $stub = $this->getMockBuilder('fkooman\Rest\ServicePluginInterface')->setMockClassName('Stub')->getMock();
-        $stub->method('execute')->willReturn((object) array('foo' => 'bar'));
+        $stub->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue((object) array('foo' => 'bar')));
 
         $srv = array(
             'SERVER_NAME' => 'www.example.org',
