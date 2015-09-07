@@ -7,7 +7,7 @@ Library written in PHP to make it easy to develop web and REST applications.
 # Features
 The library has the following features:
 * Wrapper HTTP `Request` and `Response` class to make it very easy to test your
-  applications
+  applications (from `fkooman/http`)
 * RESTful router support
 * Various plugins available for authentication
 
