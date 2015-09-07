@@ -8,7 +8,6 @@
     ],
     "autoload": {
         "psr-0": {
-            "fkooman\\Http\\": "src/",
             "fkooman\\Rest\\": "src/"
         }
     },
@@ -16,12 +15,11 @@
     "license": "Apache-2.0",
     "name": "fkooman/rest",
     "require": {
-        "ext-mbstring": "*",
         "ext-pcre": "*",
-        "ext-session": "*",
         "ext-spl": "*",
+        "fkooman/http": "^1.0.0",
         "fkooman/json": "^1.0.0",
-        "php": ">=5.3.3"
+        "php": ">=5.3.0"
     },
     "suggest": {
         "fkooman/rest-plugin-authentication": "Authentication plugin"

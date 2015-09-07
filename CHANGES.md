@@ -1,5 +1,8 @@
 # Release History
 
+## 1.0.3 (2015-09-07)
+- move HTTP classes to `fkooman/http` and depend on it
+
 ## 1.0.2 (2015-08-05)
 - FIX: a small issue in regular expression matcher where it would not catch
   single length parameters
