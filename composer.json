@@ -17,7 +17,7 @@
     "require": {
         "ext-pcre": "*",
         "ext-spl": "*",
-        "fkooman/http": "^1.0.0",
+        "fkooman/http": "^1.1.0",
         "php": ">=5.3.0"
     },
     "suggest": {

@@ -1,5 +1,8 @@
 # Release History
 
+## 1.0.5 (2015-10-07)
+- update `fkooman/http` to set `Content-Length` on responses
+
 ## 1.0.4 (2015-09-07)
 - fix unit tests running on CentOS 6
 

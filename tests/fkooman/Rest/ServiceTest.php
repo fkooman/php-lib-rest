@@ -50,6 +50,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
+                'Content-Length: 3',
                 '',
                 'foo',
             ),
@@ -86,6 +87,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
+                'Content-Length: 7',
                 '',
                 'deleted',
             ),
@@ -118,6 +120,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             array(
                 'HTTP/1.1 405 Method Not Allowed',
                 'Content-Type: application/json',
+                'Content-Length: 39',
                 'Allow: GET,HEAD',
                 '',
                 '{"error":"method DELETE not supported"}',
@@ -151,6 +154,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             array(
                 'HTTP/1.1 404 Not Found',
                 'Content-Type: application/json',
+                'Content-Length: 64',
                 '',
                 '{"error":"url not found","error_description":"\/index.php\/foo"}',
             ),
@@ -200,6 +204,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
+                'Content-Length: 3',
                 '',
                 'foo',
             ),
@@ -230,6 +235,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             array(
                 'HTTP/1.1 200 OK',
                 'Content-Type: text/html;charset=UTF-8',
+                'Content-Length: 3',
                 '',
                 'foo',
             ),
