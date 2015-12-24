@@ -1,5 +1,11 @@
 # Release History
 
+## 1.0.6 (2015-12-25)
+- remove `ErrorException` handling for exceptions not from `fkooman/http`, 
+  they are unexpected exceptions. Use e.g. something like `filp/whoops` for
+  catching these kind of errors. Our implementation was bad in that it did not 
+  catch all errors anyway.
+
 ## 1.0.5 (2015-10-07)
 - update `fkooman/http` to set `Content-Length` on responses
 
