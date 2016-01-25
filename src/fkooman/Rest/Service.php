@@ -86,6 +86,19 @@ class Service
         $this->routes[] = new Route($methods, $pattern, $callback, $routeOptions);
     }
 
+    /**
+     * Register a module.
+     * 
+     * Modules can, like plugins, register routes, but are meant to modularize
+     * services.
+     *
+     * @param ServiceInterface $module the module to add
+     */
+    public function addModule(ServiceModuleInterface $module)
+    {
+        $module->init($this);
+    }
+
     public function run(Request $request = null)
     {
         // initialize the plugins

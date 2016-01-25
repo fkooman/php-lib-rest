@@ -1,5 +1,8 @@
 # Release History
 
+## 1.1.0 (2016-01-25)
+- implement `Service::addModule` to aid in compartmentalizing services.
+
 ## 1.0.6 (2015-12-25)
 - remove `ErrorException` handling for exceptions not from `fkooman/http`, 
   they are unexpected exceptions. Use e.g. something like `filp/whoops` for
