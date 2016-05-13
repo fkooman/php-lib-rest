@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 namespace fkooman\Rest;
 
 use fkooman\Http\Exception\MethodNotAllowedException;
 use fkooman\Http\Exception\NotFoundException;
 use fkooman\Http\Exception\HttpException;
 use fkooman\Http\Request;
-use fkooman\Rest\Plugin\ReferrerCheck\ReferrerCheckPlugin;
+use fkooman\Rest\Plugin\OriginCheck\OriginCheckPlugin;
 use fkooman\Http\Response;
 use RuntimeException;
 
@@ -38,8 +39,8 @@ class Service
         $this->routes = array();
         $this->pluginRegistry = new PluginRegistry();
 
-        // enable ReferrerCheck by default
-        $this->pluginRegistry->registerDefaultPlugin(new ReferrerCheckPlugin());
+        // enable OriginCheckPlugin by default
+        $this->pluginRegistry->registerDefaultPlugin(new OriginCheckPlugin());
     }
 
     public function getPluginRegistry()

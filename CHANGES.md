@@ -1,5 +1,8 @@
 # Release History
 
+## 1.2.0 (...)
+- add `OriginCheckPlugin` to replace `ReferrerCheckPlugin`
+
 ## 1.1.0 (2016-01-25)
 - implement `Service::addModule` to aid in compartmentalizing services.
 
