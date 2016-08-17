@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 namespace fkooman\Rest;
 
 use fkooman\Http\Exception\MethodNotAllowedException;
@@ -89,7 +88,7 @@ class Service
 
     /**
      * Register a module.
-     * 
+     *
      * Modules can, like plugins, register routes, but are meant to modularize
      * services.
      *
