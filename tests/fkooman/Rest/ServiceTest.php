@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 namespace fkooman\Rest;
 
-require_once __DIR__.'/TestPlugin.php';
+require_once __DIR__.'/Test/TestRequest.php';
+require_once __DIR__.'/Test/TestPlugin.php';
 
+use fkooman\Rest\Test\TestRequest;
 use PHPUnit_Framework_TestCase;
 use fkooman\Http\Request;
 use fkooman\Rest\Plugin\TestPlugin;
@@ -28,17 +29,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 {
     public function testSimple()
     {
-        $r = new Request(
-            array(
-                'SERVER_NAME' => 'www.example.org',
-                'SERVER_PORT' => 80,
-                'QUERY_STRING' => '',
-                'REQUEST_URI' => '/index.php/',
-                'SCRIPT_NAME' => '/index.php',
+        $r = TestRequest::get(
+            'http://www.example.org/index.php/',
+            [
                 'PATH_INFO' => '/',
-                'REQUEST_METHOD' => 'GET',
-            )
+            ]
         );
+
         $s = new Service();
         $s->get(
             '/',
@@ -61,19 +58,14 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
     public function testDeleteOverride()
     {
-        $r = new Request(
-            array(
-                'SERVER_NAME' => 'www.example.org',
-                'SERVER_PORT' => 80,
-                'QUERY_STRING' => '',
-                'REQUEST_URI' => '/index.php/foo',
-                'SCRIPT_NAME' => '/index.php',
+        $r = TestRequest::post(
+            'http://www.example.org/index.php/foo',
+            [
                 'PATH_INFO' => '/foo',
-                'REQUEST_METHOD' => 'POST',
-            ),
-            array(
+            ],
+            [
                 '_METHOD' => 'DELETE',
-            )
+            ]
         );
 
         $s = new Service();
@@ -98,17 +90,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
     public function testMethodNotAllowed()
     {
-        $r = new Request(
-            array(
-                'SERVER_NAME' => 'www.example.org',
-                'SERVER_PORT' => 80,
-                'QUERY_STRING' => '',
-                'REQUEST_URI' => '/index.php/foo',
-                'SCRIPT_NAME' => '/index.php',
+        $r = TestRequest::delete(
+            'http://www.example.org/index.php/foo',
+            [
                 'PATH_INFO' => '/foo',
-                'REQUEST_METHOD' => 'DELETE',
-            )
+            ]
         );
+
         $s = new Service();
         $s->get(
             '/',
@@ -132,17 +120,13 @@ class ServiceTest extends PHPUnit_Framework_TestCase
 
     public function testNotFound()
     {
-        $r = new Request(
-            array(
-                'SERVER_NAME' => 'www.example.org',
-                'SERVER_PORT' => 80,
-                'QUERY_STRING' => '',
-                'REQUEST_URI' => '/index.php/foo',
-                'SCRIPT_NAME' => '/index.php',
+        $r = TestRequest::get(
+            'http://www.example.org/index.php/foo',
+            [
                 'PATH_INFO' => '/foo',
-                'REQUEST_METHOD' => 'GET',
-            )
+            ]
         );
+
         $s = new Service();
         $s->get(
             '/',
@@ -190,17 +174,11 @@ class ServiceTest extends PHPUnit_Framework_TestCase
             }
         );
 
-        $request = new Request(
-            array(
-                'SERVER_NAME' => 'www.example.org',
-                'SERVER_PORT' => 80,
-                'QUERY_STRING' => '',
-                'REQUEST_URI' => '/',
-                'REQUEST_METHOD' => 'GET',
-            )
+        $r = TestRequest::get(
+            'http://www.example.org/'
         );
 
-        $response = $service->run($request);
+        $response = $service->run($r);
         $this->assertSame(
             array(
                 'HTTP/1.1 200 OK',
@@ -218,16 +196,11 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     {
         $testPlugin = new TestPlugin();
 
-        $request = new Request(
-            array(
-                'SERVER_NAME' => 'www.example.org',
-                'SERVER_PORT' => 80,
-                'QUERY_STRING' => '',
-                'REQUEST_URI' => '/index.php/foo',
-                'SCRIPT_NAME' => '/index.php',
+        $r = TestRequest::get(
+            'http://www.example.org/index.php/foo',
+            [
                 'PATH_INFO' => '/foo',
-                'REQUEST_METHOD' => 'GET',
-            )
+            ]
         );
 
         $service = new Service();
@@ -240,7 +213,7 @@ class ServiceTest extends PHPUnit_Framework_TestCase
                 '',
                 'foo',
             ),
-            $service->run($request)->toArray()
+            $service->run($r)->toArray()
         );
     }
 }

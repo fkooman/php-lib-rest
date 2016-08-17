@@ -15,29 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 namespace fkooman\Rest;
 
 require_once __DIR__.'/Test/TestModule.php';
+require_once __DIR__.'/Test/TestRequest.php';
 
+use fkooman\Rest\Test\TestRequest;
 use PHPUnit_Framework_TestCase;
-use fkooman\Http\Request;
 use fkooman\Rest\Test\TestModule;
 
 class ServiceModuleTest extends PHPUnit_Framework_TestCase
 {
     public function testFoo()
     {
-        $request = new Request(
-            array(
-                'SERVER_NAME' => 'www.example.org',
-                'SERVER_PORT' => 80,
-                'QUERY_STRING' => '',
-                'REQUEST_URI' => '/foo',
-                'SCRIPT_NAME' => '/index.php',
+        $request = TestRequest::get(
+            'http://www.example.org/foo',
+            [
                 'PATH_INFO' => '/foo',
-                'REQUEST_METHOD' => 'GET',
-            )
+            ]
         );
         $service = new Service();
         $service->addModule(new TestModule('foo'));
@@ -58,16 +53,11 @@ class ServiceModuleTest extends PHPUnit_Framework_TestCase
 
     public function testBar()
     {
-        $request = new Request(
-            array(
-                'SERVER_NAME' => 'www.example.org',
-                'SERVER_PORT' => 80,
-                'QUERY_STRING' => '',
-                'REQUEST_URI' => '/bar',
-                'SCRIPT_NAME' => '/index.php',
+        $request = TestRequest::get(
+            'http://www.example.org/bar',
+            [
                 'PATH_INFO' => '/bar',
-                'REQUEST_METHOD' => 'GET',
-            )
+            ]
         );
         $service = new Service();
         $service->addModule(new TestModule('foo'));

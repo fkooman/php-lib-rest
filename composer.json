@@ -17,8 +17,8 @@
     "require": {
         "ext-pcre": "*",
         "ext-spl": "*",
-        "fkooman/http": "^1.1.0",
-        "php": ">=5.3.0"
+        "fkooman/http": "dev-master",
+        "php": ">=5.4"
     },
     "suggest": {
         "fkooman/rest-plugin-authentication": "Authentication plugin"
