@@ -18,21 +18,25 @@
 namespace fkooman\Rest;
 
 require_once __DIR__.'/Test/TestModule.php';
-require_once __DIR__.'/Test/TestRequest.php';
 
-use fkooman\Rest\Test\TestRequest;
 use PHPUnit_Framework_TestCase;
+use fkooman\Http\Request;
 use fkooman\Rest\Test\TestModule;
 
 class ServiceModuleTest extends PHPUnit_Framework_TestCase
 {
     public function testFoo()
     {
-        $request = TestRequest::get(
-            'http://www.example.org/foo',
-            [
+        $request = new Request(
+            array(
+                'SERVER_NAME' => 'www.example.org',
+                'SERVER_PORT' => 80,
+                'QUERY_STRING' => '',
+                'REQUEST_URI' => '/foo',
+                'SCRIPT_NAME' => '/index.php',
                 'PATH_INFO' => '/foo',
-            ]
+                'REQUEST_METHOD' => 'GET',
+            )
         );
         $service = new Service();
         $service->addModule(new TestModule('foo'));
@@ -53,11 +57,16 @@ class ServiceModuleTest extends PHPUnit_Framework_TestCase
 
     public function testBar()
     {
-        $request = TestRequest::get(
-            'http://www.example.org/bar',
-            [
+        $request = new Request(
+            array(
+                'SERVER_NAME' => 'www.example.org',
+                'SERVER_PORT' => 80,
+                'QUERY_STRING' => '',
+                'REQUEST_URI' => '/bar',
+                'SCRIPT_NAME' => '/index.php',
                 'PATH_INFO' => '/bar',
-            ]
+                'REQUEST_METHOD' => 'GET',
+            )
         );
         $service = new Service();
         $service->addModule(new TestModule('foo'));

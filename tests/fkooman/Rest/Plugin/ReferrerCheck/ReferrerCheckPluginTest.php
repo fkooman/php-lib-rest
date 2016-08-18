@@ -17,36 +17,40 @@
  */
 namespace fkooman\Rest\Plugin\ReferrerCheck;
 
-require_once dirname(dirname(__DIR__)).'/Test/TestRequest.php';
-
-use fkooman\Rest\Test\TestRequest;
+use fkooman\Http\Request;
 use PHPUnit_Framework_TestCase;
 
 class ReferrerCheckPluginTest extends PHPUnit_Framework_TestCase
 {
     public function testGoodPost()
     {
-        $request = TestRequest::post(
-            'http://www.example.org/bar/index.php?foo=bar',
-            [
-                'HTTP_REFERER' => 'http://www.example.org/bar/index.php/',
-                'HTTP_ACCEPT' => 'text/html',
-            ]
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => 'foo=bar',
+            'REQUEST_URI' => '/bar/index.php?foo=bar',
+            'SCRIPT_NAME' => '/bar/index.php',
+            'REQUEST_METHOD' => 'POST',
+            'HTTP_REFERER' => 'http://www.example.org/bar/index.php/',
+            'HTTP_ACCEPT' => 'text/html',
         );
-
+        $request = new Request($srv);
         $rcp = new ReferrerCheckPlugin();
         $this->assertNull($rcp->execute($request, array()));
     }
 
     public function testGet()
     {
-        $request = TestRequest::get(
-            'http://www.example.org/bar/index.php?foo=bar',
-            [
-                'HTTP_ACCEPT' => 'text/html',
-            ]
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => 'foo=bar',
+            'REQUEST_URI' => '/bar/index.php?foo=bar',
+            'SCRIPT_NAME' => '/bar/index.php',
+            'REQUEST_METHOD' => 'GET',
+            'HTTP_ACCEPT' => 'text/html',
         );
-
+        $request = new Request($srv);
         $rcp = new ReferrerCheckPlugin();
         $this->assertNull($rcp->execute($request, array()));
     }
@@ -57,13 +61,16 @@ class ReferrerCheckPluginTest extends PHPUnit_Framework_TestCase
      */
     public function testCheckPostNoReferrer()
     {
-        $request = TestRequest::post(
-            'http://www.example.org/bar/index.php?foo=bar',
-            [
-                'HTTP_ACCEPT' => 'text/html',
-            ]
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => 'foo=bar',
+            'REQUEST_URI' => '/bar/index.php?foo=bar',
+            'SCRIPT_NAME' => '/bar/index.php',
+            'REQUEST_METHOD' => 'POST',
+            'HTTP_ACCEPT' => 'text/html',
         );
-
+        $request = new Request($srv);
         $rcp = new ReferrerCheckPlugin();
         $rcp->execute($request, array());
     }
@@ -74,14 +81,17 @@ class ReferrerCheckPluginTest extends PHPUnit_Framework_TestCase
      */
     public function testCheckPostWrongReferrer()
     {
-        $request = TestRequest::post(
-            'http://www.example.org/bar/index.php?foo=bar',
-            [
-                'HTTP_REFERER' => 'http://www.attacker.org/foo',
-                'HTTP_ACCEPT' => 'text/html',
-            ]
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => 'foo=bar',
+            'REQUEST_URI' => '/bar/index.php?foo=bar',
+            'SCRIPT_NAME' => '/bar/index.php',
+            'REQUEST_METHOD' => 'POST',
+            'HTTP_REFERER' => 'http://www.attacker.org/foo',
+            'HTTP_ACCEPT' => 'text/html',
         );
-
+        $request = new Request($srv);
         $rcp = new ReferrerCheckPlugin();
         $rcp->execute($request, array());
     }

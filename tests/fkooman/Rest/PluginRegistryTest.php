@@ -17,10 +17,8 @@
  */
 namespace fkooman\Rest;
 
-require_once __DIR__.'/Test/TestRequest.php';
-
-use fkooman\Rest\Test\TestRequest;
 use StdClass;
+use fkooman\Http\Request;
 use fkooman\Http\Response;
 use PHPUnit_Framework_TestCase;
 
@@ -33,9 +31,15 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
              ->method('execute')
              ->will($this->returnValue(new Response()));
 
-        $request = TestRequest::get(
-            'http://www.example.org/'
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => '',
+            'REQUEST_URI' => '/',
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_METHOD' => 'GET',
         );
+        $request = new Request($srv);
         $route = new Route(
             array('GET'),
             '/',
@@ -55,9 +59,15 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
              ->method('execute')
              ->will($this->returnValue((object) array('foo' => 'bar')));
 
-        $request = TestRequest::get(
-            'http://www.example.org/'
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => '',
+            'REQUEST_URI' => '/',
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_METHOD' => 'GET',
         );
+        $request = new Request($srv);
         $route = new Route(
             array('GET'),
             '/',
@@ -77,9 +87,15 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
              ->method('execute')
              ->will($this->returnValue((object) array('foo' => 'bar')));
 
-        $request = TestRequest::get(
-            'http://www.example.org/'
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => '',
+            'REQUEST_URI' => '/',
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_METHOD' => 'GET',
         );
+        $request = new Request($srv);
         $route = new Route(
             array('GET'),
             '/',
@@ -100,9 +116,15 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
              ->method('execute')
              ->will($this->returnValue((object) array('foo' => 'bar')));
 
-        $request = TestRequest::get(
-            'http://www.example.org/'
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => '',
+            'REQUEST_URI' => '/',
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_METHOD' => 'GET',
         );
+        $request = new Request($srv);
         $route = new Route(
             array('GET'),
             '/',
@@ -122,9 +144,15 @@ class PluginRegistryTest extends PHPUnit_Framework_TestCase
              ->method('execute')
              ->will($this->returnValue((object) array('foo' => 'bar')));
 
-        $request = TestRequest::get(
-            'http://www.example.org/'
+        $srv = array(
+            'SERVER_NAME' => 'www.example.org',
+            'SERVER_PORT' => 80,
+            'QUERY_STRING' => '',
+            'REQUEST_URI' => '/',
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_METHOD' => 'GET',
         );
+        $request = new Request($srv);
         $route = new Route(
             array('GET'),
             '/',

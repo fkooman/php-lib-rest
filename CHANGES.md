@@ -1,8 +1,5 @@
 # Release History
 
-## 1.2.0 (...)
-- update tests to deal with `fkooman/http` >= 2.0
-
 ## 1.1.0 (2016-01-25)
 - implement `Service::addModule` to aid in compartmentalizing services.
 
