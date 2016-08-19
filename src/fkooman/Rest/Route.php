@@ -36,11 +36,11 @@ class Route
     /** @var array */
     private $config;
 
-    public function __construct(array $methods, $pattern, $callback, array $config = array())
+    public function __construct(array $methods, $pattern, $callback, array $config = [])
     {
         $this->methods = $methods;
 
-        if (!is_string($pattern) || 0 >= strlen($pattern)) {
+        if (!is_string($pattern) || 0 >= mb_strlen($pattern)) {
             throw new InvalidArgumentException('pattern must be non-empty string');
         }
         $this->pattern = $pattern;
@@ -68,7 +68,7 @@ class Route
             return $this->config[$pluginName];
         }
 
-        return array();
+        return [];
     }
 
     public function getMethods()
@@ -78,7 +78,7 @@ class Route
 
     public function executeCallback(array $availableParameters)
     {
-        $callbackParameters = array();
+        $callbackParameters = [];
         $reflectionFunction = new ReflectionFunction($this->callback);
         foreach ($reflectionFunction->getParameters() as $parameter) {
             $callbackParameters[] = $this->findAvailableParameterValue(

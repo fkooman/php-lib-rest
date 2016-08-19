@@ -15,9 +15,10 @@
     "license": "Apache-2.0",
     "name": "fkooman/rest",
     "require": {
+        "ext-mbstring": "*",
         "ext-pcre": "*",
         "ext-spl": "*",
-        "fkooman/http": "^1.1.0",
+        "fkooman/http": "^2.0",
         "php": ">=5.4"
     },
     "suggest": {

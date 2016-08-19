@@ -16,8 +16,8 @@ class PluginRegistry
 
     public function __construct()
     {
-        $this->defaultPlugins = array();
-        $this->optionalPlugins = array();
+        $this->defaultPlugins = [];
+        $this->optionalPlugins = [];
     }
 
     public function init(Service $service)
@@ -47,7 +47,7 @@ class PluginRegistry
     public function run(Request $request, Route $route)
     {
         // figure out which plugins to run
-        $runPlugins = array();
+        $runPlugins = [];
         foreach ($this->defaultPlugins as $plugin) {
             $routeConfig = $route->getConfig(get_class($plugin));
             if (self::isEnabled($routeConfig, true)) {
@@ -63,7 +63,7 @@ class PluginRegistry
 
         // run all plugins we need to run and keep all the objects they
         // return...
-        $availableRouteCallbackParameters = array();
+        $availableRouteCallbackParameters = [];
         foreach ($runPlugins as $plugin) {
             $routeConfig = $route->getConfig(get_class($plugin));
             $response = $plugin->execute($request, $routeConfig);

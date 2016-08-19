@@ -1,5 +1,9 @@
 # Release History
 
+## 1.2.0 (2016-08-19)
+- update `fkooman/http` to 2.0
+- no longer use `FormResponse` internally
+
 ## 1.1.0 (2016-01-25)
 - implement `Service::addModule` to aid in compartmentalizing services.
 

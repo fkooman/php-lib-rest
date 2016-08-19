@@ -35,7 +35,7 @@ class Service
 
     public function __construct()
     {
-        $this->routes = array();
+        $this->routes = [];
         $this->pluginRegistry = new PluginRegistry();
 
         // enable ReferrerCheck by default
@@ -47,29 +47,29 @@ class Service
         return $this->pluginRegistry;
     }
 
-    public function get($requestPattern, $callback, array $routeOptions = array())
+    public function get($requestPattern, $callback, array $routeOptions = [])
     {
-        $this->addRoute(array('GET', 'HEAD'), $requestPattern, $callback, $routeOptions);
+        $this->addRoute(['GET', 'HEAD'], $requestPattern, $callback, $routeOptions);
     }
 
-    public function put($requestPattern, $callback, array $routeOptions = array())
+    public function put($requestPattern, $callback, array $routeOptions = [])
     {
-        $this->addRoute(array('PUT'), $requestPattern, $callback, $routeOptions);
+        $this->addRoute(['PUT'], $requestPattern, $callback, $routeOptions);
     }
 
-    public function post($requestPattern, $callback, array $routeOptions = array())
+    public function post($requestPattern, $callback, array $routeOptions = [])
     {
-        $this->addRoute(array('POST'), $requestPattern, $callback, $routeOptions);
+        $this->addRoute(['POST'], $requestPattern, $callback, $routeOptions);
     }
 
-    public function delete($requestPattern, $callback, array $routeOptions = array())
+    public function delete($requestPattern, $callback, array $routeOptions = [])
     {
-        $this->addRoute(array('DELETE'), $requestPattern, $callback, $routeOptions);
+        $this->addRoute(['DELETE'], $requestPattern, $callback, $routeOptions);
     }
 
-    public function options($requestPattern, $callback, array $routeOptions = array())
+    public function options($requestPattern, $callback, array $routeOptions = [])
     {
-        $this->addRoute(array('OPTIONS'), $requestPattern, $callback, $routeOptions);
+        $this->addRoute(['OPTIONS'], $requestPattern, $callback, $routeOptions);
     }
 
     /**
@@ -81,7 +81,7 @@ class Service
      *                               matches
      * @param array    $routeOptions the options for this route
      */
-    public function addRoute(array $methods, $pattern, $callback, array $routeOptions = array())
+    public function addRoute(array $methods, $pattern, $callback, array $routeOptions = [])
     {
         $this->routes[] = new Route($methods, $pattern, $callback, $routeOptions);
     }
@@ -110,11 +110,8 @@ class Service
         try {
             return $this->runService($request);
         } catch (HttpException $e) {
-            if (false !== strpos($request->getHeader('Accept'), 'text/html')) {
+            if (false !== mb_strpos($request->getHeader('Accept'), 'text/html')) {
                 return $e->getHtmlResponse();
-            }
-            if (false !== strpos($request->getHeader('Accept'), 'application/x-www-form-urlencoded')) {
-                return $e->getFormResponse();
             }
 
             return $e->getJsonResponse();
@@ -138,7 +135,7 @@ class Service
         }
 
         // figure out all supported methods by all routes
-        $supportedMethods = array();
+        $supportedMethods = [];
         foreach ($this->routes as $route) {
             $routeMethods = $route->getMethods();
             foreach ($routeMethods as $method) {
@@ -150,7 +147,7 @@ class Service
 
         // requested method supported, document is just not available
         if (in_array($request->getMethod(), $supportedMethods)) {
-            throw new NotFoundException('url not found', $request->getUrl()->getRoot().substr($request->getUrl()->getPathInfo(), 1));
+            throw new NotFoundException('url not found', $request->getUrl()->getRoot().mb_substr($request->getUrl()->getPathInfo(), 1));
         }
 
         // requested method net supported...

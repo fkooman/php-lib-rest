@@ -31,13 +31,13 @@ class ReferrerCheckPlugin implements ServicePluginInterface
     public function execute(Request $request, array $routeConfig)
     {
         // only relevant if the request comes from a browser
-        if (false === strpos($request->getHeader('Accept'), 'text/html')) {
+        if (false === mb_strpos($request->getHeader('Accept'), 'text/html')) {
             return;
         }
 
         // these methods do not require CSRF protection as they are not
         // supposed to have side effects on the server
-        $safeMethods = array('GET', 'HEAD', 'OPTIONS');
+        $safeMethods = ['GET', 'HEAD', 'OPTIONS'];
 
         if (!in_array($request->getMethod(), $safeMethods)) {
             $referrer = $request->getHeader('HTTP_REFERER');
@@ -46,7 +46,7 @@ class ReferrerCheckPlugin implements ServicePluginInterface
             if (null === $referrer) {
                 throw new BadRequestException('HTTP_REFERER header missing');
             }
-            if (0 !== strpos($referrer, $rootUrl)) {
+            if (0 !== mb_strpos($referrer, $rootUrl)) {
                 throw new BadRequestException('HTTP_REFERER has unexpected value');
             }
         }

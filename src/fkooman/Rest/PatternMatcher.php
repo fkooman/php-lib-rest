@@ -44,26 +44,26 @@ class PatternMatcher
     public static function isMatch($path, $pattern)
     {
         // validate path
-        if (null !== $path && (!is_string($path) || 0 >= strlen($path) || 0 !== strpos($path, '/'))) {
+        if (null !== $path && (!is_string($path) || 0 >= mb_strlen($path) || 0 !== mb_strpos($path, '/'))) {
             throw new InvalidArgumentException('invalid path');
         }
 
         // validate pattern
-        if (!is_string($pattern) || 0 >= strlen($pattern) || (0 !== strpos($pattern, '/') && '*' !== $pattern)) {
+        if (!is_string($pattern) || 0 >= mb_strlen($pattern) || (0 !== mb_strpos($pattern, '/') && '*' !== $pattern)) {
             throw new InvalidArgumentException('invalid pattern');
         }
 
         // wildcard match, every path allowed
         if ('*' === $pattern) {
-            return array();
+            return [];
         }
 
         // exact match
         if ($path === $pattern) {
-            return array();
+            return [];
         }
 
-        if (false === strpos($pattern, ':')) {
+        if (false === mb_strpos($pattern, ':')) {
             // no variables defined in pattern, so it is always false...
             return false;
         }
@@ -93,7 +93,7 @@ class PatternMatcher
             return false;
         }
 
-        $patternParameters = array();
+        $patternParameters = [];
         if (null !== $parameters) {
             foreach ($parameters as $k => $v) {
                 // find the name of the parameter in the callback and set it to
