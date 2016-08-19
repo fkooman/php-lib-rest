@@ -1,6 +1,6 @@
 # Release History
 
-## 1.2.0 (2016-08-19)
+## 2.0.0 (2016-08-19)
 - update `fkooman/http` to 2.0
 - no longer use `FormResponse` internally
 
