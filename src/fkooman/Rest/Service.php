@@ -88,7 +88,7 @@ class Service
 
     /**
      * Register a module.
-     * 
+     *
      * Modules can, like plugins, register routes, but are meant to modularize
      * services.
      *
